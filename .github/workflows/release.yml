@@ -117,11 +117,6 @@ jobs:
             asset_name: smt-x86_64-freebsd
             os: ubuntu-latest
             target: x86_64-unknown-freebsd
-          # FreeBSD ARM64
-          - artifact_name: smt
-            asset_name: smt-aarch64-freebsd
-            os: ubuntu-latest
-            target: aarch64-unknown-freebsd
   create-release:
     if: startsWith(github.ref, 'refs/tags/')
     name: Create GitHub Release
