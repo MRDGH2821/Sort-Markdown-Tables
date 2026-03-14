@@ -1,6 +1,6 @@
 [package]
 name = "smt"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 description = "Sort markdown tables opted-in via HTML comments"
 readme = "README.md"
