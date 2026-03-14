@@ -2,7 +2,7 @@
 
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/refs/heads/master/img/badge/black-badge.json)](https://github.com/copier-org/copier)
 
-A fast, zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-in via `<!-- smt -->` HTML comments.
+A zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-in via `<!-- smt -->` HTML comments.
 
 ## Features
 
@@ -12,15 +12,13 @@ A fast, zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-
 - **Glob support** — Process multiple files with patterns like `docs/**/*.md`
 - **Check mode** — Validate if files are sorted without modifying them
 - **In-place editing** — Modify files directly or output to stdout
-- **Fast** — Startup <1ms, processes 100+ tables in <1ms
-- **Small binary** — 1.2MB (release build, fully optimized)
 
 ## Installation
 
 ### From source (requires Rust 1.70+)
 
 ```bash
-cargo install --path .
+cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
 ```
 
 Or download a pre-built binary from [releases](https://github.com/MRDGH2821/Sort-Markdown-Tables/releases).
@@ -180,55 +178,10 @@ If any error occurs in phases 1-2, no files are modified.
 
 Zero external dependencies beyond those used.
 
-## Testing
+## Licence
 
-The project includes comprehensive testing:
-
-- **106 unit tests** — All modules (error, cli, parser, sorter, writer)
-- **9 integration tests** — Main pipeline and orchestration
-- **20 integration tests** — End-to-end with fixtures
-
-All 135 tests pass on debug and release builds.
-
-Run tests:
-
-```bash
-cargo test              # Run all tests
-cargo test --release   # Run in release mode
-cargo test -- --nocapture  # Show output
-```
-
-## Performance
-
-- **Startup time** — <1ms (measured with `time smt --help`)
-- **Processing** — 100+ tables in <1ms
-- **Binary size** — 1.2MB (fully optimized release build)
-- **Memory** — No unbounded allocations; streaming parsing
-
-## Contributing
-
-See [ARCHITECTURE.md](.ai/ARCHITECTURE.md) for module structure and [PLAN.md](.ai/PLAN.md) for full requirements.
-
-### Development
-
-```bash
-# Format code
-cargo fmt
-
-# Run linter
-cargo clippy --all-targets
-
-# Run all tests
-cargo test
-
-# Build release binary
-cargo build --release
-```
-
-## License
-
-See LICENSE file.
+See [LICENCE file](LICENCE.txt).
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history, generated automatically using [cocogitto](https://github.com/cocogitto/cocogitto).
+See [CHANGELOG.md](CHANGELOG.md).
