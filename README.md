@@ -180,7 +180,7 @@ Zero external dependencies beyond those used.
 
 ## Licence
 
-See [LICENCE file](LICENCE.txt).
+See [LICENCE.txt](LICENCE.txt).
 
 ## Changelog
 
