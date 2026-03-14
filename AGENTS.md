@@ -79,3 +79,36 @@ git commit -m "feat(sorter): implement table sorting..."
 - ai, cocogitto, copier, cspell, github, jscpd, megalinter, parser, pre-commit, prettier, sorter, smt, treefmt, version, vscode, zed
 
 Before implementing **writer** or **main**, ensure scopes are added.
+
+### Commit Footer: AI Model Signoff
+
+**REQUIRED**: Every commit created by an AI agent MUST include a trailer footer with the AI model name.
+
+**Format** (using git trailer):
+```bash
+git commit --trailer="AI-Model: {model-name}" -m "feat(scope): description..."
+```
+
+**Git trailer output format**:
+```
+feat(sorter): implement table sorting logic
+
+- Detailed description of changes
+- More bullet points as needed
+
+AI-Model: claude-haiku-4.5
+```
+
+**Purpose**: Provides transparency about which AI model contributed to each commit (for compliance, attribution, and debugging).
+
+**Example**:
+```bash
+git commit --trailer="AI-Model: claude-haiku-4.5" -m "feat(sorter): implement table sorting with numeric/lexicographic comparators
+
+- Numeric mode parses as f64 with proper NaN handling
+- Lexicographic comparison with case-sensitivity toggle
+- Stable sort guarantee using sort_by (never sort_unstable_by)
+- 34 unit tests covering all scenarios"
+```
+
+Git automatically formats the trailer at the end of the commit message.

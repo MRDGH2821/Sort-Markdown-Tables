@@ -32,6 +32,7 @@ scopes = [
   "treefmt",
   "version",
   "vscode",
+  "writer",
   "zed"
 ]
 skip_ci = "[skip ci]"
