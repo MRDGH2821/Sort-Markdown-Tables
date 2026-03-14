@@ -1,14 +1,15 @@
 [package]
-authors = ["MRDGH2821"]
-categories = ["command-line-utilities", "text-processing"]
-description = "Sort markdown tables opted-in via HTML comments"
-edition = "2021"
-keywords = ["cli", "markdown", "sort", "table", "utility"]
-license = "GPL-3.0-or-later"
 name = "smt"
+version = "0.0.0"
+edition = "2021"
+description = "Sort markdown tables opted-in via HTML comments"
 readme = "README.md"
 repository = "https://github.com/MRDGH2821/Sort-Markdown-Tables"
-version = "0.1.0"
+license = "GPL-3.0-or-later"
+# tombi: format.rules.array-values-order = "ascending"
+keywords = ["cli", "markdown", "sort", "table", "utility"]
+# tombi: format.rules.array-values-order = "ascending"
+categories = ["command-line-utilities", "text-processing"]
 
 [lib]
 name = "smt"
