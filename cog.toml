@@ -17,6 +17,7 @@ pre_bump_hooks = [
 pre_package_bump_hooks = []
 # tombi: format.rules.array-values-order = "ascending"
 scopes = [
+  "ai",
   "cocogitto",
   "copier",
   "cspell",
