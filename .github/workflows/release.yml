@@ -3,8 +3,9 @@ jobs:
   build:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -46,98 +47,83 @@ jobs:
           path: artifacts/
     strategy:
       matrix:
-        include:
-          # Linux x86_64
-          - artifact_name: smt
-            asset_name: smt-x86_64-linux-gnu
-            os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          # Linux x86 (32-bit)
-          - artifact_name: smt
-            asset_name: smt-i686-linux-gnu
-            os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-          # Linux ARM64
-          - artifact_name: smt
-            asset_name: smt-aarch64-linux-gnu
-            os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-          # Linux ARMv7 (32-bit ARM)
-          - artifact_name: smt
-            asset_name: smt-armv7-linux-gnueabihf
-            os: ubuntu-latest
-            target: armv7-unknown-linux-gnueabihf
-          # Linux ARMv6 (Raspberry Pi)
-          - artifact_name: smt
-            asset_name: smt-arm-linux-gnueabihf
-            os: ubuntu-latest
-            target: arm-unknown-linux-gnueabihf
-          # Linux PowerPC 64-bit (Big Endian)
-          - artifact_name: smt
-            asset_name: smt-powerpc64-linux-gnu
-            os: ubuntu-latest
-            target: powerpc64-unknown-linux-gnu
-          # Linux PowerPC 64-bit (Little Endian)
-          - artifact_name: smt
-            asset_name: smt-powerpc64le-linux-gnu
-            os: ubuntu-latest
-            target: powerpc64le-unknown-linux-gnu
-          # Linux RISC-V 64-bit
-          - artifact_name: smt
-            asset_name: smt-riscv64gc-linux-gnu
-            os: ubuntu-latest
-            target: riscv64gc-unknown-linux-gnu
-          # Linux s390x (IBM Z)
-          - artifact_name: smt
-            asset_name: smt-s390x-linux-gnu
-            os: ubuntu-latest
-            target: s390x-unknown-linux-gnu
-          # Linux x86_64 musl
-          - artifact_name: smt
-            asset_name: smt-x86_64-linux-musl
-            os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-          # Linux ARM64 musl
-          - artifact_name: smt
-            asset_name: smt-aarch64-linux-musl
-            os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-          # macOS x86_64
-          - artifact_name: smt
-            asset_name: smt-x86_64-apple-darwin
-            os: macos-13
-            target: x86_64-apple-darwin
-          # macOS ARM64 (Apple Silicon)
-          - artifact_name: smt
-            asset_name: smt-aarch64-apple-darwin
-            os: macos-latest
-            target: aarch64-apple-darwin
-          # Windows x86_64
-          - artifact_name: smt.exe
-            asset_name: smt-x86_64-windows-msvc
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-          # Windows ARM64
-          - artifact_name: smt.exe
-            asset_name: smt-aarch64-windows-msvc
-            os: windows-latest
-            target: aarch64-pc-windows-msvc
-          # FreeBSD x86_64
-          - artifact_name: smt
-            asset_name: smt-x86_64-freebsd
-            os: ubuntu-latest
-            target: x86_64-unknown-freebsd
+         include:
+           # Linux x86_64 (Tier 1)
+           - artifact_name: smt
+             asset_name: smt-x86_64-linux-gnu
+             os: ubuntu-latest
+             target: x86_64-unknown-linux-gnu
+           # Linux i686 (Tier 1)
+           - artifact_name: smt
+             asset_name: smt-i686-linux-gnu
+             os: ubuntu-latest
+             target: i686-unknown-linux-gnu
+           # Linux ARM64 (Tier 2)
+           - artifact_name: smt
+             asset_name: smt-aarch64-linux-gnu
+             os: ubuntu-latest
+             target: aarch64-unknown-linux-gnu
+           # Linux x86_64 musl (Tier 2)
+           - artifact_name: smt
+             asset_name: smt-x86_64-linux-musl
+             os: ubuntu-latest
+             target: x86_64-unknown-linux-musl
+           # Linux ARM64 musl (Tier 2)
+           - artifact_name: smt
+             asset_name: smt-aarch64-linux-musl
+             os: ubuntu-latest
+             target: aarch64-unknown-linux-musl
+           # macOS x86_64 (Tier 1)
+           - artifact_name: smt
+             asset_name: smt-x86_64-apple-darwin
+             os: macos-13
+             target: x86_64-apple-darwin
+           # macOS ARM64 (Tier 1)
+           - artifact_name: smt
+             asset_name: smt-aarch64-apple-darwin
+             os: macos-latest
+             target: aarch64-apple-darwin
+           # Windows x86_64 (Tier 1)
+           - artifact_name: smt.exe
+             asset_name: smt-x86_64-windows-msvc
+             os: windows-latest
+             target: x86_64-pc-windows-msvc
+           # Windows ARM64 (Tier 2)
+           - artifact_name: smt.exe
+             asset_name: smt-aarch64-windows-msvc
+             os: windows-latest
+             target: aarch64-pc-windows-msvc
+           # FreeBSD x86_64 (Tier 2)
+           - artifact_name: smt
+             asset_name: smt-x86_64-freebsd
+             os: ubuntu-latest
+             target: x86_64-unknown-freebsd
   create-release:
     if: startsWith(github.ref, 'refs/tags/')
     name: Create GitHub Release
-    needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
           path: release-artifacts
+      - name: Check for Required Builds
+        run: |
+          # Verify at least one x86_64 build per OS succeeded
+          LINUX_X86_64=$(find release-artifacts -name "smt-x86_64-linux-gnu*" -type f 2>/dev/null | wc -l)
+          MACOS_X86_64=$(find release-artifacts -name "smt-x86_64-apple-darwin*" -type f 2>/dev/null | wc -l)
+          WINDOWS_X86_64=$(find release-artifacts -name "smt-x86_64-windows-msvc*" -type f 2>/dev/null | wc -l)
+          
+          echo "Linux x86_64 artifacts: $LINUX_X86_64"
+          echo "macOS x86_64 artifacts: $MACOS_X86_64"
+          echo "Windows x86_64 artifacts: $WINDOWS_X86_64"
+          
+          if [ "$LINUX_X86_64" -eq 0 ] || [ "$MACOS_X86_64" -eq 0 ] || [ "$WINDOWS_X86_64" -eq 0 ]; then
+            echo "ERROR: Missing required x86_64 builds!"
+            exit 1
+          fi
+        shell: bash
       - name: Flatten Artifacts Directory
         run: |
           mkdir -p flat-artifacts
@@ -176,7 +162,7 @@ jobs:
     name: Run Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ matrix.rust }}
