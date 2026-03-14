@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.1.1](https://github.com/cocogitto/cocogitto/compare/v0.1.0..v0.1.1) - 2026-03-14
+
+### Bug Fixes
+
+- **(parser)** allow blank lines between smt comment and table - ([2f3ba94](https://github.com/cocogitto/cocogitto/commit/2f3ba94e656edf823b6988d0910318e9759c00d6)) - MRDGH2821
+
+### Documentation
+
+- update readme - ([2ffc5a2](https://github.com/cocogitto/cocogitto/commit/2ffc5a2b8cf3abf15d04c9c8f7bfd45bb26e8f82)) - MRDGH2821
+- change text - ([da9dfe8](https://github.com/cocogitto/cocogitto/commit/da9dfe8ca9a2cbe46e84b16a148872ebba20bcb0)) - MRDGH2821
+
+### Refactoring
+
+- rename licence file - ([b462da8](https://github.com/cocogitto/cocogitto/commit/b462da883e6d32be02529e3d9cacf344a022db70)) - MRDGH2821
+
+---
+
 ## [0.1.0] - 2026-03-14
 
 ### Documentation
