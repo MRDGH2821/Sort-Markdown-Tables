@@ -362,6 +362,7 @@ mod tests {
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
+                blank_lines_after_comment: Vec::new(),
             }],
         };
 
@@ -394,6 +395,7 @@ mod tests {
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
+                blank_lines_after_comment: Vec::new(),
             }],
         };
 
@@ -432,6 +434,7 @@ mod tests {
                     comment_line_number: 1,
                     options: SortOptions::default(),
                     table,
+                    blank_lines_after_comment: Vec::new(),
                 },
                 Block::PlainText(vec!["Done.".to_string()]),
             ],

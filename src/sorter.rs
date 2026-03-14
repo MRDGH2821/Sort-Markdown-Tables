@@ -574,6 +574,7 @@ mod tests {
                     ],
                     column_count: 1,
                 },
+                blank_lines_after_comment: Vec::new(),
             }],
         };
 
@@ -617,6 +618,7 @@ mod tests {
                         ],
                         column_count: 1,
                     },
+                    blank_lines_after_comment: Vec::new(),
                 },
                 Block::SortedTable {
                     comment_line: "<!-- smt -->".to_string(),
@@ -643,6 +645,7 @@ mod tests {
                         ],
                         column_count: 1,
                     },
+                    blank_lines_after_comment: Vec::new(),
                 },
             ],
         };

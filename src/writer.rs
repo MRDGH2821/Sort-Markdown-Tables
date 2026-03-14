@@ -48,10 +48,16 @@ pub fn render_document(doc: &Document) -> String {
             Block::SortedTable {
                 comment_line,
                 table,
+                blank_lines_after_comment,
                 ..
             } => {
                 // Render the comment line
                 output.push(comment_line.clone());
+
+                // Render blank lines that follow the comment
+                for blank_line in blank_lines_after_comment {
+                    output.push(blank_line.clone());
+                }
 
                 // Render the table: header, separator, and sorted rows
                 output.push(table.header.clone());
@@ -245,6 +251,7 @@ mod tests {
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
+                blank_lines_after_comment: Vec::new(),
             }],
         };
 
@@ -278,6 +285,7 @@ mod tests {
                     comment_line_number: 2,
                     options: SortOptions::default(),
                     table,
+                    blank_lines_after_comment: Vec::new(),
                 },
                 Block::PlainText(vec!["Done.".to_string()]),
             ],
@@ -321,6 +329,7 @@ mod tests {
                     comment_line_number: 0,
                     options: SortOptions::default(),
                     table: table1,
+                    blank_lines_after_comment: Vec::new(),
                 },
                 Block::PlainText(vec!["---".to_string()]),
                 Block::SortedTable {
@@ -328,6 +337,7 @@ mod tests {
                     comment_line_number: 4,
                     options: SortOptions::default(),
                     table: table2,
+                    blank_lines_after_comment: Vec::new(),
                 },
             ],
         };
@@ -534,6 +544,7 @@ mod tests {
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
+                blank_lines_after_comment: Vec::new(),
             }],
         };
 

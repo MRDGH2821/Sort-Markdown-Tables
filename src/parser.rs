@@ -21,6 +21,7 @@ pub enum Block {
         comment_line_number: usize,
         options: SortOptions,
         table: Table,
+        blank_lines_after_comment: Vec<String>,
     },
 }
 
@@ -271,6 +272,11 @@ fn is_smt_comment(line: &str) -> bool {
     false
 }
 
+/// Check if a line is empty or whitespace-only
+fn is_empty_line(line: &str) -> bool {
+    line.trim().is_empty()
+}
+
 /// Check if a line is a table row: `^\s*\|.*\|\s*$`
 fn is_table_row(line: &str) -> bool {
     let trimmed = line.trim();
@@ -345,6 +351,7 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
     let mut blocks = Vec::new();
     let mut state = ParserState::Normal;
     let mut current_plain_text = Vec::new();
+    let mut blank_lines_after_comment = Vec::new();
     let mut pending_comment_line = String::new();
     let mut pending_comment_line_num = 0;
     let mut pending_options = SortOptions::default();
@@ -386,13 +393,16 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
             }
 
             ParserState::ExpectTable => {
-                if is_table_row(line) {
+                if is_empty_line(line) {
+                    // Blank line after comment - track it separately
+                    blank_lines_after_comment.push(line.to_string());
+                } else if is_table_row(line) {
                     // Found table header - transition to ExpectSep
                     table_header = line.to_string();
                     table_start_line = line_num_1based;
                     state = ParserState::ExpectSep;
                 } else {
-                    // Error: comment without table
+                    // Error: comment followed by non-table, non-empty line
                     return Err(SmtError::CommentWithoutTable {
                         path: source_loc,
                         line: pending_comment_line_num,
@@ -445,12 +455,14 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                             comment_line_num: pending_comment_line_num,
                             options: &pending_options,
                             start_line: table_start_line,
+                            blank_lines_after_comment: &blank_lines_after_comment,
                         },
                         &mut previous_comment_line,
                         &source_loc,
                     )?;
 
                     current_plain_text.push(line.to_string());
+                    blank_lines_after_comment.clear();
                     state = ParserState::Normal;
                 }
             }
@@ -491,6 +503,7 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                     comment_line_num: pending_comment_line_num,
                     options: &pending_options,
                     start_line: table_start_line,
+                    blank_lines_after_comment: &blank_lines_after_comment,
                 },
                 &mut previous_comment_line,
                 &source_loc,
@@ -510,6 +523,7 @@ struct TableContext<'a> {
     comment_line_num: usize,
     options: &'a SortOptions,
     start_line: usize,
+    blank_lines_after_comment: &'a [String],
 }
 
 /// Helper function to finalize a table block
@@ -546,6 +560,7 @@ fn finalize_table(
         comment_line_number: context.comment_line_num,
         options: context.options.clone(),
         table,
+        blank_lines_after_comment: context.blank_lines_after_comment.to_vec(),
     });
 
     *previous_comment_line = context.comment_line_num;
