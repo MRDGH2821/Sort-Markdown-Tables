@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.1.3](https://github.com/cocogitto/cocogitto/compare/v0.1.2..v0.1.3) - 2026-03-14
+
+### Miscellaneous Chores
+
+- **(cocogitto)** bump when ci commit is made - ([7ca32c9](https://github.com/cocogitto/cocogitto/commit/7ca32c983270fc491c724abd12fab8b063d0cdd2)) - MRDGH2821
+
+### Style
+
+- format file - ([48f1507](https://github.com/cocogitto/cocogitto/commit/48f15075bc3152a718d3e692a3855658d8c2fc5e)) - MRDGH2821
+
+### Ci
+
+- simplify release workflow with graceful failure handling - ([f9dcbbe](https://github.com/cocogitto/cocogitto/commit/f9dcbbe6b3765ff87443c630d69b1fe069e04c41)) - MRDGH2821
+
+---
+
 ## [0.1.2](https://github.com/cocogitto/cocogitto/compare/v0.1.1..v0.1.2) - 2026-03-14
 
 ### Bug Fixes
