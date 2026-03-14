@@ -23,7 +23,7 @@ A fast, zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-
 cargo install --path .
 ```
 
-Or download a pre-built binary from [releases](https://github.com/your-repo/smt/releases).
+Or download a pre-built binary from [releases](https://github.com/MRDGH2821/Sort-Markdown-Tables/releases).
 
 ## Usage
 
