@@ -26,6 +26,7 @@ scopes = [
   "megalinter",
   "pre-commit",
   "prettier",
+  "smt",
   "treefmt",
   "version",
   "vscode",

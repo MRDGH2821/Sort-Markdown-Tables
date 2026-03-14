@@ -194,15 +194,15 @@ Implement markdown parsing with state machine, comment detection, table extracti
 
 **Checklist**:
 
-- [ ] Define `enum Block { PlainText(Vec<String>), SortedTable { comment_line: String, comment_line_number: usize, options: SortOptions, table: Table } }`
-- [ ] Define `struct Document { source: Option<PathBuf>, blocks: Vec<Block> }`
-- [ ] Define `enum SortOrder { Asc, Desc }`
-- [ ] Define `enum CaseSensitivity { Sensitive, Insensitive }`
-- [ ] Define `enum SortType { Numeric, Lexicographic }`
-- [ ] Define `struct SortOptions { column: usize, order: SortOrder, case: CaseSensitivity, sort_type: SortType }`
-- [ ] Implement `SortOptions::default()` returning `SortOptions { column: 1, order: SortOrder::Asc, case: CaseSensitivity::Sensitive, sort_type: SortType::Numeric }`
-- [ ] Define `struct Table { start_line: usize, header: String, separator: String, rows: Vec<TableRow>, column_count: usize }`
-- [ ] Define `struct TableRow { raw: String, cells: Vec<String> }`
+- [x] Define `enum Block { PlainText(Vec<String>), SortedTable { comment_line: String, comment_line_number: usize, options: SortOptions, table: Table } }`
+- [x] Define `struct Document { source: Option<PathBuf>, blocks: Vec<Block> }`
+- [x] Define `enum SortOrder { Asc, Desc }`
+- [x] Define `enum CaseSensitivity { Sensitive, Insensitive }`
+- [x] Define `enum SortType { Numeric, Lexicographic }`
+- [x] Define `struct SortOptions { column: usize, order: SortOrder, case: CaseSensitivity, sort_type: SortType }`
+- [x] Implement `SortOptions::default()` returning `SortOptions { column: 1, order: SortOrder::Asc, case: CaseSensitivity::Sensitive, sort_type: SortType::Numeric }`
+- [x] Define `struct Table { start_line: usize, header: String, separator: String, rows: Vec<TableRow>, column_count: usize }`
+- [x] Define `struct TableRow { raw: String, cells: Vec<String> }`
 
 **Dependencies**: 1.2  
 **Success Criteria**:
@@ -221,27 +221,27 @@ Implement markdown parsing with state machine, comment detection, table extracti
 
 **Checklist**:
 
-- [ ] Implement `parse_comment(comment_text: &str, line_num: usize, source: Option<PathBuf>) -> Result<SortOptions, SmtError>`:
-  - Step 1: Strip leading/trailing whitespace
-  - Step 2: Strip `<!--` prefix and `-->` suffix
-  - Step 3: Strip `smt` keyword
-  - Step 4: If empty, return `SortOptions::default()`
-  - Step 5: Split remainder by whitespace into tokens
-  - Step 6–9: For each token, parse `key=value`:
-    - Split on `=` → key and value parts
-    - Validate key in {`column`, `order`, `case`, `type`}
-    - Validate value: `column` must be positive integer, `order` in {`asc`, `desc`}, `case` in {`sensitive`, `insensitive`}, `type` in {`numeric`, `lexicographic`}
-    - Return `SmtError::UnknownOption` or `SmtError::InvalidOptionValue` on failure
-  - Step 10: Collect parsed options
-  - Step 11: Return `SortOptions` with parsed + defaults
-- [ ] Write 15+ unit tests covering:
-  - Default options (empty comment)
-  - Single option, multiple options
-  - Unknown keys, invalid values
-  - Column edge cases (0, negative, non-integer, out-of-range)
-  - Case sensitivity options
-  - Sort type options
-  - Whitespace handling
+- [x] Implement `parse_comment(comment_text: &str, line_num: usize, source: Option<PathBuf>) -> Result<SortOptions, SmtError>`:
+   - Step 1: Strip leading/trailing whitespace
+   - Step 2: Strip `<!--` prefix and `-->` suffix
+   - Step 3: Strip `smt` keyword
+   - Step 4: If empty, return `SortOptions::default()`
+   - Step 5: Split remainder by whitespace into tokens
+   - Step 6–9: For each token, parse `key=value`:
+     - Split on `=` → key and value parts
+     - Validate key in {`column`, `order`, `case`, `type`}
+     - Validate value: `column` must be positive integer, `order` in {`asc`, `desc`}, `case` in {`sensitive`, `insensitive`}, `type` in {`numeric`, `lexicographic`}
+     - Return `SmtError::UnknownOption` or `SmtError::InvalidOptionValue` on failure
+   - Step 10: Collect parsed options
+   - Step 11: Return `SortOptions` with parsed + defaults
+- [x] Write 15+ unit tests covering:
+   - Default options (empty comment)
+   - Single option, multiple options
+   - Unknown keys, invalid values
+   - Column edge cases (0, negative, non-integer, out-of-range)
+   - Case sensitivity options
+   - Sort type options
+   - Whitespace handling
 
 **Dependencies**: 3.1  
 **Success Criteria**:
@@ -260,28 +260,28 @@ Implement markdown parsing with state machine, comment detection, table extracti
 
 **Checklist**:
 
-- [ ] Implement line classification helpers:
-  - `is_smt_comment(line: &str) -> bool` — matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`
-  - `is_table_row(line: &str) -> bool` — matches `^\s*\|.*\|\s*$`
-  - `is_separator_row(line: &str) -> bool` — checks if all cells match `^:?-+:?$`
-- [ ] Implement parser state machine with `enum ParserState { Normal, ExpectTable, ExpectSep, ReadingRows }`
-- [ ] Implement `parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtError>`:
-  - Split content by lines
-  - Iterate with state machine, classifying each line
-  - Build `Document` with `Block` instances (PlainText or SortedTable)
-  - Handle state transitions per `design.md` Section 4
-  - On error (comment without table, malformed table, etc.), return `SmtError`
-- [ ] Validate tables:
-  - Column count matches all rows
-  - Separator row is valid
-  - Comment immediately precedes table (no blank lines)
-- [ ] Write 20+ unit tests covering:
-  - Simple valid tables
-  - Unmarked tables (no smt comment)
-  - Multiple tables in one document
-  - Comment without table, duplicate comments
-  - Malformed tables (missing separator, mismatched columns)
-  - Lossless preservation of raw lines
+- [x] Implement line classification helpers:
+   - `is_smt_comment(line: &str) -> bool` — matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`
+   - `is_table_row(line: &str) -> bool` — matches `^\s*\|.*\|\s*$`
+   - `is_separator_row(line: &str) -> bool` — checks if all cells match `^:?-+:?$`
+- [x] Implement parser state machine with `enum ParserState { Normal, ExpectTable, ExpectSep, ReadingRows }`
+- [x] Implement `parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtError>`:
+   - Split content by lines
+   - Iterate with state machine, classifying each line
+   - Build `Document` with `Block` instances (PlainText or SortedTable)
+   - Handle state transitions per `design.md` Section 4
+   - On error (comment without table, malformed table, etc.), return `SmtError`
+- [x] Validate tables:
+   - Column count matches all rows
+   - Separator row is valid
+   - Comment immediately precedes table (no blank lines)
+- [x] Write 20+ unit tests covering:
+   - Simple valid tables
+   - Unmarked tables (no smt comment)
+   - Multiple tables in one document
+   - Comment without table, duplicate comments
+   - Malformed tables (missing separator, mismatched columns)
+   - Lossless preservation of raw lines
 
 **Dependencies**: 3.2  
 **Success Criteria**:
@@ -301,15 +301,15 @@ Implement markdown parsing with state machine, comment detection, table extracti
 
 **Checklist**:
 
-- [ ] Test parsing valid markdown with multiple tables
-- [ ] Test duplicate smt comments on same table (error)
-- [ ] Test smt comment with no table following (error)
-- [ ] Test column count validation (mismatched columns error)
-- [ ] Test separator row validation (multiple variants of valid separators: `---`, `:---`, `---:`, `:---:`)
-- [ ] Test whitespace preservation (raw lines, indentation)
-- [ ] Test plain text blocks between tables
-- [ ] Test edge case: table at end of file (no trailing newline)
-- [ ] Run `cargo test --lib parser` and ensure all pass
+- [x] Test parsing valid markdown with multiple tables
+- [x] Test duplicate smt comments on same table (error)
+- [x] Test smt comment with no table following (error)
+- [x] Test column count validation (mismatched columns error)
+- [x] Test separator row validation (multiple variants of valid separators: `---`, `:---`, `---:`, `:---:`)
+- [x] Test whitespace preservation (raw lines, indentation)
+- [x] Test plain text blocks between tables
+- [x] Test edge case: table at end of file (no trailing newline)
+- [x] Run `cargo test --lib parser` and ensure all pass
 
 **Dependencies**: 3.3  
 **Success Criteria**:
