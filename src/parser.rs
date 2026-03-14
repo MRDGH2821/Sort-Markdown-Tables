@@ -91,6 +91,7 @@ pub struct TableRow {
 /// 3. Strip "smt" prefix
 /// 4. If empty, return default SortOptions
 /// 5. Split by whitespace into tokens
+///
 /// 6-9. For each token: parse key=value, validate, parse value
 /// 10. Collect parsed options
 /// 11. Return SortOptions with parsed + defaults
@@ -263,8 +264,7 @@ fn is_smt_comment(line: &str) -> bool {
             let content = content.trim();
             // Must start with "smt" keyword
             return content.starts_with("smt")
-                && (content.len() == 3
-                    || content.chars().nth(3).map_or(false, char::is_whitespace));
+                && (content.len() == 3 || content.chars().nth(3).is_some_and(char::is_whitespace));
         }
     }
 
@@ -311,15 +311,15 @@ fn is_valid_separator_cell(cell: &str) -> bool {
     let trimmed = cell.trim();
 
     // Strip leading colon if present
-    let after_leading = if trimmed.starts_with(':') {
-        &trimmed[1..]
+    let after_leading = if let Some(stripped) = trimmed.strip_prefix(':') {
+        stripped
     } else {
         trimmed
     };
 
     // Strip trailing colon if present
-    let after_trailing = if after_leading.ends_with(':') {
-        &after_leading[..after_leading.len() - 1]
+    let after_trailing = if let Some(stripped) = after_leading.strip_suffix(':') {
+        stripped
     } else {
         after_leading
     };
@@ -437,13 +437,15 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                     finalize_table(
                         &mut blocks,
                         &mut current_plain_text,
-                        &table_header,
-                        &table_separator,
-                        &table_rows,
-                        &pending_comment_line,
-                        &pending_comment_line_num,
-                        &pending_options,
-                        &table_start_line,
+                        TableContext {
+                            header: &table_header,
+                            separator: &table_separator,
+                            rows: &table_rows,
+                            comment_line: &pending_comment_line,
+                            comment_line_num: pending_comment_line_num,
+                            options: &pending_options,
+                            start_line: table_start_line,
+                        },
                         &mut previous_comment_line,
                         &source_loc,
                     )?;
@@ -481,13 +483,15 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
             finalize_table(
                 &mut blocks,
                 &mut current_plain_text,
-                &table_header,
-                &table_separator,
-                &table_rows,
-                &pending_comment_line,
-                &pending_comment_line_num,
-                &pending_options,
-                &table_start_line,
+                TableContext {
+                    header: &table_header,
+                    separator: &table_separator,
+                    rows: &table_rows,
+                    comment_line: &pending_comment_line,
+                    comment_line_num: pending_comment_line_num,
+                    options: &pending_options,
+                    start_line: table_start_line,
+                },
                 &mut previous_comment_line,
                 &source_loc,
             )?;
@@ -497,49 +501,54 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
     Ok(Document { source, blocks })
 }
 
+/// Table finalization context
+struct TableContext<'a> {
+    header: &'a str,
+    separator: &'a str,
+    rows: &'a [TableRow],
+    comment_line: &'a str,
+    comment_line_num: usize,
+    options: &'a SortOptions,
+    start_line: usize,
+}
+
 /// Helper function to finalize a table block
 fn finalize_table(
     blocks: &mut Vec<Block>,
     current_plain_text: &mut Vec<String>,
-    table_header: &str,
-    table_separator: &str,
-    table_rows: &[TableRow],
-    pending_comment_line: &str,
-    pending_comment_line_num: &usize,
-    pending_options: &SortOptions,
-    table_start_line: &usize,
+    context: TableContext,
     previous_comment_line: &mut usize,
     source_loc: &SourceLocation,
 ) -> Result<(), SmtError> {
-    let header_cells = extract_cells(table_header);
+    let header_cells = extract_cells(context.header);
     let column_count = header_cells.len();
 
     // Validate column is in range
-    if pending_options.column > column_count {
+    if context.options.column > column_count {
         return Err(SmtError::ColumnOutOfRange {
             path: source_loc.clone(),
-            line: *pending_comment_line_num,
-            column: pending_options.column,
+            line: context.comment_line_num,
+            column: context.options.column,
             actual: column_count,
         });
     }
 
     let table = Table {
-        start_line: *table_start_line,
-        header: table_header.to_string(),
-        separator: table_separator.to_string(),
-        rows: table_rows.to_vec(),
+        start_line: context.start_line,
+        header: context.header.to_string(),
+        separator: context.separator.to_string(),
+        rows: context.rows.to_vec(),
         column_count,
     };
 
     blocks.push(Block::SortedTable {
-        comment_line: pending_comment_line.to_string(),
-        comment_line_number: *pending_comment_line_num,
-        options: pending_options.clone(),
+        comment_line: context.comment_line.to_string(),
+        comment_line_number: context.comment_line_num,
+        options: context.options.clone(),
         table,
     });
 
-    *previous_comment_line = *pending_comment_line_num;
+    *previous_comment_line = context.comment_line_num;
     current_plain_text.clear();
 
     Ok(())

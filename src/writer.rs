@@ -14,7 +14,11 @@
 
 use crate::cli::OutputTarget;
 use crate::error::SmtError;
-use crate::parser::{Block, Document, Table, TableRow};
+use crate::parser::Block;
+#[cfg(not(test))]
+use crate::parser::Document;
+#[cfg(test)]
+use crate::parser::{Document, Table, TableRow};
 use std::fs::OpenOptions;
 use std::io::{self, Write};
 use std::path::Path;

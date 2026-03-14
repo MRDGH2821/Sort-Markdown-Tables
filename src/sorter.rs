@@ -13,9 +13,9 @@
 // ============================================================================
 
 use crate::error::SmtError;
-use crate::parser::{
-    Block, CaseSensitivity, Document, SortOptions, SortOrder, SortType, Table, TableRow,
-};
+#[cfg(test)]
+use crate::parser::TableRow;
+use crate::parser::{Block, CaseSensitivity, Document, SortOptions, SortOrder, SortType, Table};
 use std::cmp::Ordering;
 use std::path::PathBuf;
 

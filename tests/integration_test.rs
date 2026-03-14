@@ -26,8 +26,9 @@ fn fixture_path(dir: &str, name: &str) -> PathBuf {
 }
 
 fn read_fixture(dir: &str, name: &str) -> String {
-    fs::read_to_string(fixture_path(dir, name))
-        .expect(&format!("Failed to read fixture {}/{}", dir, name))
+    let fixture_file = fixture_path(dir, name);
+    let msg = format!("Failed to read fixture {}/{}", dir, name);
+    fs::read_to_string(fixture_file).expect(&msg)
 }
 
 /// Read fixture and remove trailing newline (for file comparison)
