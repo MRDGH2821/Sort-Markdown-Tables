@@ -92,6 +92,8 @@ priority = 1
 command = "bunx"
 includes = ["*.md"]
 options = ["@fmma-npm/sort-markdown-tables", "-i"]
+# tombi: format.rules.array-values-order = "ascending"
+excludes = ["tests/**/*.md", "tests/**/**/*.md"]
 priority = 2
 
 [formatter.sort-package-json]
