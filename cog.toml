@@ -12,6 +12,7 @@ pre = "alpha.*"
 pre_bump_hooks = [
   "echo 'bumping from {{latest_tag|0.0.0}} to {{version_tag|0.0.1}}'",
   "bunx git-cliff -o CHANGELOG.md -c cocogitto --tag {{version_tag}}",
+  "cargo set-version {{version}}",
   "treefmt -v"
 ]
 pre_package_bump_hooks = []
