@@ -1,0 +1,24 @@
+[package]
+name = "smt"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.4", features = ["derive"] }
+thiserror = "2.0"
+anyhow = "1.0"
+glob = "0.3"
+tempfile = "3.8"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.0"
+tempfile = "3.8"
+
+[lib]
+name = "smt"
+path = "src/lib.rs"
+
+[[bin]]
+name = "smt"
+path = "src/main.rs"
