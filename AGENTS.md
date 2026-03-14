@@ -56,12 +56,14 @@ src/
 **CRITICAL**: Before committing code, ensure the commit scope exists in `cog.toml`.
 
 **Process** (required before EVERY feature commit):
+
 1. Check `cog.toml` scopes list for your commit scope
 2. If missing → add it alphabetically to the scopes array
 3. Commit `cog.toml` first with message: `chore(cocogitto): add {scope} scope`
 4. Then commit your code changes with the proper scope
 
 **Example**:
+
 ```bash
 # 1. Add scope to cog.toml if missing
 edit cog.toml  # add "sorter" to scopes list
@@ -76,6 +78,7 @@ git commit -m "feat(sorter): implement table sorting..."
 ```
 
 **Current scopes** (in `cog.toml`):
+
 - ai, cocogitto, copier, cspell, github, jscpd, megalinter, parser, pre-commit, prettier, sorter, smt, treefmt, version, vscode, zed
 
 Before implementing **writer** or **main**, ensure scopes are added.
@@ -85,11 +88,13 @@ Before implementing **writer** or **main**, ensure scopes are added.
 **REQUIRED**: Every commit created by an AI agent MUST include a trailer footer with the AI model name.
 
 **Format** (using git trailer):
+
 ```bash
 git commit --trailer="AI-Model: {model-name}" -m "feat(scope): description..."
 ```
 
 **Git trailer output format**:
+
 ```
 feat(sorter): implement table sorting logic
 
@@ -102,6 +107,7 @@ AI-Model: claude-haiku-4.5
 **Purpose**: Provides transparency about which AI model contributed to each commit (for compliance, attribution, and debugging).
 
 **Example**:
+
 ```bash
 git commit --trailer="AI-Model: claude-haiku-4.5" -m "feat(sorter): implement table sorting with numeric/lexicographic comparators
 

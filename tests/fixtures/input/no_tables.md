@@ -4,7 +4,7 @@ This is a plain markdown file with no tables at all.
 
 ## Section 1
 
-Some text here with **bold** and *italic* formatting.
+Some text here with **bold** and _italic_ formatting.
 
 ## Section 2
 

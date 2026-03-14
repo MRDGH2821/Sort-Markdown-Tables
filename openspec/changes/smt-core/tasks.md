@@ -222,26 +222,26 @@ Implement markdown parsing with state machine, comment detection, table extracti
 **Checklist**:
 
 - [x] Implement `parse_comment(comment_text: &str, line_num: usize, source: Option<PathBuf>) -> Result<SortOptions, SmtError>`:
-   - Step 1: Strip leading/trailing whitespace
-   - Step 2: Strip `<!--` prefix and `-->` suffix
-   - Step 3: Strip `smt` keyword
-   - Step 4: If empty, return `SortOptions::default()`
-   - Step 5: Split remainder by whitespace into tokens
-   - Step 6–9: For each token, parse `key=value`:
-     - Split on `=` → key and value parts
-     - Validate key in {`column`, `order`, `case`, `type`}
-     - Validate value: `column` must be positive integer, `order` in {`asc`, `desc`}, `case` in {`sensitive`, `insensitive`}, `type` in {`numeric`, `lexicographic`}
-     - Return `SmtError::UnknownOption` or `SmtError::InvalidOptionValue` on failure
-   - Step 10: Collect parsed options
-   - Step 11: Return `SortOptions` with parsed + defaults
+  - Step 1: Strip leading/trailing whitespace
+  - Step 2: Strip `<!--` prefix and `-->` suffix
+  - Step 3: Strip `smt` keyword
+  - Step 4: If empty, return `SortOptions::default()`
+  - Step 5: Split remainder by whitespace into tokens
+  - Step 6–9: For each token, parse `key=value`:
+    - Split on `=` → key and value parts
+    - Validate key in {`column`, `order`, `case`, `type`}
+    - Validate value: `column` must be positive integer, `order` in {`asc`, `desc`}, `case` in {`sensitive`, `insensitive`}, `type` in {`numeric`, `lexicographic`}
+    - Return `SmtError::UnknownOption` or `SmtError::InvalidOptionValue` on failure
+  - Step 10: Collect parsed options
+  - Step 11: Return `SortOptions` with parsed + defaults
 - [x] Write 15+ unit tests covering:
-   - Default options (empty comment)
-   - Single option, multiple options
-   - Unknown keys, invalid values
-   - Column edge cases (0, negative, non-integer, out-of-range)
-   - Case sensitivity options
-   - Sort type options
-   - Whitespace handling
+  - Default options (empty comment)
+  - Single option, multiple options
+  - Unknown keys, invalid values
+  - Column edge cases (0, negative, non-integer, out-of-range)
+  - Case sensitivity options
+  - Sort type options
+  - Whitespace handling
 
 **Dependencies**: 3.1  
 **Success Criteria**:
@@ -261,27 +261,27 @@ Implement markdown parsing with state machine, comment detection, table extracti
 **Checklist**:
 
 - [x] Implement line classification helpers:
-   - `is_smt_comment(line: &str) -> bool` — matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`
-   - `is_table_row(line: &str) -> bool` — matches `^\s*\|.*\|\s*$`
-   - `is_separator_row(line: &str) -> bool` — checks if all cells match `^:?-+:?$`
+  - `is_smt_comment(line: &str) -> bool` — matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`
+  - `is_table_row(line: &str) -> bool` — matches `^\s*\|.*\|\s*$`
+  - `is_separator_row(line: &str) -> bool` — checks if all cells match `^:?-+:?$`
 - [x] Implement parser state machine with `enum ParserState { Normal, ExpectTable, ExpectSep, ReadingRows }`
 - [x] Implement `parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtError>`:
-   - Split content by lines
-   - Iterate with state machine, classifying each line
-   - Build `Document` with `Block` instances (PlainText or SortedTable)
-   - Handle state transitions per `design.md` Section 4
-   - On error (comment without table, malformed table, etc.), return `SmtError`
+  - Split content by lines
+  - Iterate with state machine, classifying each line
+  - Build `Document` with `Block` instances (PlainText or SortedTable)
+  - Handle state transitions per `design.md` Section 4
+  - On error (comment without table, malformed table, etc.), return `SmtError`
 - [x] Validate tables:
-   - Column count matches all rows
-   - Separator row is valid
-   - Comment immediately precedes table (no blank lines)
+  - Column count matches all rows
+  - Separator row is valid
+  - Comment immediately precedes table (no blank lines)
 - [x] Write 20+ unit tests covering:
-   - Simple valid tables
-   - Unmarked tables (no smt comment)
-   - Multiple tables in one document
-   - Comment without table, duplicate comments
-   - Malformed tables (missing separator, mismatched columns)
-   - Lossless preservation of raw lines
+  - Simple valid tables
+  - Unmarked tables (no smt comment)
+  - Multiple tables in one document
+  - Comment without table, duplicate comments
+  - Malformed tables (missing separator, mismatched columns)
+  - Lossless preservation of raw lines
 
 **Dependencies**: 3.2  
 **Success Criteria**:
