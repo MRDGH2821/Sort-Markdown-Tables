@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.1.4](https://github.com/cocogitto/cocogitto/compare/v0.1.3..v0.1.4) - 2026-03-14
+
+### Miscellaneous Chores
+
+- **(cocogitto)** add cargo check in bump hook - ([561e89a](https://github.com/cocogitto/cocogitto/commit/561e89ac89d4c48a69a8156e7a6565de407a5808)) - MRDGH2821
+
+### Ci
+
+- fix linter errors - ([a763cf9](https://github.com/cocogitto/cocogitto/commit/a763cf9578f877b5ff00b8cb593e300c8537dbea)) - MRDGH2821
+
+---
+
 ## [0.1.3](https://github.com/cocogitto/cocogitto/compare/v0.1.2..v0.1.3) - 2026-03-14
 
 ### Miscellaneous Chores
