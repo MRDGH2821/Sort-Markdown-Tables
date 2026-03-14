@@ -1,0 +1,33 @@
+---
+# openspec/config.yaml
+context: |
+  Tech stack: Rust (stable), single binary CLI named `smt`
+  Architecture: 5-module pipeline — cli → parser → sorter → writer (error as leaf)
+  Testing: unit tests per module + assert_cmd integration tests with fixture files
+  Style: conventional commits (cog.toml), MegaLinter, treefmt, pre-commit hooks
+rules:
+  apply:
+    - Follow Rust idioms and existing module structure from .ai/ARCHITECTURE.md
+    - Atomic writes — two-phase parse+sort then write, never break this invariant
+    - Use sort_by (stable), never sort_unstable_by
+    - No regex — hand-roll comment parsing with str methods only
+  archive:
+    - Warn before merging destructive deltas (large removals)
+  design:
+    - Document architecture decisions with rationale
+    - Reference existing .ai/ARCHITECTURE.md for baseline
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  verify:
+    - Run `cargo test` to verify all scenarios
+    - Compare implementation against every spec scenario
+    - Verify exit codes match spec exactly (0=success, 1=unsorted check, 2=user error)
+schema: spec-driven

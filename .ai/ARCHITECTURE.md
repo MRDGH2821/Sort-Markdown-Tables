@@ -478,12 +478,12 @@ The parser operates line-by-line with the following states:
 
 A line is classified as:
 
-| Classification | Rule |
-|---------------|------|
-| SMT comment | Matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$` |
-| Table row | Matches `^\s*\|.*\|\s*$` (starts and ends with pipe after trimming) |
-| Separator row | Is a table row AND all cells match `^:?-+:?$` (dashes with optional colons) |
-| Plain text | Everything else |
+| Classification | Rule                                                                        |
+| -------------- | --------------------------------------------------------------------------- |
+| SMT comment    | Matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`                                  |
+| Table row      | Matches `^\s*\|.*\|\s*$` (starts and ends with pipe after trimming)         |
+| Separator row  | Is a table row AND all cells match `^:?-+:?$` (dashes with optional colons) |
+| Plain text     | Everything else                                                             |
 
 ---
 
