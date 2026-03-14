@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.1.2](https://github.com/cocogitto/cocogitto/compare/v0.1.1..v0.1.2) - 2026-03-14
+
+### Bug Fixes
+
+- remove invalid target - ([b013ae5](https://github.com/cocogitto/cocogitto/commit/b013ae525baa3e27dacf1bddf067f8b2964b9135)) - MRDGH2821
+
+### Ci
+
+- add musl targets - ([c36b7ec](https://github.com/cocogitto/cocogitto/commit/c36b7ec6716180ea40dd4caded45b0a011b72450)) - MRDGH2821
+
+---
+
 ## [0.1.1](https://github.com/cocogitto/cocogitto/compare/v0.1.0..v0.1.1) - 2026-03-14
 
 ### Bug Fixes
