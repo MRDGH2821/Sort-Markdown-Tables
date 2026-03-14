@@ -1,0 +1,40 @@
+{
+  "allowCompoundWords": true,
+  "caseSensitive": false,
+  "ignorePaths": [
+    "**/.git/**",
+    "**/.pnpm-lock.json",
+    "**/node_modules/**",
+    "**/vscode-extension/**",
+    ".vscode",
+    ".zed",
+    "megalinter-reports",
+    "package-lock.json"
+  ],
+  "language": "en,en-GB",
+  "useGitignore": true,
+  "version": "0.2",
+  "words": [
+    "bunx",
+    "cocogitto",
+    "cump",
+    "direnv",
+    "envrc",
+    "ggshield",
+    "inital",
+    "KICS",
+    "mrdgh",
+    "nixfmt",
+    "nixpkgs",
+    "otbs",
+    "pkgs",
+    "prek",
+    "pycache",
+    "shfmt",
+    "stefanzweifel",
+    "tombi",
+    "treefmt",
+    "venv",
+    "yamlfix"
+  ]
+}

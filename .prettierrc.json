@@ -1,0 +1,15 @@
+{
+  "overrides": [
+    {
+      "files": ["*.jsonc", "*.json"],
+      "options": {
+        "parser": "json",
+        "trailingComma": "none"
+      }
+    }
+  ],
+  "plugins": ["prettier-plugin-toml"],
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "useTabs": false
+}

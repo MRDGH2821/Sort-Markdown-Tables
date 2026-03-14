@@ -1,0 +1,143 @@
+# :schema https://gist.githubusercontent.com/MRDGH2821/d61a45f6d91c94d1c9d3d1307036d361/raw/48ecf6440582706aa85b856f2c4c3539bc5d03a5/treefmt-schma.json
+
+allow-missing-formatter = true
+
+[formatter.alejandra]
+command = "alejandra"
+includes = ["*.nix"]
+options = ["-q"]
+priority = 10
+
+[formatter.cspell-sort]
+command = "bash"
+# tombi: format.rules.array-values-order = "ascending"
+includes = [
+  "**/.cSpell*",
+  "**/.cspell*",
+  "**/cSpell*",
+  "**/cspell*",
+  ".cSpell*",
+  ".cspell*",
+  "cSpell*",
+  "cspell*"
+]
+options = [
+  "-c",
+  "for file in \"$@\"; do yq -i '.words |= sort_by(downcase) | .ignorePaths |= sort_by(downcase)' \"$file\"; done",
+  "--"
+]
+priority = 9
+
+[formatter.ignore-files-formatter]
+command = "uvx"
+# tombi: format.rules.array-values-order = "ascending"
+includes = [
+  "**/.gitignore",
+  "**/.prettierignore",
+  "**/.v8rignore",
+  ".gitignore",
+  ".prettierignore",
+  ".v8rignore"
+]
+options = ["git+https://github.com/lorenzwalthert/gitignore-tidy"]
+priority = 1
+
+[formatter.nixfmt]
+command = "nixfmt"
+includes = ["*.nix"]
+priority = 1
+
+[formatter.prettier]
+command = "bunx"
+excludes = []
+# tombi: format.rules.array-values-order = "ascending"
+includes = ["*.js", "*.json", "*.md", "*.toml", "*.ts", "*.yaml", "*.yml"]
+options = ["prettier", "--log-level", "debug", "--write"]
+priority = 100
+
+[formatter.prettypst-default]
+command = "prettypst"
+includes = ["*.typ"]
+options = ["-s", "default"]
+priority = 2
+
+[formatter.prettypst-otbs]
+command = "prettypst"
+includes = ["*.typ"]
+options = ["-s", "otbs"]
+priority = 3
+
+[formatter.ruff-format]
+command = "uvx"
+excludes = []
+includes = ["*.py"]
+options = ["ruff", "format"]
+priority = 9
+
+[formatter.ruff-lint]
+command = "uvx"
+excludes = []
+includes = ["*.py"]
+options = ["ruff", "check", "--fix"]
+priority = 8
+
+[formatter.shfmt]
+command = "shfmt"
+# tombi: format.rules.array-values-order = "ascending"
+includes = ["*.sh", ".envrc"]
+options = ["--indent", "2"]
+priority = 1
+
+[formatter.sort-markdown-tables]
+command = "bunx"
+includes = ["*.md"]
+options = ["@fmma-npm/sort-markdown-tables", "-i"]
+priority = 2
+
+[formatter.sort-package-json]
+command = "bunx"
+includes = ["package.json"]
+options = ["sort-package-json"]
+priority = 10
+
+[formatter.tombi-format]
+command = "uvx"
+includes = ["*.toml"]
+options = ["tombi", "format"]
+priority = 11
+
+[formatter.toml-sort]
+command = "uvx"
+includes = ["*.toml"]
+options = ["toml-sort", "-i", "--sort-table-keys", "--sort-inline-tables"]
+priority = 0
+
+[formatter.typstyle]
+command = "typstyle"
+includes = ["*.typ"]
+options = ["-i"]
+priority = 1
+
+[formatter.xmllint]
+command = "xmllint"
+includes = ["*.xml"]
+options = ["--format"]
+priority = 0
+
+[formatter.yamlfix]
+command = "uvx"
+# tombi: format.rules.array-values-order = "ascending"
+includes = ["*.yaml", "*.yml"]
+options = ["yamlfix"]
+priority = 8
+
+[formatter.yq-key-sort]
+command = "bash"
+# tombi: format.rules.array-values-order = "ascending"
+includes = ["*.json", "*.yaml", "*.yml"]
+options = [
+  "-c",
+  "for file in \"$@\"; do yq -i -P 'sort_keys(..)' \"$file\"; done",
+  "--"
+]
+priority = 0
