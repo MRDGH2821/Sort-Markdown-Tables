@@ -2,6 +2,13 @@
 name = "smt"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0-or-later"
+authors = ["MRDGH2821"]
+description = "Sort markdown tables opted-in via HTML comments"
+repository = "https://github.com/your-repo/smt"
+readme = "README.md"
+keywords = ["markdown", "table", "sort", "cli", "utility"]
+categories = ["command-line-utilities", "text-processing"]
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
