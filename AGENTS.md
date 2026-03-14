@@ -50,3 +50,32 @@ src/
 - Unit tests per module (parser, sorter, writer)
 - Integration tests with `assert_cmd` + `predicates`
 - Test fixtures in `tests/fixtures/` with `.md` + `.expected.md` pairs
+
+### Git Workflow: Commit Scopes
+
+**CRITICAL**: Before committing code, ensure the commit scope exists in `cog.toml`.
+
+**Process** (required before EVERY feature commit):
+1. Check `cog.toml` scopes list for your commit scope
+2. If missing → add it alphabetically to the scopes array
+3. Commit `cog.toml` first with message: `chore(cocogitto): add {scope} scope`
+4. Then commit your code changes with the proper scope
+
+**Example**:
+```bash
+# 1. Add scope to cog.toml if missing
+edit cog.toml  # add "sorter" to scopes list
+
+# 2. Commit scope update
+git add cog.toml
+git commit -m "chore(cocogitto): add sorter scope"
+
+# 3. Commit actual code
+git add src/sorter.rs
+git commit -m "feat(sorter): implement table sorting..."
+```
+
+**Current scopes** (in `cog.toml`):
+- ai, cocogitto, copier, cspell, github, jscpd, megalinter, parser, pre-commit, prettier, sorter, smt, treefmt, version, vscode, zed
+
+Before implementing **writer** or **main**, ensure scopes are added.
