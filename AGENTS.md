@@ -13,8 +13,8 @@ A Rust CLI tool that sorts markdown tables opted-in via `<!-- smt -->` HTML comm
 
 ### Key Documents
 
-- `plan.md` — Full project plan with all requirements, CLI interface, sorting behavior, error handling, testing strategy
-- `architecture.md` — Module dependency diagram, data flow, data structures (Rust code), parser state machine, error type hierarchy
+- `.ai/PLAN.md` — Full project plan with all requirements, CLI interface, sorting behavior, error handling, testing strategy
+- `.ai/ARCHITECTURE.md` — Module dependency diagram, data flow, data structures (Rust code), parser state machine, error type hierarchy
 
 ### Architecture Overview
 
