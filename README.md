@@ -229,12 +229,4 @@ See LICENSE file.
 
 ## Changelog
 
-### 0.1.0 (Initial Release)
-
-- Opt-in table sorting via `<!-- smt -->` comments
-- Numeric and lexicographic sort modes
-- In-place editing, output to file, stdout
-- Check mode for CI/CD validation
-- Glob pattern support
-- Atomic writes with error recovery
-- 135 comprehensive tests (100% pass rate)
+See [CHANGELOG.md](CHANGELOG.md) for version history, generated automatically using [cocogitto](https://github.com/cocogitto/cocogitto).
