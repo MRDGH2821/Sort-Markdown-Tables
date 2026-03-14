@@ -31,7 +31,7 @@ jobs:
       - name: Generate Coverage
         run: cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: false
           files: ./cobertura.xml
@@ -63,3 +63,5 @@ on:
     branches:
       - main
       - develop
+permissions:
+  contents: read
