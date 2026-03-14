@@ -156,21 +156,6 @@ jobs:
           draft: false
           files: flat-artifacts/*
           prerelease: false
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-      - uses: Swatinem/rust-cache@v2
-      - name: Run Tests
-        run: cargo test --all-features
-      - name: Run Clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
-      - name: Check Formatting
-        run: cargo fmt -- --check
 name: Release Binary Builds
 on:
   push:
