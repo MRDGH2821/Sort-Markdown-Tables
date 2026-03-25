@@ -85,7 +85,7 @@ Rest of the document...
 Use attributes in the comment to configure sorting:
 
 ```markdown
-<!-- smt mode=numeric column=1 direction=ascending case=insensitive -->
+<!-- smt type=numeric column=1 order=asc case=insensitive -->
 
 | A   | B   |
 | --- | --- |
@@ -93,12 +93,12 @@ Use attributes in the comment to configure sorting:
 | 1   | x   |
 ```
 
-| Attribute   | Options                    | Default         | Notes                                |
-| ----------- | -------------------------- | --------------- | ------------------------------------ |
-| `mode`      | `numeric`, `lexicographic` | `lexicographic` | Numeric handles decimals, NaN safely |
-| `column`    | `1`, `2`, `3`...           | `1`             | 1-indexed; first data column only    |
-| `direction` | `ascending`, `descending`  | `ascending`     | Sort order                           |
-| `case`      | `sensitive`, `insensitive` | `sensitive`     | Only affects lexicographic mode      |
+| Attribute | Options                    | Default         | Notes                                |
+| --------- | -------------------------- | --------------- | ------------------------------------ |
+| `type`    | `numeric`, `lexicographic` | `lexicographic` | Numeric handles decimals, NaN safely |
+| `column`  | `1`, `2`, `3`...           | `1`             | 1-indexed; first data column only    |
+| `order`   | `asc`, `descending`        | `asc`           | Sort order                           |
+| `case`    | `sensitive`, `insensitive` | `sensitive`     | Only affects lexicographic mode      |
 
 ### Tables without `<!-- smt -->` are untouched
 
