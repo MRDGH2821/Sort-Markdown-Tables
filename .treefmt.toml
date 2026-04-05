@@ -31,14 +31,7 @@ priority = 9
 [formatter.ignore-files-formatter]
 command = "uvx"
 # tombi: format.rules.array-values-order = "ascending"
-includes = [
-  "**/.gitignore",
-  "**/.prettierignore",
-  "**/.v8rignore",
-  ".gitignore",
-  ".prettierignore",
-  ".v8rignore"
-]
+includes = ["**/.*ignore", ".*ignore"]
 options = ["git+https://github.com/lorenzwalthert/gitignore-tidy"]
 priority = 1
 
@@ -51,7 +44,16 @@ priority = 1
 command = "bunx"
 excludes = []
 # tombi: format.rules.array-values-order = "ascending"
-includes = ["*.js", "*.json", "*.md", "*.toml", "*.ts", "*.yaml", "*.yml"]
+includes = [
+  "*.js",
+  "*.json",
+  "*.jsonc",
+  "*.md",
+  "*.toml",
+  "*.ts",
+  "*.yaml",
+  "*.yml"
+]
 options = ["prettier", "--log-level", "debug", "--write"]
 priority = 100
 
@@ -89,11 +91,9 @@ options = ["--indent", "2"]
 priority = 1
 
 [formatter.sort-markdown-tables]
-command = "bunx"
-# tombi: format.rules.array-values-order = "ascending"
-excludes = ["tests/**/**/*.md", "tests/**/*.md"]
+command = "smt"
 includes = ["*.md"]
-options = ["@fmma-npm/sort-markdown-tables", "-i"]
+options = ["-i"]
 priority = 2
 
 [formatter.sort-package-json]
