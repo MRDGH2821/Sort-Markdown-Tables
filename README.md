@@ -89,8 +89,8 @@ Use attributes in the comment to configure sorting:
 
 | A   | B   |
 | --- | --- |
-| 3   | z   |
 | 1   | x   |
+| 3   | z   |
 ```
 
 | Attribute | Options                    | Default         | Notes                                |

@@ -32,8 +32,8 @@ The tool is designed for CI pipelines and pre-commit hooks: it's fast, has zero 
 
 | Name  | Age |
 | ----- | --- |
-| Bob   | 30  |
 | Alice | 25  |
+| Bob   | 30  |
 ```
 
 ### With Options
