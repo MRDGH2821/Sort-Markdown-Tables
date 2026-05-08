@@ -48,7 +48,6 @@ path = "CHANGELOG.md"
 template = "remote"
 
 [commit_types]
-ci = { bump_patch = true }
 
 [git_hooks]
 
