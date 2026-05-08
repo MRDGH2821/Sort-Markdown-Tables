@@ -723,7 +723,7 @@ Final checks, performance validation, and pre-commit hook testing.
 
 - [x] Build release binary: `cargo build --release`
 - [x] Measure startup time: `time ./target/release/smt --help` → <10ms
-- [ ] Measure parsing + sorting time with large fixture (100+ tables) → <1s
+- [x] Measure parsing + sorting time with large fixture (100+ tables) → <1s
 - [x] Binary size acceptable: <10MB (typical for Rust CLI with no external deps)
 - [ ] Memory usage reasonable: no unbounded allocations
 - [x] Test on both debug and release builds
@@ -768,11 +768,11 @@ Final checks, performance validation, and pre-commit hook testing.
 
 **Checklist**:
 
-- [ ] Test: `smt -i "docs/**/*.md"` with glob pattern → all files processed
-- [ ] Test: `smt --check "docs/**/*.md"` → exit 0 if sorted, exit 1 if not
-- [ ] Test: `smt --check --verbose "docs/**/*.md"` → prints unsorted locations
+- [x] Test: `smt -i "docs/**/*.md"` with glob pattern → all files processed
+- [x] Test: `smt --check "docs/**/*.md"` → exit 0 if sorted, exit 1 if not
+- [x] Test: `smt --check --verbose "docs/**/*.md"` → prints unsorted locations
 - [ ] Test: integration with actual pre-commit hook (if applicable)
-- [ ] Verify exit codes match spec: 0 (pass), 1 (check fail), 2 (error)
+- [x] Verify exit codes match spec: 0 (pass), 1 (check fail), 2 (error)
 
 **Dependencies**: 7.3  
 **Success Criteria**:
