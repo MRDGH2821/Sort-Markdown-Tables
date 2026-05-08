@@ -163,8 +163,8 @@ Implement error handling and command-line argument parsing with validation.
 
 **Checklist**:
 
-- [ ] Test each `SmtError` variant produces correct message format
-- [ ] Test `exit_code()` returns 2 for all variants
+- [x] Test each `SmtError` variant produces correct message format
+- [x] Test `exit_code()` returns 2 for all variants
 - [ ] Test `Args` parsing with all flag combinations
 - [ ] Test mutual exclusivity (e.g., `-i -w` should error early)
 - [ ] Test glob expansion with wildcards, empty matches, special characters
@@ -663,7 +663,7 @@ Create comprehensive test fixtures and integration test suite.
 - [ ] Test: table with zero data rows → no-op
 - [ ] Test: large table (100+ rows) → sorts in <1s
 - [ ] Test: malformed table (missing separator) → error, exit 2
-- [ ] Test: duplicate smt comments → error, exit 2
+- [x] Test: duplicate smt comments → error, exit 2
 - [ ] Test: smt comment with no table following → error, exit 2
 - [ ] Test: column count mismatch → error, exit 2
 - [ ] Test: smt comment with trailing text (invalid) → error, exit 2

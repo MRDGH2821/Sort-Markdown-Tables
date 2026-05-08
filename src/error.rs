@@ -266,6 +266,17 @@ mod tests {
     }
 
     #[test]
+    fn test_io_error_message() {
+        let err = SmtError::Io {
+            source: std::io::Error::new(std::io::ErrorKind::Other, "mock failure"),
+        };
+        assert!(
+            err.to_string().starts_with("I/O error:"),
+            "{err}"
+        );
+    }
+
+    #[test]
     fn test_all_errors_exit_code_2() {
         let errors = vec![
             SmtError::WriteWithMultipleFiles,
@@ -318,6 +329,9 @@ mod tests {
             },
             SmtError::PermissionDenied {
                 path: PathBuf::from("test"),
+            },
+            SmtError::Io {
+                source: std::io::Error::new(std::io::ErrorKind::Other, "mock I/O failure"),
             },
         ];
 

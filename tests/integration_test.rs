@@ -557,6 +557,24 @@ fn test_column_out_of_range_in_comment_exit_2() {
         .stderr(predicates::str::contains("out of range"));
 }
 
+#[test]
+fn test_duplicate_consecutive_smt_comments_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("dup_comments.md");
+    fs::write(
+        &file,
+        "<!-- smt -->\n<!-- smt -->\n| A |\n| - |\n| x |\n",
+    )
+    .expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("duplicate smt comment"));
+}
+
 // ============================================================================
 // File I/O Tests (2 tests)
 // ============================================================================

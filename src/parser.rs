@@ -388,12 +388,6 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                         current_plain_text.clear();
                     }
 
-                    // Check for duplicate comment (if we just finalized a table)
-                    if previous_comment_line != 0 && line_num_1based == previous_comment_line + 2 {
-                        // This is a comment right after a previous table's last row
-                        // Not necessarily duplicate, just consecutive
-                    }
-
                     pending_comment_line = line.to_string();
                     pending_comment_line_num = line_num_1based;
 
@@ -411,6 +405,13 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                 if is_empty_line(line) {
                     // Blank line after comment - track it separately
                     blank_lines_after_comment.push(line.to_string());
+                } else if is_smt_comment(line) {
+                    // Two `<!-- smt -->` markers before any table rows (spec: duplicate comment).
+                    return Err(SmtError::DuplicateComment {
+                        path: source_loc.clone(),
+                        line: line_num_1based,
+                        previous_line: pending_comment_line_num,
+                    });
                 } else if is_table_row(line) {
                     // Found table header - transition to ExpectSep
                     table_header = line.to_string();
@@ -763,6 +764,23 @@ mod tests {
         let markdown = "<!-- smt -->\nSome text";
         let result = parse(markdown, None);
         assert!(matches!(result, Err(SmtError::CommentWithoutTable { .. })));
+    }
+
+    #[test]
+    fn test_parse_duplicate_consecutive_smt_comments_before_table() {
+        let markdown = "<!-- smt -->\n<!-- smt -->\n| H |\n| - |\n| x |\n";
+        let result = parse(markdown, Some(PathBuf::from("dup.md")));
+        match result {
+            Err(SmtError::DuplicateComment {
+                line,
+                previous_line,
+                ..
+            }) => {
+                assert_eq!(previous_line, 1);
+                assert_eq!(line, 2);
+            }
+            other => panic!("Expected DuplicateComment, got {:?}", other),
+        }
     }
 
     // Test 3.19: Column out of range (error)
