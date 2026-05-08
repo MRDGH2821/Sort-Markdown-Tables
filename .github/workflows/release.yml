@@ -100,6 +100,16 @@ jobs:
             asset_name: smt-x86_64-windows-gnu.exe
             os: ubuntu-latest
             target: x86_64-pc-windows-gnu
+          # Windows i686 GNU (Tier 2 w/ host tools)
+          - artifact_name: smt.exe
+            asset_name: smt-i686-windows-gnu.exe
+            os: ubuntu-latest
+            target: i686-pc-windows-gnu
+          # Windows x86_64 gnullvm (Tier 2 w/ host tools)
+          - artifact_name: smt.exe
+            asset_name: smt-x86_64-windows-gnullvm.exe
+            os: ubuntu-latest
+            target: x86_64-pc-windows-gnullvm
           # FreeBSD x86_64 (Tier 2)
           - artifact_name: smt
             asset_name: smt-x86_64-freebsd
