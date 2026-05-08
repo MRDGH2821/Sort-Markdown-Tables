@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.2.0](/compare/v0.1.5..v0.2.0) - 2026-05-08
+
+### Bug Fixes
+
+- **(smt)** make multi-file -i transactional - ([fd0a76d](/commit/fd0a76dc8829186ca4c89ca33e12efdc72b74385)) - MRDGH2821
+
+### Features
+
+- **(parser)** preserve CRLF line endings in output - ([e343929](/commit/e34392963f0ed5b27d6ca172113e2199e3170ab4)) - MRDGH2821
+
+### Style
+
+- format files - ([ea18cea](/commit/ea18ceada207893302730ef8242d2c3ca4499c36)) - MRDGH2821
+
+### Tests
+
+- **(parser)** add regression for case_insensitive fixture - ([9cfae29](/commit/9cfae2984027c9a01baf8f121940057fd11120fe)) - MRDGH2821
+- **(smt)** add perf fixture and record Phase 7 checks - ([001938e](/commit/001938e0bfb43ccc33e8e05ee48bd7186d28b76d)) - MRDGH2821
+
+### Ci
+
+- **(github)** run release job after build matrix - ([20447d9](/commit/20447d95c98950a8d8a250793d0f4e6f4cc5a12a)) - MRDGH2821
+- **(github)** build remaining tier1 targets - ([01cc9e6](/commit/01cc9e64a29ebceec446ac3775c79e864b307256)) - MRDGH2821
+- **(github)** add tier2 host-tools targets to release matrix - ([81d35a8](/commit/81d35a8b82272c0b899b19c64ecbfc90266f4904)) - MRDGH2821
+- **(github)** name release artifacts by target triple - ([14f3ea5](/commit/14f3ea5aff0f954e3b72961fecf02cf153be4a78)) - MRDGH2821
+- **(github)** add remaining cross-supported targets - ([0a17cbb](/commit/0a17cbbcf2df20fa39044baf8ea65f371eec38da)) - MRDGH2821
+
+---
+
 ## [0.1.5](/compare/v0.1.4..v0.1.5) - 2026-05-08
 
 ### Bug Fixes
