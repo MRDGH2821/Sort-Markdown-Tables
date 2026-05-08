@@ -98,6 +98,7 @@ priority = 1
 
 [formatter.sort-markdown-tables]
 command = "smt"
+excludes = ["openspec/changes/smt-core/spec.md", "tests/fixtures/**/*.md"]
 includes = ["*.md"]
 options = ["-i"]
 priority = 2
