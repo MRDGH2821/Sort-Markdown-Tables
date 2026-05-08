@@ -10,7 +10,15 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       - name: Set artifact base name
-        run: echo "ASSET_BASE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
+        run: |
+          echo "ASSET_BASE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
+          if [[ "${{ matrix.target }}" == *"-windows-"* ]]; then
+            echo "BIN_NAME=smt.exe" >> "$GITHUB_ENV"
+            echo "ASSET_FILE=smt-${{ matrix.target }}.exe" >> "$GITHUB_ENV"
+          else
+            echo "BIN_NAME=smt" >> "$GITHUB_ENV"
+            echo "ASSET_FILE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
+          fi
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         name: Install Cross (for non-native targets)
         run: cargo install cross --git https://github.com/cross-rs/cross
@@ -23,20 +31,18 @@ jobs:
       - name: Prepare Artifacts
         run: |
           mkdir -p artifacts
-          if [[ "${{ matrix.artifact_name }}" == *.exe ]]; then
-            cp "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}" "artifacts/${ASSET_BASE}.exe"
-          else
-            cp "target/${{ matrix.target }}/release/${{ matrix.artifact_name }}" "artifacts/${ASSET_BASE}"
-            chmod +x "artifacts/${ASSET_BASE}"
+          cp "target/${{ matrix.target }}/release/${BIN_NAME}" "artifacts/${ASSET_FILE}"
+          if [[ "${BIN_NAME}" != *.exe ]]; then
+            chmod +x "artifacts/${ASSET_FILE}"
           fi
         shell: bash
       - name: Create Binary Checksum
         run: |
           cd artifacts
-          if [[ "${{ matrix.artifact_name }}" == *.exe ]]; then
-            certUtil -hashfile "${ASSET_BASE}.exe" SHA256 | grep -v "SHA256 hash" | tr -d ' ' > "${ASSET_BASE}.exe.sha256"
+          if [[ "${BIN_NAME}" == *.exe ]]; then
+            certUtil -hashfile "${ASSET_FILE}" SHA256 | grep -v "SHA256 hash" | tr -d ' ' > "${ASSET_FILE}.sha256"
           else
-            sha256sum "${ASSET_BASE}" > "${ASSET_BASE}.sha256"
+            sha256sum "${ASSET_FILE}" > "${ASSET_FILE}.sha256"
           fi
         shell: bash
       - name: Upload Artifacts
@@ -48,174 +54,125 @@ jobs:
       matrix:
         include:
           # Linux x86_64 (Tier 1)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           # Linux i686 (Tier 1)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: i686-unknown-linux-gnu
           # Linux ARM64 (Tier 2)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
           # Linux x86_64 musl (Tier 2)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
           # Linux ARM64 musl (Tier 2)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
           # macOS x86_64 (Tier 1)
-          - artifact_name: smt
-            os: macos-latest
+          - os: macos-latest
             target: x86_64-apple-darwin
           # macOS ARM64 (Tier 1)
-          - artifact_name: smt
-            os: macos-latest
+          - os: macos-latest
             target: aarch64-apple-darwin
           # Windows x86_64 (Tier 1)
-          - artifact_name: smt.exe
-            os: windows-latest
+          - os: windows-latest
             target: x86_64-pc-windows-msvc
           # Windows i686 (Tier 1)
-          - artifact_name: smt.exe
-            os: windows-latest
+          - os: windows-latest
             target: i686-pc-windows-msvc
           # Windows ARM64 (Tier 2)
-          - artifact_name: smt.exe
-            os: windows-latest
+          - os: windows-latest
             target: aarch64-pc-windows-msvc
           # Windows x86_64 GNU (Tier 1)
-          - artifact_name: smt.exe
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
           # Windows i686 GNU (Tier 2 w/ host tools)
-          - artifact_name: smt.exe
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: i686-pc-windows-gnu
           # Windows x86_64 gnullvm (Tier 2 w/ host tools)
-          - artifact_name: smt.exe
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-pc-windows-gnullvm
           # FreeBSD x86_64 (Tier 2)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-unknown-freebsd
           # ---- Additional cross-rs supported targets (std-enabled) ----
 
           # Linux (x86 variants)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: i586-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: i586-unknown-linux-musl
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: i686-unknown-linux-musl
           # Linux (ARM / AArch64)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: aarch64_be-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: arm-unknown-linux-gnueabi
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: arm-unknown-linux-gnueabihf
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: arm-unknown-linux-musleabi
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: arm-unknown-linux-musleabihf
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: armv5te-unknown-linux-gnueabi
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: armv5te-unknown-linux-musleabi
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: armv7-unknown-linux-gnueabi
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: armv7-unknown-linux-musleabi
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: armv7-unknown-linux-musleabihf
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: thumbv7neon-unknown-linux-gnueabihf
           # Linux (LoongArch)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: loongarch64-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: loongarch64-unknown-linux-musl
           # Linux (MIPS)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: mips-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: mipsel-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: mips64-unknown-linux-gnuabi64
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: mips64el-unknown-linux-gnuabi64
           # Linux (PowerPC)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: powerpc-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: powerpc64-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: powerpc64le-unknown-linux-gnu
           # Linux (RISC-V / S390x / SPARC)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: riscv64gc-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: riscv64gc-unknown-linux-musl
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: s390x-unknown-linux-gnu
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: sparc64-unknown-linux-gnu
           # BSDs / illumos / Solaris (cross std targets)
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: i686-unknown-freebsd
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: aarch64-unknown-freebsd
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-unknown-netbsd
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-unknown-illumos
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: sparcv9-sun-solaris
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-pc-solaris
-          - artifact_name: smt
-            os: ubuntu-latest
+          - os: ubuntu-latest
             target: x86_64-unknown-dragonfly
   create-release:
     if: startsWith(github.ref, 'refs/tags/')
