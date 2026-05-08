@@ -85,11 +85,21 @@ jobs:
             asset_name: smt-x86_64-windows-msvc
             os: windows-latest
             target: x86_64-pc-windows-msvc
+          # Windows i686 (Tier 1)
+          - artifact_name: smt.exe
+            asset_name: smt-i686-windows-msvc
+            os: windows-latest
+            target: i686-pc-windows-msvc
           # Windows ARM64 (Tier 2)
           - artifact_name: smt.exe
             asset_name: smt-aarch64-windows-msvc
             os: windows-latest
             target: aarch64-pc-windows-msvc
+          # Windows x86_64 GNU (Tier 1)
+          - artifact_name: smt.exe
+            asset_name: smt-x86_64-windows-gnu.exe
+            os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
           # FreeBSD x86_64 (Tier 2)
           - artifact_name: smt
             asset_name: smt-x86_64-freebsd
