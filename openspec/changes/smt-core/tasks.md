@@ -794,7 +794,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [ ] Ensure `README.md` exists (if required by project)
 - [ ] Verify all public API has documentation
 - [ ] Update `Cargo.toml` version to `0.1.0` (initial release)
-- [ ] Check `.agents/PLAN.md` and `.agents/ARCHITECTURE.md` against implementation
+- [ ] Check `openspec/specs/smt/plan.md` and `openspec/specs/smt/architecture.md` against implementation
 - [ ] Create or update `CHANGELOG.md` (if required)
 - [ ] Verify `cargo publish --dry-run` works (if publishing to crates.io)
 

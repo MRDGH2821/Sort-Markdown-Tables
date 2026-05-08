@@ -320,31 +320,31 @@ src/
 
 ```
 Input(s) ──→ cli::parse_args()
-                │
-                ▼
-         ┌─────────────┐
-         │  For each    │
-         │  input file  │──→ parser::parse(content, path)
-         │  (or stdin)  │         │
-         └─────────────┘         ▼
-                          Document { blocks }
-                                 │
-                                 ▼
-                          sorter::sort_tables(&mut document)
-                                 │
-                                 ▼
-                          Sorted Document
-                                 │
-                          (collect all results)
-                                 │
-                                 ▼
-                    ┌── --check? ──→ compare original vs sorted
-                    │                    │
-                    │              exit 0 or 1
-                    │
-                    └── write ──→ writer::write(document, config)
-                                       │
-                                 stdout / file / in-place
+               │
+               ▼
+        ┌─────────────┐
+        │  For each    │
+        │  input file  │──→ parser::parse(content, path)
+        │  (or stdin)  │         │
+        └─────────────┘         ▼
+                         Document { blocks }
+                                │
+                                ▼
+                         sorter::sort_tables(&mut document)
+                                │
+                                ▼
+                         Sorted Document
+                                │
+                         (collect all results)
+                                │
+                                ▼
+                   ┌── --check? ──→ compare original vs sorted
+                   │                    │
+                   │              exit 0 or 1
+                   │
+                   └── write ──→ writer::write(document, config)
+                                      │
+                                stdout / file / in-place
 ```
 
 ---

@@ -4,13 +4,13 @@
 
 The `smt-core` change implements a Rust CLI tool that sorts markdown tables opted-in via `<!-- smt -->` HTML comments. The implementation follows a **two-phase pipeline architecture** (parse+sort all inputs, then write results) ensuring atomic file updates: on ANY error, no files are modified.
 
-The baseline architecture is documented in `.agents/ARCHITECTURE.md` with module dependency diagrams, data flow, complete Rust data structures, parser state machine, and atomic write strategy. This design expands that baseline with implementation-level detail.
+The baseline architecture is documented in `openspec/specs/smt/architecture.md` with module dependency diagrams, data flow, complete Rust data structures, parser state machine, and atomic write strategy. This design expands that baseline with implementation-level detail.
 
 ---
 
 ## 2. Module API & Data Structures
 
-See `.agents/ARCHITECTURE.md` for complete Rust data structures. This section summarizes each module's responsibility and public API.
+See `openspec/specs/smt/architecture.md` for complete Rust data structures. This section summarizes each module's responsibility and public API.
 
 ### 2.1 `error.rs` — Error Types (Leaf Module)
 
@@ -71,7 +71,7 @@ impl SmtError {
 
 **Responsibility**: Parse command-line arguments, validate flag combinations, expand glob patterns, detect stdin/TTY.
 
-**Key Types** (from `.agents/ARCHITECTURE.md`):
+**Key Types** (from `openspec/specs/smt/architecture.md`):
 
 ```rust
 #[derive(Parser, Debug)]
@@ -110,7 +110,7 @@ pub enum OutputTarget { Stdout, InPlace, File { path: PathBuf, append: bool } }
 
 **Responsibility**: Parse markdown, detect `<!-- smt -->` comments, extract and validate tables, build `Document` AST.
 
-**Key Types** (from `.agents/ARCHITECTURE.md`):
+**Key Types** (from `openspec/specs/smt/architecture.md`):
 
 ```rust
 pub struct Document {
@@ -155,7 +155,7 @@ pub struct TableRow {
 
 **Implementation Details**:
 
-- **State machine** (see `.agents/ARCHITECTURE.md` “Parser State Machine”): Normal → ExpectTable → ExpectSep → ReadingRows → Normal
+- **State machine** (see `openspec/specs/smt/architecture.md` “Parser State Machine”): Normal → ExpectTable → ExpectSep → ReadingRows → Normal
 - **Line classification**:
   - SMT comment: `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`
   - Table row: `^\s*\|.*\|\s*$`
@@ -253,7 +253,7 @@ pub struct CheckResult {
 
 ## 3. Data Flow & Pipeline
 
-See `.agents/ARCHITECTURE.md` for the full diagram. Implementation follows strict two-phase design:
+See `openspec/specs/smt/architecture.md` for the full diagram. Implementation follows strict two-phase design:
 
 ```
 PHASE 1: Parse & Sort (All files)
@@ -281,7 +281,7 @@ PHASE 2: Write (Only if Phase 1 succeeds)
 
 ## 4. Parser State Machine
 
-See `.agents/ARCHITECTURE.md` for the full FSM diagram.
+See `openspec/specs/smt/architecture.md` for the full FSM diagram.
 
 **Implementation**:
 
@@ -390,7 +390,7 @@ fn compare_lexicographic(a: &str, b: &str, case: CaseSensitivity) -> Ordering {
 
 ## 6. Atomic Write Strategy for `-i` Mode
 
-See `.agents/ARCHITECTURE.md` Section “Atomic Write Strategy for `-i` Mode”.
+See `openspec/specs/smt/architecture.md` Section “Atomic Write Strategy for `-i` Mode”.
 
 **Implementation** (using `tempfile` crate):
 
@@ -435,7 +435,7 @@ This requires creating backups (e.g. `path.md.smt.bak`) during the commit step s
 
 ## 7. Error Handling & Exit Codes
 
-**Error mapping** (see `.agents/PLAN.md` “Exit Codes” and `.agents/ARCHITECTURE.md` “Error Type Hierarchy”):
+**Error mapping** (see `openspec/specs/smt/plan.md` “Exit Codes” and `openspec/specs/smt/architecture.md` “Error Type Hierarchy”):
 
 - All `SmtError` variants → exit code **2** (user error)
 - `--check` unsorted → exit code **1** (not an error, just a check result) — handled in `main.rs` before calling `SmtError::exit_code()`
@@ -451,7 +451,7 @@ This requires creating backups (e.g. `path.md.smt.bak`) during the commit step s
 
 ## 8. Testing Strategy
 
-See `.agents/PLAN.md` Section “Testing Strategy” for the full testing plan.
+See `openspec/specs/smt/plan.md` Section “Testing Strategy” for the full testing plan.
 
 **Unit Tests** (in each src file):
 

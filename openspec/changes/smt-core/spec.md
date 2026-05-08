@@ -4,7 +4,7 @@
 
 `smt` is a Rust CLI tool that parses markdown files, identifies tables preceded by `<!-- smt -->` HTML comments, sorts them according to specified options (column, sort direction, case sensitivity, sort type), and outputs results to stdout, files, or in-place with **guaranteed atomicity**. The tool is designed for CI pipelines and pre-commit hooks with explicit exit codes and zero runtime dependencies.
 
-This spec is migrated from (and should fully replace) the planning docs in `.agents/PLAN.md` and `.agents/ARCHITECTURE.md`.
+This spec is migrated from (and should fully replace) the canonical specs in `openspec/specs/smt/plan.md` and `openspec/specs/smt/architecture.md`.
 
 ---
 
@@ -384,7 +384,7 @@ Verification that each requirement is met:
 
 5. **File I/O & Atomicity for In-Place**: Integration test for `-i` writes to a temp file in the same directory, then renames atomically. Original file is never left corrupted.
 
-6. **Error Messages**: All error scenarios from `.agents/PLAN.md` (Error Handling) are covered by integration tests using `assert_cmd` and `predicates`. Error messages are checked for correctness (file path, line number, descriptive text). Errors go to stderr, exit code 2.
+6. **Error Messages**: All error scenarios from `openspec/specs/smt/plan.md` (Error Handling) are covered by integration tests using `assert_cmd` and `predicates`. Error messages are checked for correctness (file path, line number, descriptive text). Errors go to stderr, exit code 2.
 
 7. **Exit Codes**: Integration tests verify:
    - Exit 0 on success (sorted or in-place write)
@@ -405,8 +405,8 @@ Verification that each requirement is met:
 
 ## 5. Specification References
 
-- **`.agents/PLAN.md`**: Comment syntax, CLI interface, exit codes, sorting behavior, error handling, dependencies, testing strategy
-- **`.agents/ARCHITECTURE.md`**: Data structures (`Document`, `Block`, `Table`, `SortOptions`), data flow, error type hierarchy, parser state machine, atomic write strategy, check mode flow, comment parsing detail, rendering back to markdown
+- **`openspec/specs/smt/plan.md`**: Comment syntax, CLI interface, exit codes, sorting behavior, error handling, dependencies, testing strategy
+- **`openspec/specs/smt/architecture.md`**: Data structures (`Document`, `Block`, `Table`, `SortOptions`), data flow, error type hierarchy, parser state machine, atomic write strategy, check mode flow, comment parsing detail, rendering back to markdown
 
 ---
 

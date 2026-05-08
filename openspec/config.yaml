@@ -7,7 +7,7 @@ context: |
   Style: conventional commits (cog.toml), MegaLinter, treefmt, pre-commit hooks
 rules:
   apply:
-    - Follow Rust idioms and existing module structure from .ai/ARCHITECTURE.md
+    - Follow Rust idioms and existing module structure from openspec/specs/smt/architecture.md
     - Atomic writes — two-phase parse+sort then write, never break this invariant
     - Use sort_by (stable), never sort_unstable_by
     - No regex — hand-roll comment parsing with str methods only
@@ -15,7 +15,7 @@ rules:
     - Warn before merging destructive deltas (large removals)
   design:
     - Document architecture decisions with rationale
-    - Reference existing .ai/ARCHITECTURE.md for baseline
+    - Reference openspec/specs/smt/architecture.md for baseline
   proposal:
     - Include rollback plan for risky changes
     - Identify affected modules
