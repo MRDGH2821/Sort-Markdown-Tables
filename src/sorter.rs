@@ -219,6 +219,7 @@ pub fn is_table_sorted(table: &Table, options: &SortOptions) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::parser::LineEnding;
 
     // ========================================================================
     // TASK 4.1: Comparator Tests
@@ -604,6 +605,8 @@ mod tests {
                 },
                 blank_lines_after_comment: Vec::new(),
             }],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         sort_document(&mut doc).unwrap();
@@ -676,6 +679,8 @@ mod tests {
                     blank_lines_after_comment: Vec::new(),
                 },
             ],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         sort_document(&mut doc).unwrap();

@@ -263,6 +263,7 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
 #[cfg(test)]
 mod tests {
     use super::*;
+    use smt::parser::LineEnding;
     use smt::parser::{Block, SortOptions, Table, TableRow};
 
     // ========================================================================
@@ -358,6 +359,8 @@ mod tests {
                 table,
                 blank_lines_after_comment: Vec::new(),
             }],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let results = check_document(&doc);
@@ -393,6 +396,8 @@ mod tests {
                 table,
                 blank_lines_after_comment: Vec::new(),
             }],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let results = check_document(&doc);
@@ -405,6 +410,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["# Heading".to_string()])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let results = check_document(&doc);
@@ -437,6 +444,8 @@ mod tests {
                 },
                 Block::PlainText(vec!["Done.".to_string()]),
             ],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let results = check_document(&doc);
@@ -449,6 +458,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let result = ProcessResult {

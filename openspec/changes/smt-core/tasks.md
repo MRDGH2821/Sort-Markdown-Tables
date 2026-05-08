@@ -42,10 +42,10 @@ Initialize Cargo project, set up module structure, add all external dependencies
 
 **Checklist**:
 
-- [ ] Create `src/main.rs` with module declarations (no implementation, just `mod error; mod cli; mod parser; mod sorter; mod writer;`)
-- [ ] Create empty files: `src/error.rs`, `src/cli.rs`, `src/parser.rs`, `src/sorter.rs`, `src/writer.rs`
-- [ ] Ensure `cargo build` compiles successfully (will have warnings about unused code, that's OK)
-- [ ] Create `tests/` directory
+- [x] Create `src/main.rs` with module declarations (no implementation, just `mod error; mod cli; mod parser; mod sorter; mod writer;`)
+- [x] Create empty files: `src/error.rs`, `src/cli.rs`, `src/parser.rs`, `src/sorter.rs`, `src/writer.rs`
+- [x] Ensure `cargo build` compiles successfully (will have warnings about unused code, that's OK)
+- [x] Create `tests/` directory
 
 **Dependencies**: 1.1  
 **Success Criteria**:
@@ -171,7 +171,7 @@ Implement error handling and command-line argument parsing with validation.
 - [ ] Test TTY detection (mock `IsTerminal` if needed, or use conditional compilation)
 - [ ] Test input source detection: stdin vs files
 - [ ] Test output target mapping: stdout, in-place, file, append
-- [ ] Run `cargo test --lib error cli` and ensure 100% pass
+- [x] Run `cargo test --lib error cli` and ensure 100% pass
 
 **Dependencies**: 2.2  
 **Success Criteria**:
@@ -667,7 +667,7 @@ Create comprehensive test fixtures and integration test suite.
 - [ ] Test: smt comment with no table following → error, exit 2
 - [ ] Test: column count mismatch → error, exit 2
 - [ ] Test: smt comment with trailing text (invalid) → error, exit 2
-- [ ] Test: file with CRLF line endings → preserved in output
+- [x] Test: file with CRLF line endings → preserved in output
 - [ ] Test: very long lines → handled correctly
 - [ ] Test: unicode characters in table → sorted correctly
 - [ ] Test: permission denied on file read → error, exit 2
@@ -697,7 +697,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Run `cargo fmt` to format all code
 - [x] Run `cargo clippy` and fix all warnings
 - [ ] Review all error messages for clarity and consistency
-- [ ] Check that NO `unsafe` code exists (except where required by dependencies)
+- [x] Check that NO `unsafe` code exists (except where required by dependencies)
 - [ ] Verify all module documentation is present (doc comments for public functions)
 - [ ] Ensure consistent error handling: all I/O errors wrapped in `SmtError`
 - [ ] Check that all string literals are correct (no typos, formatting)

@@ -39,12 +39,17 @@ use tempfile::NamedTempFile;
 ///
 /// The rendered output preserves all content, with sorted tables updated.
 pub fn render_document(doc: &Document) -> String {
+    let newline = match doc.line_ending {
+        crate::parser::LineEnding::Lf => "\n",
+        crate::parser::LineEnding::CrLf => "\r\n",
+    };
+
     let mut output = Vec::new();
 
     for block in &doc.blocks {
         match block {
             Block::PlainText(lines) => {
-                output.push(lines.join("\n"));
+                output.push(lines.join(newline));
             }
             Block::SortedTable {
                 comment_line,
@@ -71,7 +76,7 @@ pub fn render_document(doc: &Document) -> String {
         }
     }
 
-    output.join("\n")
+    output.join(newline)
 }
 
 // ============================================================================
@@ -277,6 +282,7 @@ pub fn write_document(
 mod tests {
     use super::*;
     use crate::parser::SortOptions;
+    use crate::parser::LineEnding;
 
     // ========================================================================
     // TASK 5.1: Render Document Tests
@@ -290,6 +296,8 @@ mod tests {
                 "# Heading".to_string(),
                 "Some text".to_string(),
             ])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -301,6 +309,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -335,6 +345,8 @@ mod tests {
                 table,
                 blank_lines_after_comment: Vec::new(),
             }],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -371,6 +383,8 @@ mod tests {
                 },
                 Block::PlainText(vec!["Done.".to_string()]),
             ],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -422,6 +436,8 @@ mod tests {
                     blank_lines_after_comment: Vec::new(),
                 },
             ],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -440,6 +456,8 @@ mod tests {
                 Block::PlainText(vec!["Line 1".to_string(), "Line 2".to_string()]),
                 Block::PlainText(vec!["Line 3".to_string()]),
             ],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -451,6 +469,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec![])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let rendered = render_document(&doc);
@@ -523,6 +543,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["# Test".to_string()])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::Stdout;
@@ -540,6 +562,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["# Test".to_string()])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::File {
@@ -566,6 +590,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["Appended".to_string()])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::File {
@@ -591,6 +617,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["New file".to_string()])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::File {
@@ -628,6 +656,8 @@ mod tests {
                 table,
                 blank_lines_after_comment: Vec::new(),
             }],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::File {
@@ -648,6 +678,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::InPlace;
@@ -662,6 +694,8 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["test".to_string()])],
+            line_ending: LineEnding::Lf,
+            trailing_newline: false,
         };
 
         let target = OutputTarget::File {

@@ -409,6 +409,27 @@ fn test_stdin_to_stdout() {
 }
 
 #[test]
+fn test_preserves_crlf_line_endings() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("crlf.md");
+
+    // Minimal table with CRLF line endings.
+    let crlf = "<!-- smt -->\r\n| A |\r\n| - |\r\n| 2 |\r\n| 1 |\r\n";
+    fs::write(&file, crlf).expect("Failed to write crlf fixture");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("Failed to execute command");
+    assert!(output.status.success());
+
+    // Verify the output still contains CRLF.
+    let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
+    assert!(
+        stdout.contains("\r\n"),
+        "Expected CRLF line endings in stdout"
+    );
+}
+
+#[test]
 fn test_inplace_with_stdin_error() {
     let input_content = read_fixture("input", "simple_numeric.md");
 

@@ -10,6 +10,14 @@ use std::path::PathBuf;
 pub struct Document {
     pub source: Option<PathBuf>,
     pub blocks: Vec<Block>,
+    pub line_ending: LineEnding,
+    pub trailing_newline: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum LineEnding {
+    Lf,
+    CrLf,
 }
 
 /// A block within the document
@@ -346,6 +354,13 @@ enum ParserState {
 /// Parse markdown content into a Document
 pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtError> {
     let source_loc = SourceLocation(source.clone());
+    let line_ending = if content.contains("\r\n") {
+        LineEnding::CrLf
+    } else {
+        LineEnding::Lf
+    };
+    let trailing_newline = content.ends_with('\n');
+
     let lines: Vec<&str> = content.lines().collect();
 
     let mut blocks = Vec::new();
@@ -511,7 +526,12 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
         }
     }
 
-    Ok(Document { source, blocks })
+    Ok(Document {
+        source,
+        blocks,
+        line_ending,
+        trailing_newline,
+    })
 }
 
 /// Table finalization context
@@ -849,5 +869,13 @@ mod tests {
             fs::read_to_string("tests/fixtures/expected/case_insensitive.expected.md").unwrap();
         let doc = parse(&markdown, Some(PathBuf::from("case_insensitive.expected.md"))).unwrap();
         assert!(!doc.blocks.is_empty());
+    }
+
+    #[test]
+    fn test_parse_detects_crlf_line_endings() {
+        let markdown = "<!-- smt -->\r\n| A |\r\n| - |\r\n| 2 |\r\n| 1 |\r\n";
+        let doc = parse(markdown, None).unwrap();
+        assert_eq!(doc.line_ending, LineEnding::CrLf);
+        assert!(doc.trailing_newline);
     }
 }
