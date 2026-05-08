@@ -6,10 +6,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@stable
+      # Native builds (macOS / Windows / Linux x86_64 GNU): install the matrix target on the runner host.
+      # Linux + `cross`: do NOT install the target via rustup — many triples have no `rust-std` for the host;
+      # `cross` supplies the target std inside its Linux container.
+      - if: matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu'
+        uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+        uses: dtolnay/rust-toolchain@stable
       - name: Set artifact base name
+        shell: bash
         run: |
           echo "ASSET_BASE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
           if [[ "${{ matrix.target }}" == *"-windows-"* ]]; then
@@ -48,6 +55,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
+          if-no-files-found: error
           name: ${{ env.ASSET_BASE }}
           path: artifacts/
     strategy:
@@ -83,14 +91,13 @@ jobs:
           # Windows ARM64 (Tier 2)
           - os: windows-latest
             target: aarch64-pc-windows-msvc
-          # Windows x86_64 GNU (Tier 1)
+          # Windows x86_64 GNU — cross Docker image (do not use rustup host `rust-std` for this triple)
           - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
-          # Windows i686 GNU (Tier 2 w/ host tools)
           - os: ubuntu-latest
             target: i686-pc-windows-gnu
-          # Windows x86_64 gnullvm (Tier 2 w/ host tools)
-          - os: ubuntu-latest
+          # gnullvm has no cross-rs image; build on Windows (LLVM/MinGW Rust toolchain)
+          - os: windows-latest
             target: x86_64-pc-windows-gnullvm
           # FreeBSD x86_64 (Tier 2)
           - os: ubuntu-latest
