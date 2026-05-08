@@ -9,6 +9,12 @@
       "computedHash": "2607fc60629b82b257136dd2a7a373f0a4466c0b49df7746d845d59313c99b21",
       "source": "github/awesome-copilot",
       "sourceType": "github"
+    },
+    "github": {
+      "computedHash": "339dd13ebe4fd3f72273bd12eec49356cdf235866ad2c7b75588eeddb3e993d2",
+      "skillPath": "github/SKILL.md",
+      "source": "dimillian/skills",
+      "sourceType": "github"
     }
   },
   "version": 1
