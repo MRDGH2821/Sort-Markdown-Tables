@@ -17,10 +17,7 @@ use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
 #[cfg(unix)]
-use {
-    std::fs::Permissions,
-    std::os::unix::fs::PermissionsExt,
-};
+use {std::fs::Permissions, std::os::unix::fs::PermissionsExt};
 
 // ============================================================================
 // Helper Functions
@@ -204,8 +201,14 @@ fn test_inplace_atomicity_parse_error_prevents_any_write() {
     let ok_after = fs::read_to_string(&ok_file).expect("Failed to read ok after");
     let bad_after = fs::read_to_string(&bad_file).expect("Failed to read bad after");
 
-    assert_eq!(ok_after, ok_before, "ok file must remain unchanged on error");
-    assert_eq!(bad_after, bad_before, "bad file must remain unchanged on error");
+    assert_eq!(
+        ok_after, ok_before,
+        "ok file must remain unchanged on error"
+    );
+    assert_eq!(
+        bad_after, bad_before,
+        "bad file must remain unchanged on error"
+    );
 }
 
 // ============================================================================
@@ -392,6 +395,168 @@ fn test_check_with_output_arg_conflicts() {
     cmd.assert().failure().code(2);
 }
 
+#[test]
+fn test_check_with_in_place_errors_exit_2() {
+    let input = fixture_path("input", "simple_numeric.md");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("--check").arg("--in-place").arg(&input);
+
+    cmd.assert().failure().code(2);
+}
+
+#[test]
+fn test_write_with_multiple_input_files_errors_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let out = tmp_dir.path().join("out.md");
+    let a = fixture_path("input", "simple_numeric.md");
+    let b = fixture_path("input", "no_tables.md");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&a)
+        .arg(&b)
+        .arg("-w")
+        .arg(&out)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains(
+            "--write cannot be used with multiple input files",
+        ));
+}
+
+#[test]
+fn test_append_without_write_errors() {
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("--append")
+        .assert()
+        .failure()
+        .stderr(predicates::str::contains("--append"));
+}
+
+#[test]
+fn test_append_writes_after_existing_file_content() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let out = tmp_dir.path().join("out.md");
+    fs::write(&out, "PREFIX_LINE\n").expect("Failed to write prefix");
+
+    let input = fixture_path("unsorted", "unsorted_numeric.md");
+    let golden = {
+        let output = Command::cargo_bin("smt")
+            .expect("Failed to build binary")
+            .arg(&input)
+            .output()
+            .expect("Failed to capture stdout baseline");
+        assert!(
+            output.status.success(),
+            "baseline sort failed:\nstderr={}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        let mut g = String::from_utf8(output.stdout).expect("Invalid UTF-8");
+        while g.ends_with('\n') {
+            g.pop();
+        }
+        g
+    };
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&input)
+        .arg("--append")
+        .arg("-w")
+        .arg(&out)
+        .assert()
+        .success();
+
+    let combined = fs::read_to_string(&out).expect("Failed to read output file");
+    assert_eq!(
+        combined,
+        format!("PREFIX_LINE\n{}", golden),
+        "append mode should preserve prior bytes then write rendered document"
+    );
+}
+
+#[test]
+fn test_stdin_with_write_targets_file() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let out = tmp_dir.path().join("out.md");
+    let input_content = read_fixture("input", "simple_numeric.md");
+    let expected = read_fixture_without_trailing_newline("expected", "simple_numeric.expected.md");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.write_stdin(input_content)
+        .arg("-w")
+        .arg(&out)
+        .assert()
+        .success();
+
+    let got = fs::read_to_string(&out).expect("Failed to read output");
+    assert_eq!(got, expected);
+}
+
+#[test]
+fn test_stable_sort_preserves_order_of_equal_keys() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("stable.md");
+    let body = "<!-- smt column=1 type=numeric -->\n\
+        | k | tag |\n\
+        | - | --- |\n\
+        | 2 | z   |\n\
+        | 1 | a   |\n\
+        | 1 | b   |\n";
+    fs::write(&file, body).expect("Failed to write stable fixture");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("Failed to run smt");
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
+    let pos_a = stdout
+        .find("| 1 | a   |")
+        .expect("expected first equal key row");
+    let pos_b = stdout
+        .find("| 1 | b   |")
+        .expect("expected second equal key row");
+    assert!(
+        pos_a < pos_b,
+        "stable sort must preserve relative order among equal keys (stdout={stdout:?})"
+    );
+}
+
+#[test]
+fn test_invalid_smt_comment_option_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("badopt.md");
+    fs::write(
+        &file,
+        "<!-- smt not_an_option=value -->\n| A |\n| - |\n| x |\n",
+    )
+    .expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("unknown option"));
+}
+
+#[test]
+fn test_column_out_of_range_in_comment_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("badcol.md");
+    fs::write(&file, "<!-- smt column=99 -->\n| A |\n| - |\n| x |\n").expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("out of range"));
+}
+
 // ============================================================================
 // File I/O Tests (2 tests)
 // ============================================================================
@@ -510,7 +675,9 @@ fn test_permission_denied_on_file_write_exits_2() {
     let output_path = out_dir.join("out.md");
 
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
-    cmd.arg(&input).arg("-w").arg(&output_path)
+    cmd.arg(&input)
+        .arg("-w")
+        .arg(&output_path)
         .assert()
         .failure()
         .code(2);
@@ -543,7 +710,8 @@ fn test_glob_with_zero_matches_errors_exit_2() {
     let pattern = format!("{}/nope-*.md", tmp_dir.path().display());
 
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
-    cmd.arg("--check").arg(&pattern)
+    cmd.arg("--check")
+        .arg(&pattern)
         .assert()
         .failure()
         .code(2)

@@ -537,19 +537,19 @@ Implement output rendering and orchestration of the two-phase pipeline.
 
 **Checklist**:
 
-- [ ] Test single file to stdout: correct output, exit 0
-- [ ] Test single file with `-i`: file modified, exit 0
+- [x] Test single file to stdout: correct output, exit 0
+- [x] Test single file with `-i`: file modified, exit 0
 - [x] Test multiple files with `-i`: all modified or all unchanged on error
-- [ ] Test `-w` with single file: output.md created, exit 0
-- [ ] Test `-w --append`: content appended, exit 0
-- [ ] Test `--check` with sorted file: exit 0, no output
-- [ ] Test `--check` with unsorted file: exit 1, no output
-- [ ] Test `--check --verbose` with unsorted: prints location, exit 1
-- [ ] Test flag conflicts: `-i -w`, `--check -i`, etc. → exit 2
-- [ ] Test glob patterns: expand and process all files
-- [ ] Test glob with zero matches: error, exit 2
-- [ ] Test atomicity: error in one file prevents all writes
-- [ ] Run `cargo test --test integration_test` and ensure all pass
+- [x] Test `-w` with single file: output.md created, exit 0
+- [x] Test `-w --append`: content appended, exit 0
+- [x] Test `--check` with sorted file: exit 0, no output
+- [x] Test `--check` with unsorted file: exit 1, no output
+- [x] Test `--check --verbose` with unsorted: prints location, exit 1
+- [x] Test flag conflicts: `-i -w`, `--check -i`, etc. → exit 2
+- [x] Test glob patterns: expand and process all files
+- [x] Test glob with zero matches: error, exit 2
+- [x] Test atomicity: error in one file prevents all writes
+- [x] Run `cargo test --test integration_test` and ensure all pass
 
 **Dependencies**: 5.3  
 **Success Criteria**:
@@ -616,7 +616,7 @@ Create comprehensive test fixtures and integration test suite.
 - [x] Test: sort simple file to stdout → output matches expected
 - [x] Test: sort file with `-i` → file modified correctly
 - [x] Test: sort to new file with `-w` → new file created with correct output
-- [ ] Test: `--append` → content appended to file
+- [x] Test: `--append` → content appended to file
 - [x] Test: `--check` on sorted file → exit 0
 - [x] Test: `--check` on unsorted file → exit 1
 - [x] Test: `--check --verbose` on unsorted → prints table location, exit 1
@@ -625,19 +625,19 @@ Create comprehensive test fixtures and integration test suite.
 - [x] Test: glob pattern matching multiple files → all processed
 - [x] Test: glob with zero matches → error, exit 2
 - [x] Test: `-i -w` together → error, exit 2
-- [ ] Test: `--check -i` → error, exit 2
+- [x] Test: `--check -i` → error, exit 2
 - [x] Test: `--check -w` → error, exit 2
-- [ ] Test: `-w` with multiple files → error, exit 2
-- [ ] Test: `--append` without `-w` → error, exit 2
+- [x] Test: `-w` with multiple files → error, exit 2
+- [x] Test: `--append` without `-w` → error, exit 2
 - [x] Test: stdin + `-i` → error, exit 2
-- [ ] Test: stdin + `-w` → allowed, works
+- [x] Test: stdin + `-w` → allowed, works
 - [ ] Test: no args + TTY → prints help, exit 0
 - [x] Test: no args + non-TTY stdin → reads from stdin, works
 - [x] Test: unsorted numeric table → sorts correctly
 - [x] Test: case-insensitive sort → correct order
-- [ ] Test: stable sort → equal rows preserve order
-- [ ] Test: comment with invalid option → error message, exit 2
-- [ ] Test: comment with column out of range → error message, exit 2
+- [x] Test: stable sort → equal rows preserve order
+- [x] Test: comment with invalid option → error message, exit 2
+- [x] Test: comment with column out of range → error message, exit 2
 - [x] Run `cargo test --test integration_test` and ensure all pass
 
 **Dependencies**: 6.1  
