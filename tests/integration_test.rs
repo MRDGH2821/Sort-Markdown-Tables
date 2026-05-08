@@ -156,6 +156,53 @@ fn test_inplace_sort() {
     assert_eq!(result, expected, "File should be sorted in-place");
 }
 
+#[test]
+fn test_inplace_sort_multiple_files() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let work_a = tmp_dir.path().join("a.md");
+    let work_b = tmp_dir.path().join("b.md");
+
+    let input = fixture_path("input", "simple_numeric.md");
+    let expected = read_fixture_without_trailing_newline("expected", "simple_numeric.expected.md");
+
+    fs::copy(&input, &work_a).expect("Failed to copy fixture a");
+    fs::copy(&input, &work_b).expect("Failed to copy fixture b");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&work_a).arg(&work_b);
+
+    cmd.assert().success();
+
+    let a = fs::read_to_string(&work_a).expect("Failed to read a");
+    let b = fs::read_to_string(&work_b).expect("Failed to read b");
+    assert_eq!(a, expected, "a should be sorted in-place");
+    assert_eq!(b, expected, "b should be sorted in-place");
+}
+
+#[test]
+fn test_inplace_atomicity_parse_error_prevents_any_write() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let ok_file = tmp_dir.path().join("ok.md");
+    let bad_file = tmp_dir.path().join("bad.md");
+
+    let ok_input = fixture_path("input", "simple_numeric.md");
+    fs::copy(&ok_input, &ok_file).expect("Failed to copy ok fixture");
+    fs::write(&bad_file, "<!-- smt -->\nthis is not a table\n").expect("Failed to write bad file");
+
+    let ok_before = fs::read_to_string(&ok_file).expect("Failed to read ok before");
+    let bad_before = fs::read_to_string(&bad_file).expect("Failed to read bad before");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&ok_file).arg(&bad_file);
+    cmd.assert().failure().code(2);
+
+    let ok_after = fs::read_to_string(&ok_file).expect("Failed to read ok after");
+    let bad_after = fs::read_to_string(&bad_file).expect("Failed to read bad after");
+
+    assert_eq!(ok_after, ok_before, "ok file must remain unchanged on error");
+    assert_eq!(bad_after, bad_before, "bad file must remain unchanged on error");
+}
+
 // ============================================================================
 // Check Mode Tests (3 tests)
 // ============================================================================

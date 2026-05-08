@@ -19,9 +19,10 @@ use crate::parser::Block;
 use crate::parser::Document;
 #[cfg(test)]
 use crate::parser::{Document, Table, TableRow};
+use std::fs;
 use std::fs::OpenOptions;
 use std::io::{self, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
 
 // ============================================================================
@@ -126,6 +127,87 @@ fn map_io_error(err: &io::Error, path: &Path) -> SmtError {
             source: io::Error::new(err.kind(), err.to_string()),
         },
     }
+}
+
+fn backup_path_for(path: &Path) -> PathBuf {
+    let base = PathBuf::from(format!("{}.smt.bak", path.display()));
+    if !base.exists() {
+        return base;
+    }
+
+    for i in 1.. {
+        let candidate = PathBuf::from(format!("{}.{}", base.display(), i));
+        if !candidate.exists() {
+            return candidate;
+        }
+    }
+    unreachable!("infinite loop only if filesystem always returns exists");
+}
+
+/// Transactional in-place write across multiple files.
+///
+/// Guarantee: if this function returns Err, all original files are restored.
+pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Result<(), SmtError> {
+    if entries.is_empty() {
+        return Ok(());
+    }
+
+    // Prepare: write all new contents to temp files first (no originals touched).
+    let mut temps: Vec<(PathBuf, NamedTempFile)> = Vec::with_capacity(entries.len());
+    for (path, content) in &entries {
+        let dir = path.parent().unwrap_or_else(|| Path::new("."));
+        let mut temp_file = NamedTempFile::new_in(dir).map_err(|e| map_io_error(&e, path))?;
+        temp_file
+            .write_all(content.as_bytes())
+            .map_err(|e| map_io_error(&e, path))?;
+        temp_file.flush().map_err(|e| map_io_error(&e, path))?;
+        temp_file
+            .as_file()
+            .sync_all()
+            .map_err(|e| map_io_error(&e, path))?;
+        temps.push((path.clone(), temp_file));
+    }
+
+    // Commit (with rollback):
+    // 1) move originals to backups
+    // 2) persist temp files into final paths
+    let mut backups: Vec<(PathBuf, PathBuf)> = Vec::with_capacity(entries.len());
+    let mut persisted: Vec<PathBuf> = Vec::new();
+
+    let rollback = |backups: Vec<(PathBuf, PathBuf)>, persisted: Vec<PathBuf>| {
+        // Best-effort: restore originals from backups.
+        for path in persisted {
+            let _ = fs::remove_file(&path);
+        }
+        for (path, backup) in backups.into_iter().rev() {
+            let _ = fs::remove_file(&path);
+            let _ = fs::rename(&backup, &path);
+        }
+    };
+
+    for (path, _) in &temps {
+        let backup = backup_path_for(path);
+        fs::rename(path, &backup).map_err(|e| {
+            rollback(backups.clone(), persisted.clone());
+            map_io_error(&e, path)
+        })?;
+        backups.push((path.clone(), backup));
+    }
+
+    for (path, temp_file) in temps {
+        if let Err(e) = temp_file.persist(&path) {
+            rollback(backups, persisted);
+            return Err(map_io_error(&e.error, &path));
+        }
+        persisted.push(path);
+    }
+
+    // Cleanup backups on success.
+    for (_path, backup) in backups {
+        let _ = fs::remove_file(backup);
+    }
+
+    Ok(())
 }
 
 // ============================================================================

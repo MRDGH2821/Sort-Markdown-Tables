@@ -39,7 +39,7 @@ use smt::{
     error::SmtError,
     parser::{parse, Document},
     sorter::{check_document, sort_document, CheckResult},
-    writer::write_document,
+    writer::{write_document, write_documents_in_place_atomic},
 };
 use clap::CommandFactory;
 use std::fs;
@@ -160,12 +160,27 @@ fn run() -> i32 {
     }
 
     // Step 5: Write all documents
-    for result in results {
-        let target = output_target.clone();
-
-        if let Err(e) = write_document(&result.document, &target, result.source.as_deref()) {
+    if matches!(output_target, OutputTarget::InPlace) {
+        let mut entries = Vec::new();
+        for r in results {
+            let Some(path) = r.source else {
+                eprintln!("{}", SmtError::InPlaceWithStdin);
+                return 2;
+            };
+            entries.push((path, smt::writer::render_document(&r.document)));
+        }
+        if let Err(e) = write_documents_in_place_atomic(entries) {
             eprintln!("{}", e);
             return 2;
+        }
+    } else {
+        for result in results {
+            let target = output_target.clone();
+
+            if let Err(e) = write_document(&result.document, &target, result.source.as_deref()) {
+                eprintln!("{}", e);
+                return 2;
+            }
         }
     }
 

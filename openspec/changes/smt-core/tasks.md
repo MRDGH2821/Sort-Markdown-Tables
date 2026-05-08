@@ -68,8 +68,8 @@ Initialize Cargo project, set up module structure, add all external dependencies
 - [x] Create `tests/fixtures/expected/` directory
 - [x] Create `tests/fixtures/unsorted/` directory
 - [x] Create `tests/integration_test.rs` stub (empty test function for now)
-- [ ] Create at least 2 template `.md` files: `simple.md` (basic table with smt comment), `unsorted.md` (table that needs sorting)
-- [ ] Create corresponding `.expected.md` files with expected sorted output
+- [x] Create at least 2 template `.md` files: `simple.md` (basic table with smt comment), `unsorted.md` (table that needs sorting)
+- [x] Create corresponding `.expected.md` files with expected sorted output
 
 **Dependencies**: 1.2  
 **Success Criteria**:
@@ -539,7 +539,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
 
 - [ ] Test single file to stdout: correct output, exit 0
 - [ ] Test single file with `-i`: file modified, exit 0
-- [ ] Test multiple files with `-i`: all modified or all unchanged on error
+- [x] Test multiple files with `-i`: all modified or all unchanged on error
 - [ ] Test `-w` with single file: output.md created, exit 0
 - [ ] Test `-w --append`: content appended, exit 0
 - [ ] Test `--check` with sorted file: exit 0, no output
