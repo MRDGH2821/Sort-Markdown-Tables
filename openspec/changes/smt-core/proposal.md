@@ -2,7 +2,9 @@
 
 ## Intent
 
-Implement the complete `smt` CLI tool from scratch, a Rust-based markdown table sorting utility designed for CI pipelines and pre-commit hooks. The tool will parse markdown files, identify tables preceded by `<!-- smt -->` comments, sort them according to specified options (column, direction, case sensitivity, numeric/lexicographic), and output results to stdout, files, or in-place with guaranteed atomicity. This is a **greenfield implementation** following the detailed specifications in `.ai/PLAN.md` and architecture in `.ai/ARCHITECTURE.md`.
+Implement the complete `smt` CLI tool from scratch, a Rust-based markdown table sorting utility designed for CI pipelines and pre-commit hooks. The tool will parse markdown files, identify tables preceded by `<!-- smt -->` comments, sort them according to specified options (column, direction, case sensitivity, numeric/lexicographic), and output results to stdout, files, or in-place with guaranteed atomicity.
+
+This change’s proposal/spec/design are migrated from the canonical planning docs in `.agents/PLAN.md` and `.agents/ARCHITECTURE.md` (the OpenSpec artifacts should be treated as the source of truth going forward).
 
 ## Scope
 
@@ -118,8 +120,8 @@ Since this is a **greenfield implementation** (building from scratch with no pri
 
 - **Rust stable toolchain** (no MSRV specified, use current stable)
 - **External crates**: clap, thiserror, anyhow, glob, tempfile, assert_cmd, predicates, pretty_assertions (all Cargo.toml entries)
-- **`.ai/PLAN.md`**: Complete functional specification and requirements
-- **`.ai/ARCHITECTURE.md`**: Detailed module structure, data flow, and API design
+- **`.agents/PLAN.md`**: Complete functional specification and requirements
+- **`.agents/ARCHITECTURE.md`**: Detailed module structure, data flow, and API design
 
 ## Success Criteria
 

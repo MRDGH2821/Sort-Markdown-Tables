@@ -4,7 +4,7 @@
 
 `smt` is a Rust CLI tool that parses markdown files, identifies tables preceded by `<!-- smt -->` HTML comments, sorts them according to specified options (column, sort direction, case sensitivity, sort type), and outputs results to stdout, files, or in-place with **guaranteed atomicity**. The tool is designed for CI pipelines and pre-commit hooks with explicit exit codes and zero runtime dependencies.
 
-For full context, see `.ai/PLAN.md` and `.ai/ARCHITECTURE.md`.
+This spec is migrated from (and should fully replace) the planning docs in `.agents/PLAN.md` and `.agents/ARCHITECTURE.md`.
 
 ---
 
@@ -285,7 +285,9 @@ For full context, see `.ai/PLAN.md` and `.ai/ARCHITECTURE.md`.
 
 ### 2.4 Atomicity
 
-**Requirement**: On ANY error during parsing or sorting, NO files SHALL be modified, even when using `-i` with multiple files. This is achieved via a two-phase implementation: Phase 1 reads and processes all inputs (parsing and sorting in memory), Phase 2 writes results only if Phase 1 succeeds for ALL inputs.
+**Requirement**: On ANY error (parse, sort, OR write), NO files SHALL be modified, even when using `-i` with multiple files.
+
+This requires more than “two-phase” processing; Phase 2 must also be transactional across all files (e.g. write all temp outputs, then commit via a rename strategy that supports rollback using backups).
 
 #### Scenarios
 
@@ -294,13 +296,13 @@ For full context, see `.ai/PLAN.md` and `.ai/ARCHITECTURE.md`.
 
 ---
 
-**Given** multiple files and a permission denied error on the write target:
-**When** run as `smt -i files.md -w /restricted/output.md` (permission denied on write), **Then** Phase 1 succeeds (parse and sort). Phase 2 fails on write. Original files remain unchanged. Exit code 2.
+**Given** multiple files and a permission denied error during the write phase (e.g. in-place commit step cannot rename/persist one file):
+**When** run as `smt -i file1.md file2.md file3.md`, **Then** Phase 1 succeeds (parse and sort). Phase 2 fails. The tool MUST roll back any partial commits so that all original files remain unchanged. Exit code 2.
 
 ---
 
 **Given** 5 files to be sorted in-place, all parse successfully, all sort successfully:
-**When** Phase 1 completes, **Then** Phase 2 writes all 5 files atomically. If any individual write fails (e.g., permission denied on file 4), the tool SHALL attempt to roll back or abort before completing all writes, leaving all 5 files unchanged. Exit code 2.
+**When** Phase 1 completes, **Then** Phase 2 MUST commit all 5 outputs as an all-or-nothing operation. If any individual commit step fails (e.g., permission denied on file 4), the tool MUST roll back any files already committed so all 5 files are unchanged. Exit code 2.
 
 ---
 
@@ -382,7 +384,7 @@ Verification that each requirement is met:
 
 5. **File I/O & Atomicity for In-Place**: Integration test for `-i` writes to a temp file in the same directory, then renames atomically. Original file is never left corrupted.
 
-6. **Error Messages**: All error scenarios from `.ai/PLAN.md` Section 7 are covered by integration tests using `assert_cmd` and `predicates`. Error messages are checked for correctness (file path, line number, descriptive text). Errors go to stderr, exit code 2.
+6. **Error Messages**: All error scenarios from `.agents/PLAN.md` (Error Handling) are covered by integration tests using `assert_cmd` and `predicates`. Error messages are checked for correctness (file path, line number, descriptive text). Errors go to stderr, exit code 2.
 
 7. **Exit Codes**: Integration tests verify:
    - Exit 0 on success (sorted or in-place write)
@@ -403,8 +405,8 @@ Verification that each requirement is met:
 
 ## 5. Specification References
 
-- **`.ai/PLAN.md`**: Section 3 (Comment Syntax), Section 4 (CLI Interface), Section 5 (Exit Codes), Section 6 (Sorting Behavior), Section 7 (Error Handling), Section 8 (Architecture), Section 9 (Dependencies), Section 10 (Testing Strategy)
-- **`.ai/ARCHITECTURE.md`**: Data structures (`Document`, `Block`, `Table`, `SortOptions`), data flow (two-phase pipeline), error type hierarchy, parser state machine, atomic write strategy, check mode flow, comment parsing detail, rendering back to markdown
+- **`.agents/PLAN.md`**: Comment syntax, CLI interface, exit codes, sorting behavior, error handling, dependencies, testing strategy
+- **`.agents/ARCHITECTURE.md`**: Data structures (`Document`, `Block`, `Table`, `SortOptions`), data flow, error type hierarchy, parser state machine, atomic write strategy, check mode flow, comment parsing detail, rendering back to markdown
 
 ---
 
