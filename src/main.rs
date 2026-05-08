@@ -35,14 +35,16 @@
 // ============================================================================
 
 use smt::{
-    cli::{parse_args, InputSource, OutputTarget},
+    cli::{parse_args, Args, InputSource, OutputTarget},
     error::SmtError,
     parser::{parse, Document},
-    sorter::{is_table_sorted, sort_document},
+    sorter::{check_document, sort_document, CheckResult},
     writer::write_document,
 };
+use clap::CommandFactory;
 use std::fs;
 use std::io::{self, Read};
+use std::io::IsTerminal;
 use std::path::PathBuf;
 
 // ============================================================================
@@ -74,13 +76,21 @@ fn main() {
 ///    b. Exit 0 on success
 fn run() -> i32 {
     // Step 1: Parse CLI arguments
-    let (input_source, output_target, check_mode, _verbose) = match parse_args() {
+    let (input_source, output_target, check_mode, verbose) = match parse_args() {
         Ok(args) => args,
         Err(e) => {
             eprintln!("{}", e);
             return e.exit_code();
         }
     };
+
+    // Special case: no positional args + TTY stdin -> print help, exit 0.
+    // (clap already handles explicit `--help` / `--version`.)
+    if matches!(input_source, InputSource::Stdin) && std::io::stdin().is_terminal() {
+        let _ = Args::command().print_help();
+        println!();
+        return 0;
+    }
 
     // Step 2: Prepare list of files to process
     let files_to_process = match &input_source {
@@ -123,53 +133,37 @@ fn run() -> i32 {
 
     // Step 4: Check mode branch
     if check_mode {
-        // In check mode, determine which files are unsorted
-        let mut any_unsorted = false;
-
+        let mut unsorted_locations: Vec<CheckResult> = Vec::new();
         for result in &results {
-            if !result.is_sorted {
-                any_unsorted = true;
-                if let Some(path) = &result.source {
-                    eprintln!("{}: file is not sorted", path.display());
-                } else {
-                    eprintln!("<stdin>: file is not sorted");
-                }
+            unsorted_locations.extend(result.check_results.iter().filter(|r| !r.is_sorted).cloned());
+        }
+
+        if unsorted_locations.is_empty() {
+            return 0;
+        }
+
+        // In `--check --verbose`, unsorted table reports go to stdout.
+        if verbose {
+            for r in unsorted_locations {
+                let display_path = match &r.source {
+                    Some(p) => p.display().to_string(),
+                    None => "<stdin>".to_string(),
+                };
+                println!(
+                    "{}:{}: table is not sorted (comment at line {})",
+                    display_path, r.table_start_line, r.comment_line
+                );
             }
         }
 
-        if any_unsorted {
-            return 1; // At least one file is unsorted
-        } else {
-            return 0; // All files are sorted
-        }
+        return 1;
     }
 
     // Step 5: Write all documents
     for result in results {
-        let target = if let OutputTarget::InPlace = output_target {
-            // For in-place, determine the target path from the source file
-            match &result.source {
-                Some(_path) => OutputTarget::InPlace,
-                None => {
-                    eprintln!("error: --in-place requires input files (not stdin)");
-                    return 2;
-                }
-            }
-        } else {
-            output_target.clone()
-        };
+        let target = output_target.clone();
 
-        // For InPlace, we need to write to the original file path
-        let final_target = if let OutputTarget::InPlace = target {
-            OutputTarget::File {
-                path: result.source.clone().unwrap(),
-                append: false,
-            }
-        } else {
-            target
-        };
-
-        if let Err(e) = write_document(&result.document, &final_target, result.source.as_deref()) {
+        if let Err(e) = write_document(&result.document, &target, result.source.as_deref()) {
             eprintln!("{}", e);
             return 2;
         }
@@ -183,7 +177,7 @@ fn run() -> i32 {
 struct ProcessResult {
     source: Option<PathBuf>,
     document: Document,
-    is_sorted: bool,
+    check_results: Vec<CheckResult>,
 }
 
 /// Process a single file: read, parse, sort, and check if modified.
@@ -205,8 +199,8 @@ fn process_file(
     // Parse markdown
     let mut doc = parse(&contents, Some(file_path.clone()))?;
 
-    // Check if already sorted (before modifying)
-    let is_sorted = is_document_sorted(&doc);
+    // Check marked tables (before modifying)
+    let check_results = check_document(&doc);
 
     // Sort tables
     sort_document(&mut doc)?;
@@ -214,7 +208,7 @@ fn process_file(
     Ok(ProcessResult {
         source: Some(file_path.clone()),
         document: doc,
-        is_sorted,
+        check_results,
     })
 }
 
@@ -234,8 +228,8 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
     // Parse markdown (source = None for stdin)
     let mut doc = parse(&contents, None)?;
 
-    // Check if already sorted
-    let is_sorted = is_document_sorted(&doc);
+    // Check marked tables (before modifying)
+    let check_results = check_document(&doc);
 
     // Sort tables
     sort_document(&mut doc)?;
@@ -243,23 +237,8 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
     Ok(ProcessResult {
         source: None,
         document: doc,
-        is_sorted,
+        check_results,
     })
-}
-
-/// Check if a document is already sorted (all SortedTable blocks are sorted).
-fn is_document_sorted(doc: &Document) -> bool {
-    use smt::parser::Block;
-
-    for block in &doc.blocks {
-        if let Block::SortedTable { table, options, .. } = block {
-            if !is_table_sorted(table, options) {
-                return false;
-            }
-        }
-    }
-
-    true
 }
 
 // ============================================================================
@@ -288,7 +267,7 @@ mod tests {
 
         let process_result = result.unwrap();
         assert_eq!(process_result.source, Some(test_file));
-        assert!(!process_result.is_sorted); // Bob before Alice, so unsorted
+        assert!(process_result.check_results.iter().any(|r| !r.is_sorted)); // Bob before Alice, so unsorted
     }
 
     #[test]
@@ -303,7 +282,7 @@ mod tests {
         assert!(result.is_ok());
 
         let process_result = result.unwrap();
-        assert!(process_result.is_sorted); // Already in order
+        assert!(process_result.check_results.iter().all(|r| r.is_sorted)); // Already in order
     }
 
     #[test]
@@ -318,7 +297,7 @@ mod tests {
         assert!(result.is_ok());
 
         let process_result = result.unwrap();
-        assert!(process_result.is_sorted); // No sorted tables, so "sorted"
+        assert!(process_result.check_results.is_empty()); // No marked tables -> nothing to check
     }
 
     #[test]
@@ -337,7 +316,7 @@ mod tests {
     }
 
     #[test]
-    fn test_is_document_sorted_all_sorted() {
+    fn test_check_document_all_sorted() {
         let table = Table {
             start_line: 0,
             header: "| A |".to_string(),
@@ -366,11 +345,13 @@ mod tests {
             }],
         };
 
-        assert!(is_document_sorted(&doc));
+        let results = check_document(&doc);
+        assert_eq!(results.len(), 1);
+        assert!(results[0].is_sorted);
     }
 
     #[test]
-    fn test_is_document_sorted_one_unsorted() {
+    fn test_check_document_one_unsorted() {
         let table = Table {
             start_line: 0,
             header: "| A |".to_string(),
@@ -399,21 +380,24 @@ mod tests {
             }],
         };
 
-        assert!(!is_document_sorted(&doc));
+        let results = check_document(&doc);
+        assert_eq!(results.len(), 1);
+        assert!(!results[0].is_sorted);
     }
 
     #[test]
-    fn test_is_document_sorted_no_tables() {
+    fn test_check_document_no_tables() {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["# Heading".to_string()])],
         };
 
-        assert!(is_document_sorted(&doc));
+        let results = check_document(&doc);
+        assert!(results.is_empty());
     }
 
     #[test]
-    fn test_is_document_sorted_mixed_blocks() {
+    fn test_check_document_mixed_blocks() {
         let table = Table {
             start_line: 2,
             header: "| A |".to_string(),
@@ -440,7 +424,9 @@ mod tests {
             ],
         };
 
-        assert!(is_document_sorted(&doc));
+        let results = check_document(&doc);
+        assert_eq!(results.len(), 1);
+        assert!(results[0].is_sorted);
     }
 
     #[test]
@@ -453,10 +439,10 @@ mod tests {
         let result = ProcessResult {
             source: Some(PathBuf::from("test.md")),
             document: doc,
-            is_sorted: true,
+            check_results: Vec::new(),
         };
 
         assert_eq!(result.source, Some(PathBuf::from("test.md")));
-        assert!(result.is_sorted);
+        assert!(result.check_results.is_empty());
     }
 }

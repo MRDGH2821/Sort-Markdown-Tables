@@ -65,6 +65,20 @@ pub fn parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError>
         OutputTarget::Stdout
     };
 
+    // Additional validation not expressible purely in clap attributes.
+    //
+    // - `--write` with multiple input files is not allowed.
+    // - `--in-place` with stdin is not allowed.
+    match (&output_target, &input_source) {
+        (OutputTarget::File { .. }, InputSource::Files(files)) if files.len() > 1 => {
+            return Err(SmtError::WriteWithMultipleFiles);
+        }
+        (OutputTarget::InPlace, InputSource::Stdin) => {
+            return Err(SmtError::InPlaceWithStdin);
+        }
+        _ => {}
+    }
+
     Ok((input_source, output_target, args.check, args.verbose))
 }
 

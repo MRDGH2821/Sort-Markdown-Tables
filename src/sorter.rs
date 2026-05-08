@@ -32,6 +32,34 @@ pub struct CheckResult {
     pub is_sorted: bool,
 }
 
+/// Check all marked tables in a document and return per-table results.
+///
+/// This is used by `--check` mode to report unsorted locations without
+/// modifying the document.
+pub fn check_document(doc: &Document) -> Vec<CheckResult> {
+    let mut results = Vec::new();
+
+    for block in &doc.blocks {
+        if let Block::SortedTable {
+            comment_line_number,
+            table,
+            options,
+            ..
+        } = block
+        {
+            let is_sorted = is_table_sorted(table, options);
+            results.push(CheckResult {
+                source: doc.source.clone(),
+                comment_line: *comment_line_number,
+                table_start_line: table.start_line,
+                is_sorted,
+            });
+        }
+    }
+
+    results
+}
+
 /// Compare two strings as numbers (f64), with fallback to lexicographic.
 ///
 /// Algorithm:

@@ -20,10 +20,10 @@ Initialize Cargo project, set up module structure, add all external dependencies
 
 **Checklist**:
 
-- [ ] Create `Cargo.toml` with `[package]` section (name: `smt`, version: `0.1.0`, edition: `2021`)
-- [ ] Add production dependencies: `clap` (4.4+, derive feature), `thiserror` (2.0+), `anyhow` (1.0+), `glob` (0.3+), `tempfile` (3.8+)
-- [ ] Add dev-dependencies: `assert_cmd` (2.0+), `predicates` (3.0+)
-- [ ] Verify `cargo check` compiles without errors (may have unused warnings, that's OK)
+- [x] Create `Cargo.toml` with `[package]` section (name: `smt`, version: `0.1.0`, edition: `2021`)
+- [x] Add production dependencies: `clap` (4.4+, derive feature), `thiserror` (2.0+), `anyhow` (1.0+), `glob` (0.3+), `tempfile` (3.8+)
+- [x] Add dev-dependencies: `assert_cmd` (2.0+), `predicates` (3.0+)
+- [x] Verify `cargo check` compiles without errors (may have unused warnings, that's OK)
 
 **Dependencies**: None  
 **Success Criteria**:
@@ -64,10 +64,10 @@ Initialize Cargo project, set up module structure, add all external dependencies
 
 **Checklist**:
 
-- [ ] Create `tests/fixtures/input/` directory
-- [ ] Create `tests/fixtures/expected/` directory
-- [ ] Create `tests/fixtures/unsorted/` directory
-- [ ] Create `tests/integration_test.rs` stub (empty test function for now)
+- [x] Create `tests/fixtures/input/` directory
+- [x] Create `tests/fixtures/expected/` directory
+- [x] Create `tests/fixtures/unsorted/` directory
+- [x] Create `tests/integration_test.rs` stub (empty test function for now)
 - [ ] Create at least 2 template `.md` files: `simple.md` (basic table with smt comment), `unsorted.md` (table that needs sorting)
 - [ ] Create corresponding `.expected.md` files with expected sorted output
 
@@ -92,14 +92,14 @@ Implement error handling and command-line argument parsing with validation.
 
 **Checklist**:
 
-- [ ] Define `#[derive(Error, Debug)]` enum `SmtError` with variants:
+- [x] Define `#[derive(Error, Debug)]` enum `SmtError` with variants:
   - CLI errors: `WriteWithMultipleFiles`, `AppendWithoutWrite`, `InPlaceWithStdin`, `NoFilesMatched`
   - Parse errors: `CommentWithoutTable`, `DuplicateComment`, `UnknownOption`, `InvalidOptionValue`, `ColumnZero`, `ColumnNotInteger`, `ColumnOutOfRange`, `MalformedTable`
   - I/O errors: `FileNotFound`, `PermissionDenied`, `Io` (wrapped from `std::io::Error`)
-- [ ] Implement `impl SmtError` with `pub fn exit_code(&self) -> i32` returning 2 for all errors
-- [ ] Add `#[error(...)]` attributes to each variant with descriptive messages (including placeholders like `{path}:{line}:`)
-- [ ] Define `SourceLocation` type (wrapper around `Option<PathBuf>`)
-- [ ] Write unit tests for each error variant message format and exit code
+- [x] Implement `impl SmtError` with `pub fn exit_code(&self) -> i32` returning 2 for all errors
+- [x] Add `#[error(...)]` attributes to each variant with descriptive messages (including placeholders like `{path}:{line}:`)
+- [x] Define `SourceLocation` type (wrapper around `Option<PathBuf>`)
+- [x] Write unit tests for each error variant message format and exit code
 
 **Dependencies**: 1.2  
 **Success Criteria**:
@@ -119,30 +119,30 @@ Implement error handling and command-line argument parsing with validation.
 
 **Checklist**:
 
-- [ ] Define `#[derive(Parser, Debug)]` struct `Args` with:
+- [x] Define `#[derive(Parser, Debug)]` struct `Args` with:
   - `inputs: Vec<String>` (positional arguments)
   - `in_place: bool` (short: `-i`, long: `--in-place`, conflicts with `write` and `check`)
   - `write: Option<PathBuf>` (short: `-w`, long: `--write`, conflicts with `in_place` and `check`)
   - `append: bool` (long: `--append`, requires `write`)
   - `check: bool` (long: `--check`, conflicts with `in_place` and `write`)
   - `verbose: bool` (long: `--verbose`)
-- [ ] Define `enum InputSource { Stdin, Files(Vec<PathBuf>) }`
-- [ ] Define `enum OutputTarget { Stdout, InPlace, File { path: PathBuf, append: bool } }`
-- [ ] Implement `parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError>`:
+- [x] Define `enum InputSource { Stdin, Files(Vec<PathBuf>) }`
+- [x] Define `enum OutputTarget { Stdout, InPlace, File { path: PathBuf, append: bool } }`
+- [x] Implement `parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError>`:
   - Detect TTY with `std::io::IsTerminal` (Rust 1.70+)
   - If no inputs and TTY stdin: return help message and exit (TODO: implement in `main.rs`)
   - If no inputs and non-TTY stdin: set input source to `Stdin`
   - If inputs provided: expand globs, validate combinations
-- [ ] Implement `expand_globs(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError>`:
+- [x] Implement `expand_globs(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError>`:
   - Use `glob` crate to expand each pattern
   - Error if zero files matched: return `SmtError::NoFilesMatched`
-- [ ] Implement validation logic:
+- [x] Implement validation logic:
   - `-i` and `-w` are mutually exclusive
   - `--check` and (`-i` or `-w`) are mutually exclusive
   - `--append` requires `-w` (Clap `requires` attribute)
   - `-w` with multiple files: error
   - `-i` with stdin: error
-- [ ] Write unit tests for all flag combinations, glob expansion, input detection
+- [x] Write unit tests for all flag combinations, glob expansion, input detection
 
 **Dependencies**: 2.1  
 **Success Criteria**:
@@ -332,18 +332,18 @@ Implement sorting logic with numeric/lexicographic comparators, stability guaran
 
 **Checklist**:
 
-- [ ] Define `struct CheckResult { source: Option<PathBuf>, comment_line: usize, table_start_line: usize, is_sorted: bool }`
-- [ ] Implement `compare_numeric(a: &str, b: &str, case: CaseSensitivity) -> Ordering`:
+- [x] Define `struct CheckResult { source: Option<PathBuf>, comment_line: usize, table_start_line: usize, is_sorted: bool }`
+- [x] Implement `compare_numeric(a: &str, b: &str, case: CaseSensitivity) -> Ordering`:
   - Try parse both as `f64`
   - If both numeric: compare as floats (handle `NaN` via `partial_cmp`)
   - If `a` numeric, `b` non-numeric: `Ordering::Less` (numbers first)
   - If `a` non-numeric, `b` numeric: `Ordering::Greater`
   - If both non-numeric: fallback to lexicographic comparison
-- [ ] Implement `compare_lexicographic(a: &str, b: &str, case: CaseSensitivity) -> Ordering`:
+- [x] Implement `compare_lexicographic(a: &str, b: &str, case: CaseSensitivity) -> Ordering`:
   - If case-insensitive: convert both to lowercase, compare
   - If case-sensitive: compare as-is
   - Use `std::cmp::Ord` on `String`
-- [ ] Write unit tests for all comparison scenarios
+- [x] Write unit tests for all comparison scenarios
 
 **Dependencies**: 3.1  
 **Success Criteria**:
@@ -362,20 +362,20 @@ Implement sorting logic with numeric/lexicographic comparators, stability guaran
 
 **Checklist**:
 
-- [ ] Implement `sort_table(table: &mut Table, options: &SortOptions) -> Result<(), SmtError>`:
+- [x] Implement `sort_table(table: &mut Table, options: &SortOptions) -> Result<(), SmtError>`:
   - Validate column is in range (already done by parser, but double-check)
   - Convert 1-based column index to 0-based
   - Call `rows.sort_by()` with custom comparator
   - Use pattern from `design.md` Section 5: extract cell, apply comparator, handle direction
   - NEVER use `sort_unstable_by`
-- [ ] Implement `sort_document(doc: &mut Document) -> Result<(), SmtError>`:
+- [x] Implement `sort_document(doc: &mut Document) -> Result<(), SmtError>`:
   - Iterate through blocks
   - For each `SortedTable` block, call `sort_table()`
   - Return error if any table fails
-- [ ] Implement `is_table_sorted(table: &Table, options: &SortOptions) -> bool`:
+- [x] Implement `is_table_sorted(table: &Table, options: &SortOptions) -> bool`:
   - Clone rows, sort clone, compare to original
   - Return true if no changes
-- [ ] Write unit tests for:
+- [x] Write unit tests for:
   - Single table sort
   - Multiple tables in document
   - Stability preservation (equal elements retain order)
@@ -400,13 +400,13 @@ Implement sorting logic with numeric/lexicographic comparators, stability guaran
 
 **Checklist**:
 
-- [ ] Test numeric sort with integers, floats, negatives, mixed
-- [ ] Test lexicographic sort (case-sensitive and insensitive)
-- [ ] Test sort direction (ascending, descending)
-- [ ] Test stability with duplicate sort keys
-- [ ] Test edge cases: single row, zero rows, table already sorted
-- [ ] Test `is_table_sorted()` for all scenarios
-- [ ] Run `cargo test --lib sorter` and ensure all pass
+- [x] Test numeric sort with integers, floats, negatives, mixed
+- [x] Test lexicographic sort (case-sensitive and insensitive)
+- [x] Test sort direction (ascending, descending)
+- [x] Test stability with duplicate sort keys
+- [x] Test edge cases: single row, zero rows, table already sorted
+- [x] Test `is_table_sorted()` for all scenarios
+- [x] Run `cargo test --lib sorter` and ensure all pass
 
 **Dependencies**: 4.2  
 **Success Criteria**:
@@ -461,7 +461,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
 
 **Checklist**:
 
-- [ ] Implement atomic write helper in `writer.rs`:
+- [x] Implement atomic write helper in `writer.rs`:
   - Create `NamedTempFile` in same directory as target
   - Write rendered content to temp file
   - Call `flush()` to sync to disk
@@ -470,7 +470,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
 - [ ] Validate atomicity:
   - On Phase 1 error, temp files are never created
   - On Phase 2 error during write, original file is never corrupted
-- [ ] Write unit tests for atomic write behavior
+- [x] Write unit tests for atomic write behavior
 
 **Dependencies**: 5.1  
 **Success Criteria**:
@@ -489,7 +489,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
 
 **Checklist**:
 
-- [ ] Implement `main()` function:
+- [x] Implement `main()` function:
   - Parse args via `cli::parse_args()`
   - Determine input source and output target
   - **Phase 1: Parse & Sort**:
@@ -507,7 +507,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
       - For each document: `writer::write()` to target
       - Handle output target (stdout, file, in-place) correctly
       - Exit 0
-- [ ] Handle special cases:
+- [x] Handle special cases:
   - No inputs and TTY stdin: print help, exit 0
   - No inputs and non-TTY stdin: read from stdin, process normally
   - `--check` mode: don't write, just verify
@@ -515,7 +515,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
 - [ ] Error handling:
   - All errors printed to stderr via `eprintln!()`
   - Correct exit codes: 0 (success), 1 (check failed), 2 (user error)
-- [ ] Write unit/integration tests for main pipeline
+- [x] Write unit/integration tests for main pipeline
 
 **Dependencies**: 2.2, 3.3, 4.2, 5.1  
 **Success Criteria**:
@@ -694,8 +694,8 @@ Final checks, performance validation, and pre-commit hook testing.
 
 **Checklist**:
 
-- [ ] Run `cargo fmt` to format all code
-- [ ] Run `cargo clippy` and fix all warnings
+- [x] Run `cargo fmt` to format all code
+- [x] Run `cargo clippy` and fix all warnings
 - [ ] Review all error messages for clarity and consistency
 - [ ] Check that NO `unsafe` code exists (except where required by dependencies)
 - [ ] Verify all module documentation is present (doc comments for public functions)
@@ -721,7 +721,7 @@ Final checks, performance validation, and pre-commit hook testing.
 
 **Checklist**:
 
-- [ ] Build release binary: `cargo build --release`
+- [x] Build release binary: `cargo build --release`
 - [ ] Measure startup time: `time ./target/release/smt --help` → <10ms
 - [ ] Measure parsing + sorting time with large fixture (100+ tables) → <1s
 - [ ] Binary size acceptable: <10MB (typical for Rust CLI with no external deps)
@@ -745,11 +745,11 @@ Final checks, performance validation, and pre-commit hook testing.
 
 **Checklist**:
 
-- [ ] Run `cargo test --all` (unit + integration tests) → all pass
-- [ ] Run `cargo test --release` → all pass (catch any debug-only issues)
-- [ ] Verify test output shows 50+ tests
+- [x] Run `cargo test --all` (unit + integration tests) → all pass
+- [x] Run `cargo test --release` → all pass (catch any debug-only issues)
+- [x] Verify test output shows 50+ tests
 - [ ] Check that all main code paths are tested
-- [ ] Run `cargo build --release` → compiles without warnings
+- [x] Run `cargo build --release` → compiles without warnings
 
 **Dependencies**: 7.2  
 **Success Criteria**:

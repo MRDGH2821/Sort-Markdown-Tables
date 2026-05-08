@@ -146,7 +146,7 @@ fn map_io_error(err: &io::Error, path: &Path) -> SmtError {
 pub fn write_document(
     doc: &Document,
     target: &OutputTarget,
-    _source: Option<&Path>,
+    source: Option<&Path>,
 ) -> Result<(), SmtError> {
     // Render the document to string
     let content = render_document(doc);
@@ -174,15 +174,15 @@ pub fn write_document(
             Ok(())
         }
         OutputTarget::InPlace => {
-            // This shouldn't happen if main.rs is correct
-            // (InPlace requires a path, which is stored separately)
-            // But we handle it defensively
-            Err(SmtError::Io {
+            let path = source.ok_or_else(|| SmtError::Io {
                 source: io::Error::new(
                     io::ErrorKind::InvalidInput,
                     "InPlace target requires a source path",
                 ),
-            })
+            })?;
+
+            // Atomic write: temp file in same directory + persist/rename.
+            write_atomic(path, &content)
         }
     }
 }

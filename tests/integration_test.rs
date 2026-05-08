@@ -199,6 +199,19 @@ fn test_check_mixed_sorted_unsorted_exits_1() {
     cmd.assert().failure().code(1);
 }
 
+#[test]
+fn test_check_verbose_prints_unsorted_locations() {
+    let input = fixture_path("unsorted", "unsorted_numeric.md");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&input).arg("--check").arg("--verbose");
+
+    cmd.assert()
+        .failure()
+        .code(1)
+        .stdout(predicates::str::contains("table is not sorted"));
+}
+
 // ============================================================================
 // Multiple Tables Test (1 test)
 // ============================================================================
