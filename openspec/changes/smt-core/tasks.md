@@ -722,11 +722,11 @@ Final checks, performance validation, and pre-commit hook testing.
 **Checklist**:
 
 - [x] Build release binary: `cargo build --release`
-- [ ] Measure startup time: `time ./target/release/smt --help` → <10ms
+- [x] Measure startup time: `time ./target/release/smt --help` → <10ms
 - [ ] Measure parsing + sorting time with large fixture (100+ tables) → <1s
-- [ ] Binary size acceptable: <10MB (typical for Rust CLI with no external deps)
+- [x] Binary size acceptable: <10MB (typical for Rust CLI with no external deps)
 - [ ] Memory usage reasonable: no unbounded allocations
-- [ ] Test on both debug and release builds
+- [x] Test on both debug and release builds
 
 **Dependencies**: 7.1  
 **Success Criteria**:

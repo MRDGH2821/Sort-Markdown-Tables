@@ -576,6 +576,7 @@ fn finalize_table(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
 
     // Test 3.1: Default options
     #[test]
@@ -840,5 +841,13 @@ mod tests {
         let doc = parse(markdown, None).unwrap();
         // Both should parse successfully
         assert_eq!(doc.blocks.len(), 3);
+    }
+
+    #[test]
+    fn test_parse_fixture_case_insensitive_expected() {
+        let markdown =
+            fs::read_to_string("tests/fixtures/expected/case_insensitive.expected.md").unwrap();
+        let doc = parse(&markdown, Some(PathBuf::from("case_insensitive.expected.md"))).unwrap();
+        assert!(!doc.blocks.is_empty());
     }
 }
