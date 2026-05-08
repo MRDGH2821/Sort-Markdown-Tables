@@ -16,6 +16,11 @@ use assert_cmd::Command;
 use std::fs;
 use std::path::PathBuf;
 use tempfile::TempDir;
+#[cfg(unix)]
+use {
+    std::fs::Permissions,
+    std::os::unix::fs::PermissionsExt,
+};
 
 // ============================================================================
 // Helper Functions
@@ -419,7 +424,12 @@ fn test_preserves_crlf_line_endings() {
 
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
     let output = cmd.arg(&file).output().expect("Failed to execute command");
-    assert!(output.status.success());
+    assert!(
+        output.status.success(),
+        "Command failed.\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
 
     // Verify the output still contains CRLF.
     let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
@@ -427,6 +437,117 @@ fn test_preserves_crlf_line_endings() {
         stdout.contains("\r\n"),
         "Expected CRLF line endings in stdout"
     );
+}
+
+#[test]
+fn test_unicode_characters_sorted_correctly() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("unicode.md");
+
+    // Use lexicographic + case-insensitive to exercise Unicode lowercasing.
+    let values = vec!["Zebra", "ångström", "Äpfel", "ábaco"];
+    let mut expected_values = values.clone();
+    expected_values.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+
+    let input = format!(
+        "<!-- smt type=lexicographic case=insensitive -->\n| Word |\n| ---- |\n{}\n",
+        values
+            .iter()
+            .map(|v| format!("| {} |", v))
+            .collect::<Vec<_>>()
+            .join("\n")
+    );
+    fs::write(&file, input).expect("Failed to write unicode fixture");
+
+    let mut expected =
+        String::from("<!-- smt type=lexicographic case=insensitive -->\n| Word |\n| ---- |\n");
+    for v in expected_values {
+        expected.push_str(&format!("| {} |\n", v));
+    }
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("Failed to execute command");
+    assert!(
+        output.status.success(),
+        "Command failed.\nstdout:\n{}\nstderr:\n{}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8(output.stdout).expect("Invalid UTF-8");
+    assert_eq!(stdout, expected, "Unicode lexicographic sort should match");
+}
+
+#[cfg(unix)]
+#[test]
+fn test_permission_denied_on_file_read_exits_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("no_read.md");
+
+    fs::write(&file, "# hi\n").expect("Failed to write fixture");
+    fs::set_permissions(&file, Permissions::from_mode(0o000))
+        .expect("Failed to chmod fixture to 000");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file).assert().failure().code(2);
+
+    // Restore so tempdir cleanup doesn't fail.
+    fs::set_permissions(&file, Permissions::from_mode(0o600))
+        .expect("Failed to restore permissions");
+}
+
+#[cfg(unix)]
+#[test]
+fn test_permission_denied_on_file_write_exits_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let input = fixture_path("input", "simple_numeric.md");
+
+    let out_dir = tmp_dir.path().join("no_write_dir");
+    fs::create_dir_all(&out_dir).expect("Failed to create output dir");
+    fs::set_permissions(&out_dir, Permissions::from_mode(0o555))
+        .expect("Failed to chmod output dir to 555");
+
+    let output_path = out_dir.join("out.md");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&input).arg("-w").arg(&output_path)
+        .assert()
+        .failure()
+        .code(2);
+
+    // Restore so tempdir cleanup doesn't fail.
+    fs::set_permissions(&out_dir, Permissions::from_mode(0o755))
+        .expect("Failed to restore dir permissions");
+}
+
+#[test]
+fn test_glob_pattern_matching_multiple_files_processed() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+
+    let a = tmp_dir.path().join("a.md");
+    let b = tmp_dir.path().join("b.md");
+    let expected_sorted = read_fixture("expected", "simple_numeric.expected.md");
+
+    fs::write(&a, &expected_sorted).expect("Failed to write a");
+    fs::write(&b, &expected_sorted).expect("Failed to write b");
+
+    let pattern = format!("{}/*.md", tmp_dir.path().display());
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("--check").arg(pattern).assert().success().code(0);
+}
+
+#[test]
+fn test_glob_with_zero_matches_errors_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let pattern = format!("{}/nope-*.md", tmp_dir.path().display());
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("--check").arg(&pattern)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("no files matched pattern"));
 }
 
 #[test]

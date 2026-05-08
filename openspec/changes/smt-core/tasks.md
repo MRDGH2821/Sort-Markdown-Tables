@@ -613,32 +613,32 @@ Create comprehensive test fixtures and integration test suite.
 
 **Checklist**:
 
-- [ ] Test: sort simple file to stdout → output matches expected
-- [ ] Test: sort file with `-i` → file modified correctly
-- [ ] Test: sort to new file with `-w` → new file created with correct output
+- [x] Test: sort simple file to stdout → output matches expected
+- [x] Test: sort file with `-i` → file modified correctly
+- [x] Test: sort to new file with `-w` → new file created with correct output
 - [ ] Test: `--append` → content appended to file
-- [ ] Test: `--check` on sorted file → exit 0
-- [ ] Test: `--check` on unsorted file → exit 1
-- [ ] Test: `--check --verbose` on unsorted → prints table location, exit 1
-- [ ] Test: multiple files with `-i` all succeed → all modified
-- [ ] Test: multiple files with `-i`, one fails → none modified (atomicity)
-- [ ] Test: glob pattern matching multiple files → all processed
-- [ ] Test: glob with zero matches → error, exit 2
-- [ ] Test: `-i -w` together → error, exit 2
+- [x] Test: `--check` on sorted file → exit 0
+- [x] Test: `--check` on unsorted file → exit 1
+- [x] Test: `--check --verbose` on unsorted → prints table location, exit 1
+- [x] Test: multiple files with `-i` all succeed → all modified
+- [x] Test: multiple files with `-i`, one fails → none modified (atomicity)
+- [x] Test: glob pattern matching multiple files → all processed
+- [x] Test: glob with zero matches → error, exit 2
+- [x] Test: `-i -w` together → error, exit 2
 - [ ] Test: `--check -i` → error, exit 2
-- [ ] Test: `--check -w` → error, exit 2
+- [x] Test: `--check -w` → error, exit 2
 - [ ] Test: `-w` with multiple files → error, exit 2
 - [ ] Test: `--append` without `-w` → error, exit 2
-- [ ] Test: stdin + `-i` → error, exit 2
+- [x] Test: stdin + `-i` → error, exit 2
 - [ ] Test: stdin + `-w` → allowed, works
 - [ ] Test: no args + TTY → prints help, exit 0
-- [ ] Test: no args + non-TTY stdin → reads from stdin, works
-- [ ] Test: unsorted numeric table → sorts correctly
-- [ ] Test: case-insensitive sort → correct order
+- [x] Test: no args + non-TTY stdin → reads from stdin, works
+- [x] Test: unsorted numeric table → sorts correctly
+- [x] Test: case-insensitive sort → correct order
 - [ ] Test: stable sort → equal rows preserve order
 - [ ] Test: comment with invalid option → error message, exit 2
 - [ ] Test: comment with column out of range → error message, exit 2
-- [ ] Run `cargo test --test integration_test` and ensure all pass
+- [x] Run `cargo test --test integration_test` and ensure all pass
 
 **Dependencies**: 6.1  
 **Success Criteria**:
@@ -658,7 +658,7 @@ Create comprehensive test fixtures and integration test suite.
 
 **Checklist**:
 
-- [ ] Test: file with no marked tables → output unchanged, exit 0
+- [x] Test: file with no marked tables → output unchanged, exit 0
 - [ ] Test: table with single data row → no reordering
 - [ ] Test: table with zero data rows → no-op
 - [ ] Test: large table (100+ rows) → sorts in <1s
@@ -669,9 +669,9 @@ Create comprehensive test fixtures and integration test suite.
 - [ ] Test: smt comment with trailing text (invalid) → error, exit 2
 - [x] Test: file with CRLF line endings → preserved in output
 - [ ] Test: very long lines → handled correctly
-- [ ] Test: unicode characters in table → sorted correctly
-- [ ] Test: permission denied on file read → error, exit 2
-- [ ] Test: permission denied on file write → error, exit 2
+- [x] Test: unicode characters in table → sorted correctly
+- [x] Test: permission denied on file read → error, exit 2
+- [x] Test: permission denied on file write → error, exit 2
 
 **Dependencies**: 6.2  
 **Success Criteria**:
