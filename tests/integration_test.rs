@@ -561,11 +561,7 @@ fn test_column_out_of_range_in_comment_exit_2() {
 fn test_duplicate_consecutive_smt_comments_exit_2() {
     let tmp_dir = TempDir::new().expect("Failed to create temp dir");
     let file = tmp_dir.path().join("dup_comments.md");
-    fs::write(
-        &file,
-        "<!-- smt -->\n<!-- smt -->\n| A |\n| - |\n| x |\n",
-    )
-    .expect("write");
+    fs::write(&file, "<!-- smt -->\n<!-- smt -->\n| A |\n| - |\n| x |\n").expect("write");
 
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
     cmd.arg(&file)
@@ -630,7 +626,7 @@ fn test_unicode_characters_sorted_correctly() {
     // Use lexicographic + case-insensitive to exercise Unicode lowercasing.
     let values = vec!["Zebra", "ångström", "Äpfel", "ábaco"];
     let mut expected_values = values.clone();
-    expected_values.sort_by(|a, b| a.to_lowercase().cmp(&b.to_lowercase()));
+    expected_values.sort_by_key(|a| a.to_lowercase());
 
     let input = format!(
         "<!-- smt type=lexicographic case=insensitive -->\n| Word |\n| ---- |\n{}\n",

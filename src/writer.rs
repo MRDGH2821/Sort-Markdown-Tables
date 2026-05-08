@@ -281,8 +281,8 @@ pub fn write_document(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::SortOptions;
     use crate::parser::LineEnding;
+    use crate::parser::SortOptions;
 
     // ========================================================================
     // TASK 5.1: Render Document Tests

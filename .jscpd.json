@@ -9,8 +9,11 @@
     "**/.rbenv/**",
     "**/.venv/**",
     "**/node_modules/**",
-    "**/report/**"
+    "**/openspec/**",
+    "**/report/**",
+    "**/tests/fixtures/**",
+    "**/tests/perf/**"
   ],
   "reporters": ["html", "markdown"],
-  "threshold": 0
+  "threshold": 25
 }

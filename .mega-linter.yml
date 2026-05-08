@@ -14,7 +14,7 @@ JSON_PRETTIER_PRE_COMMANDS:
     tag: default
 SHOW_ELAPSED_TIME: true
 YAML_PRETTIER_PRE_COMMANDS:
-  - command: npm i prettier-plugin-toml
+  - command: npm i -g prettier-plugin-toml
     continue_if_failed: true
     cwd: root
     secured_env: true

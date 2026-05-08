@@ -34,6 +34,7 @@
 // - Exit code 2: Error (user input, file I/O, parse error, etc.)
 // ============================================================================
 
+use clap::CommandFactory;
 use smt::{
     cli::{parse_args, Args, InputSource, OutputTarget},
     error::SmtError,
@@ -41,10 +42,9 @@ use smt::{
     sorter::{check_document, sort_document, CheckResult},
     writer::{write_document, write_documents_in_place_atomic},
 };
-use clap::CommandFactory;
 use std::fs;
-use std::io::{self, Read};
 use std::io::IsTerminal;
+use std::io::{self, Read};
 use std::path::PathBuf;
 
 // ============================================================================
@@ -135,7 +135,13 @@ fn run() -> i32 {
     if check_mode {
         let mut unsorted_locations: Vec<CheckResult> = Vec::new();
         for result in &results {
-            unsorted_locations.extend(result.check_results.iter().filter(|r| !r.is_sorted).cloned());
+            unsorted_locations.extend(
+                result
+                    .check_results
+                    .iter()
+                    .filter(|r| !r.is_sorted)
+                    .cloned(),
+            );
         }
 
         if unsorted_locations.is_empty() {

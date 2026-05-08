@@ -6,6 +6,7 @@
     "**/.pnpm-lock.json",
     "**/node_modules/**",
     "**/vscode-extension/**",
+    ".github/workflows/release.yml",
     ".vscode",
     ".zed",
     "megalinter-reports",

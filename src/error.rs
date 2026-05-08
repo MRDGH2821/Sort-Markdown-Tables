@@ -268,12 +268,9 @@ mod tests {
     #[test]
     fn test_io_error_message() {
         let err = SmtError::Io {
-            source: std::io::Error::new(std::io::ErrorKind::Other, "mock failure"),
+            source: std::io::Error::other("mock failure"),
         };
-        assert!(
-            err.to_string().starts_with("I/O error:"),
-            "{err}"
-        );
+        assert!(err.to_string().starts_with("I/O error:"), "{err}");
     }
 
     #[test]
@@ -331,7 +328,7 @@ mod tests {
                 path: PathBuf::from("test"),
             },
             SmtError::Io {
-                source: std::io::Error::new(std::io::ErrorKind::Other, "mock I/O failure"),
+                source: std::io::Error::other("mock I/O failure"),
             },
         ];
 

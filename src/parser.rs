@@ -885,7 +885,11 @@ mod tests {
     fn test_parse_fixture_case_insensitive_expected() {
         let markdown =
             fs::read_to_string("tests/fixtures/expected/case_insensitive.expected.md").unwrap();
-        let doc = parse(&markdown, Some(PathBuf::from("case_insensitive.expected.md"))).unwrap();
+        let doc = parse(
+            &markdown,
+            Some(PathBuf::from("case_insensitive.expected.md")),
+        )
+        .unwrap();
         assert!(!doc.blocks.is_empty());
     }
 
