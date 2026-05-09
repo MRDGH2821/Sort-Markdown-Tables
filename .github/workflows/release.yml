@@ -1,14 +1,13 @@
 ---
 jobs:
   build:
-    continue-on-error: true
+    continue-on-error: false
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       # Native builds (macOS / Windows / Linux x86_64 GNU): install the matrix target on the runner host.
-      # Linux + `cross`: do NOT install the target via rustup — many triples have no `rust-std` for the host;
-      # `cross` supplies the target std inside its Linux container.
+      # Linux + `cross`: do NOT install the target via rustup; `cross` provides a containerized toolchain.
       - if: matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu'
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -29,6 +28,15 @@ jobs:
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         name: Install Cross (for non-native targets)
         run: cargo install cross --git https://github.com/cross-rs/cross
+      # `x86_64-pc-windows-gnullvm` requires the LLVM/MinGW clang driver (`x86_64-w64-mingw32-clang`) on PATH.
+      - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
+        name: Install LLVM/MinGW (gnullvm linker)
+        uses: msys2/setup-msys2@v2
+        with:
+          install: mingw-w64-x86_64-clang mingw-w64-x86_64-llvm
+          msystem: MINGW64
+          path-type: inherit
+          update: true
       - if: matrix.target == 'x86_64-unknown-linux-gnu' || startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows')
         name: Build Release Binary (native)
         run: cargo build --release --target ${{ matrix.target }}
@@ -46,7 +54,8 @@ jobs:
       - name: Create Binary Checksum
         run: |
           cd artifacts
-          if [[ "${BIN_NAME}" == *.exe ]]; then
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            # certutil exists on Windows runners; Linux/macOS runners should not rely on it.
             certUtil -hashfile "${ASSET_FILE}" SHA256 | grep -v "SHA256 hash" | tr -d ' ' > "${ASSET_FILE}.sha256"
           else
             sha256sum "${ASSET_FILE}" > "${ASSET_FILE}.sha256"
@@ -91,7 +100,7 @@ jobs:
           # Windows ARM64 (Tier 2)
           - os: windows-latest
             target: aarch64-pc-windows-msvc
-          # Windows x86_64 GNU — cross Docker image (do not use rustup host `rust-std` for this triple)
+          # Windows x86_64 GNU — cross Docker image
           - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
           - os: ubuntu-latest
@@ -102,7 +111,7 @@ jobs:
           # FreeBSD x86_64 (Tier 2)
           - os: ubuntu-latest
             target: x86_64-unknown-freebsd
-          # ---- Additional cross-rs supported targets (std-enabled) ----
+          # ---- Additional cross-rs supported targets ----
           # Linux (x86 variants)
           - os: ubuntu-latest
             target: i586-unknown-linux-gnu
@@ -111,8 +120,6 @@ jobs:
           - os: ubuntu-latest
             target: i686-unknown-linux-musl
           # Linux (ARM / AArch64)
-          - os: ubuntu-latest
-            target: aarch64_be-unknown-linux-gnu
           - os: ubuntu-latest
             target: arm-unknown-linux-gnueabi
           - os: ubuntu-latest
@@ -140,15 +147,6 @@ jobs:
             target: loongarch64-unknown-linux-gnu
           - os: ubuntu-latest
             target: loongarch64-unknown-linux-musl
-          # Linux (MIPS)
-          - os: ubuntu-latest
-            target: mips-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: mipsel-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: mips64-unknown-linux-gnuabi64
-          - os: ubuntu-latest
-            target: mips64el-unknown-linux-gnuabi64
           # Linux (PowerPC)
           - os: ubuntu-latest
             target: powerpc-unknown-linux-gnu
@@ -169,8 +167,6 @@ jobs:
           - os: ubuntu-latest
             target: i686-unknown-freebsd
           - os: ubuntu-latest
-            target: aarch64-unknown-freebsd
-          - os: ubuntu-latest
             target: x86_64-unknown-netbsd
           - os: ubuntu-latest
             target: x86_64-unknown-illumos
@@ -178,8 +174,6 @@ jobs:
             target: sparcv9-sun-solaris
           - os: ubuntu-latest
             target: x86_64-pc-solaris
-          - os: ubuntu-latest
-            target: x86_64-unknown-dragonfly
   create-release:
     if: startsWith(github.ref, 'refs/tags/')
     name: Create GitHub Release
