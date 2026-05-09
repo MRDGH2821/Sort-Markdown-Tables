@@ -467,7 +467,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
   - Call `flush()` to sync to disk
   - Call `persist()` to atomically rename
   - Return error if any step fails
-- [ ] Validate atomicity:
+- [x] Validate atomicity:
   - On Phase 1 error, temp files are never created
   - On Phase 2 error during write, original file is never corrupted
 - [x] Write unit tests for atomic write behavior
@@ -659,16 +659,16 @@ Create comprehensive test fixtures and integration test suite.
 **Checklist**:
 
 - [x] Test: file with no marked tables → output unchanged, exit 0
-- [ ] Test: table with single data row → no reordering
-- [ ] Test: table with zero data rows → no-op
-- [ ] Test: large table (100+ rows) → sorts in <1s
-- [ ] Test: malformed table (missing separator) → error, exit 2
+- [x] Test: table with single data row → no reordering
+- [x] Test: table with zero data rows → no-op
+- [x] Test: large table (100+ rows) → sorts in <1s
+- [x] Test: malformed table (missing separator) → error, exit 2
 - [x] Test: duplicate smt comments → error, exit 2
-- [ ] Test: smt comment with no table following → error, exit 2
-- [ ] Test: column count mismatch → error, exit 2
-- [ ] Test: smt comment with trailing text (invalid) → error, exit 2
+- [x] Test: smt comment with no table following → error, exit 2
+- [x] Test: column count mismatch → error, exit 2
+- [x] Test: smt comment with trailing text (invalid) → error, exit 2
 - [x] Test: file with CRLF line endings → preserved in output
-- [ ] Test: very long lines → handled correctly
+- [x] Test: very long lines → handled correctly
 - [x] Test: unicode characters in table → sorted correctly
 - [x] Test: permission denied on file read → error, exit 2
 - [x] Test: permission denied on file write → error, exit 2
@@ -791,7 +791,7 @@ Final checks, performance validation, and pre-commit hook testing.
 
 **Checklist**:
 
-- [ ] Ensure `README.md` exists (if required by project)
+- [x] Ensure `README.md` exists (if required by project)
 - [ ] Verify all public API has documentation
 - [ ] Update `Cargo.toml` version to `0.1.0` (initial release)
 - [ ] Check `openspec/specs/smt/plan.md` and `openspec/specs/smt/architecture.md` against implementation

@@ -15,6 +15,7 @@
 use assert_cmd::Command;
 use std::fs;
 use std::path::PathBuf;
+use std::time::{Duration, Instant};
 use tempfile::TempDir;
 #[cfg(unix)]
 use {std::fs::Permissions, std::os::unix::fs::PermissionsExt};
@@ -569,6 +570,175 @@ fn test_duplicate_consecutive_smt_comments_exit_2() {
         .failure()
         .code(2)
         .stderr(predicates::str::contains("duplicate smt comment"));
+}
+
+#[test]
+fn test_single_data_row_no_reordering() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("one_row.md");
+    let body = "<!-- smt column=1 type=lexicographic -->\n\
+        | tag | note |\n\
+        | --- | ---- |\n\
+        | z   | solo |\n";
+    fs::write(&file, body).expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("run");
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(String::from_utf8_lossy(&output.stdout), body);
+}
+
+#[test]
+fn test_zero_data_rows_table_unchanged() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("zero_rows.md");
+    let body = "<!-- smt -->\n| A |\n| - |\n";
+    fs::write(&file, body).expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("run");
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert_eq!(String::from_utf8_lossy(&output.stdout), body);
+}
+
+#[test]
+fn test_large_numeric_table_sorts_within_one_second() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("many_rows.md");
+
+    let mut body = String::from("<!-- smt column=1 type=numeric -->\n| n |\n| - |\n");
+    for i in (0..120).rev() {
+        body.push_str(&format!("| {} |\n", i));
+    }
+    fs::write(&file, body).expect("write");
+
+    let start = Instant::now();
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("run");
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        start.elapsed() < Duration::from_secs(1),
+        "sort took {:?}",
+        start.elapsed()
+    );
+
+    let stdout = String::from_utf8(output.stdout).expect("utf-8");
+    for i in 0..120 {
+        let needle = format!("| {} |", i);
+        assert!(
+            stdout.contains(&needle),
+            "expected row present in sorted output"
+        );
+    }
+}
+
+#[test]
+fn test_malformed_table_missing_separator_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("bad_sep.md");
+    fs::write(
+        &file,
+        "<!-- smt -->\n| H |\n| not a separator |\n",
+    )
+    .expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("missing separator row"));
+}
+
+#[test]
+fn test_comment_without_table_following_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("orphan_comment.md");
+    fs::write(&file, "<!-- smt -->\nplain line, not a table\n").expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("not followed by a table"));
+}
+
+#[test]
+fn test_column_count_mismatch_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("cols.md");
+    fs::write(
+        &file,
+        "<!-- smt -->\n| A | B |\n| - | - |\n| only-one-cell |\n",
+    )
+    .expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("malformed table"));
+}
+
+#[test]
+fn test_invalid_smt_token_without_equals_exit_2() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("bad_token.md");
+    fs::write(
+        &file,
+        "<!-- smt bogus -->\n| A |\n| - |\n| x |\n",
+    )
+    .expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&file)
+        .assert()
+        .failure()
+        .code(2)
+        .stderr(predicates::str::contains("key=value format"));
+}
+
+#[test]
+fn test_very_long_table_cell_processed() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("long_cell.md");
+    let padding = "x".repeat(12_000);
+    let body = format!(
+        "<!-- smt column=1 type=lexicographic -->\n| u | pad |\n| - | --- |\n| a | {} |\n| b | {} |\n",
+        padding,
+        padding
+    );
+    fs::write(&file, &body).expect("write");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd.arg(&file).output().expect("run");
+    assert!(
+        output.status.success(),
+        "stderr={}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+
+    let stdout = String::from_utf8(output.stdout).expect("utf-8");
+    let pos_a = stdout.find("| a |").expect("row a");
+    let pos_b = stdout.find("| b |").expect("row b");
+    assert!(
+        pos_a < pos_b,
+        "lexicographic ascending should put a before b"
+    );
 }
 
 // ============================================================================
