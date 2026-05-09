@@ -46,24 +46,26 @@ pub enum OutputTarget {
     File { path: PathBuf, append: bool },
 }
 
-/// Parse command-line arguments and validate flag combinations
-pub fn parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
-    let args = Args::parse();
-
-    // Determine input source
-    let input_source = detect_input_source(args.inputs.clone())?;
-
-    // Determine output target
-    let output_target = if args.in_place {
+/// Maps parsed flags to the output destination (stdout, file, or in-place).
+fn output_target_from_args(args: &Args) -> OutputTarget {
+    if args.in_place {
         OutputTarget::InPlace
-    } else if let Some(path) = args.write {
+    } else if let Some(path) = args.write.clone() {
         OutputTarget::File {
             path,
             append: args.append,
         }
     } else {
         OutputTarget::Stdout
-    };
+    }
+}
+
+/// Finalize routing and validation from an already-parsed [`Args`] value.
+///
+/// Used by [`parse_args`] and unit tests via [`Args::try_parse_from`].
+fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
+    let input_source = detect_input_source(args.inputs.clone())?;
+    let output_target = output_target_from_args(&args);
 
     // Additional validation not expressible purely in clap attributes.
     //
@@ -80,6 +82,11 @@ pub fn parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError>
     }
 
     Ok((input_source, output_target, args.check, args.verbose))
+}
+
+/// Parse command-line arguments and validate flag combinations
+pub fn parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
+    finalize_cli(Args::parse())
 }
 
 /// Expand glob patterns to file paths
@@ -150,11 +157,138 @@ pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError>
 #[cfg(test)]
 mod tests {
     use super::*;
+    use clap::Parser;
+
+    fn parse_args_from(argv: &[&str]) -> Result<Args, clap::Error> {
+        Args::try_parse_from(argv.iter().copied())
+    }
 
     #[test]
-    fn test_args_parsing_help() {
-        // We can't easily test help output, but we can test basic parsing
-        // This would normally require running the binary itself
+    fn parse_flags_defaults_and_verbose() {
+        let a = parse_args_from(&["smt"]).unwrap();
+        assert!(a.inputs.is_empty());
+        assert!(!a.in_place);
+        assert!(a.write.is_none());
+        assert!(!a.append);
+        assert!(!a.check);
+        assert!(!a.verbose);
+
+        let a = parse_args_from(&["smt", "--verbose"]).unwrap();
+        assert!(a.verbose);
+    }
+
+    #[test]
+    fn parse_flags_check_exclusive_with_place_and_write() {
+        assert!(parse_args_from(&["smt", "--check", "-i"]).is_err());
+        assert!(parse_args_from(&["smt", "--check", "-w", "out.md"]).is_err());
+    }
+
+    #[test]
+    fn parse_flags_in_place_conflicts_with_write() {
+        assert!(parse_args_from(&["smt", "-i", "-w", "out.md"]).is_err());
+    }
+
+    #[test]
+    fn parse_flags_append_requires_write() {
+        assert!(parse_args_from(&["smt", "--append"]).is_err());
+        let a = parse_args_from(&["smt", "-w", "out.md", "--append"]).unwrap();
+        assert!(a.append);
+        assert_eq!(a.write.as_ref().unwrap(), &PathBuf::from("out.md"));
+    }
+
+    #[test]
+    fn parse_flags_meaningful_combinations_succeed() {
+        let a = parse_args_from(&["smt", "a.md", "-i"]).unwrap();
+        assert_eq!(a.inputs, vec!["a.md"]);
+        assert!(a.in_place);
+
+        let a = parse_args_from(&["smt", "x.md", "-w", "out.md"]).unwrap();
+        assert_eq!(a.inputs, vec!["x.md"]);
+        assert_eq!(a.write.as_ref().unwrap(), &PathBuf::from("out.md"));
+
+        let a = parse_args_from(&["smt", "x.md", "-w", "out.md", "--append"]).unwrap();
+        assert!(a.append);
+
+        let a = parse_args_from(&["smt", "t.md", "--check"]).unwrap();
+        assert!(a.check);
+    }
+
+    #[test]
+    fn output_target_maps_stdout_write_in_place_append() {
+        let a = parse_args_from(&["smt"]).unwrap();
+        assert!(matches!(output_target_from_args(&a), OutputTarget::Stdout));
+
+        let a = parse_args_from(&["smt", "-i", "f.md"]).unwrap();
+        assert!(matches!(output_target_from_args(&a), OutputTarget::InPlace));
+
+        let a = parse_args_from(&["smt", "f.md", "-w", "o.md"]).unwrap();
+        match output_target_from_args(&a) {
+            OutputTarget::File { path, append } => {
+                assert_eq!(path, PathBuf::from("o.md"));
+                assert!(!append);
+            }
+            _ => panic!("expected File"),
+        }
+
+        let a = parse_args_from(&["smt", "f.md", "-w", "o.md", "--append"]).unwrap();
+        match output_target_from_args(&a) {
+            OutputTarget::File { path, append } => {
+                assert_eq!(path, PathBuf::from("o.md"));
+                assert!(append);
+            }
+            _ => panic!("expected File append"),
+        }
+    }
+
+    #[test]
+    fn finalize_errors_in_place_with_stdin_no_inputs() {
+        let args = parse_args_from(&["smt", "-i"]).unwrap();
+        let err = finalize_cli(args).unwrap_err();
+        assert!(matches!(err, SmtError::InPlaceWithStdin));
+    }
+
+    #[test]
+    fn finalize_errors_write_with_multiple_expanded_files() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let f1 = dir.path().join("a.md");
+        let f2 = dir.path().join("b.md");
+        std::fs::write(&f1, "# a").unwrap();
+        std::fs::write(&f2, "# b").unwrap();
+        let pat = format!("{}/*.md", dir.path().display());
+        let argv = vec!["smt", pat.as_str(), "-w", "out.md"];
+        let args = Args::try_parse_from(argv).unwrap();
+        let err = finalize_cli(args).unwrap_err();
+        assert!(matches!(err, SmtError::WriteWithMultipleFiles));
+    }
+
+    #[test]
+    fn finalize_ok_single_file_with_write() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let f = dir.path().join("only.md");
+        std::fs::write(&f, "# x").unwrap();
+        let argv = vec!["smt", f.to_str().unwrap(), "-w", "out.md"];
+        let args = Args::try_parse_from(argv).unwrap();
+        let (src, out, check, verbose) = finalize_cli(args).unwrap();
+        assert!(!check && !verbose);
+        match (src, out) {
+            (InputSource::Files(files), OutputTarget::File { path, append }) => {
+                assert_eq!(files.len(), 1);
+                assert_eq!(files[0], f);
+                assert_eq!(path, PathBuf::from("out.md"));
+                assert!(!append);
+            }
+            _ => panic!("unexpected routing"),
+        }
+    }
+
+    #[test]
+    fn expand_globs_literal_path_with_dashes_and_spaces() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let path = dir.path().join("my-file (copy).md");
+        std::fs::write(&path, "# x").unwrap();
+        let got = expand_globs(vec![path.to_string_lossy().into_owned()]).unwrap();
+        assert_eq!(got.len(), 1);
+        assert_eq!(got[0], path);
     }
 
     #[test]
@@ -191,10 +325,9 @@ mod tests {
 
     #[test]
     fn test_detect_input_source_no_inputs() {
-        // This test is tricky because it depends on whether stdin is a TTY
-        // We can only test the logic path where inputs are provided
-        let result = detect_input_source(vec![]);
-        assert!(result.is_ok());
+        // Empty inputs always resolve to `InputSource::Stdin` (TTY vs non-TTY is not asserted here).
+        let result = detect_input_source(vec![]).unwrap();
+        assert!(matches!(result, InputSource::Stdin));
     }
 
     #[test]

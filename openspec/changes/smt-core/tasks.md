@@ -165,20 +165,20 @@ Implement error handling and command-line argument parsing with validation.
 
 - [x] Test each `SmtError` variant produces correct message format
 - [x] Test `exit_code()` returns 2 for all variants
-- [ ] Test `Args` parsing with all flag combinations
-- [ ] Test mutual exclusivity (e.g., `-i -w` should error early)
-- [ ] Test glob expansion with wildcards, empty matches, special characters
-- [ ] Test TTY detection (mock `IsTerminal` if needed, or use conditional compilation)
-- [ ] Test input source detection: stdin vs files
-- [ ] Test output target mapping: stdout, in-place, file, append
+- [x] Test `Args` parsing with all flag combinations
+- [x] Test mutual exclusivity (e.g., `-i -w` should error early)
+- [x] Test glob expansion with wildcards, empty matches, special characters
+- [ ] Test TTY detection (mock `IsTerminal` if needed, or use conditional compilation) — not covered: reliable TTY assertion needs a PTY; `detect_input_source` empty-input paths both map to `Stdin` in code
+- [x] Test input source detection: stdin vs files
+- [x] Test output target mapping: stdout, in-place, file, append
 - [x] Run `cargo test --lib error cli` and ensure 100% pass
 
 **Dependencies**: 2.2  
 **Success Criteria**:
 
-- 20+ unit tests in `error.rs` and `cli.rs`
-- All tests pass with `cargo test`
-- Edge cases covered: empty patterns, special chars in filenames, conflicting flags
+- [x] 20+ unit tests in `error.rs` and `cli.rs`
+- [x] All tests pass with `cargo test`
+- [x] Edge cases covered: empty patterns, special chars in filenames, conflicting flags
 
 **Time Estimate**: 45 minutes
 
