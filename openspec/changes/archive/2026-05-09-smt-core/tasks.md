@@ -888,7 +888,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Zero unsafe code blocks
 - [x] Markdown fidelity preserved _(fixture round-trips + parser whitespace / CRLF tests; unmarked regions untouched by design)_
 - [x] Pre-commit hook scenarios work _(per Phase **7.4** checklist; repo supplies `.pre-commit-config.yaml`)_
-- [ ] Ready for release
+- [x] Ready for release
 
 ---
 
