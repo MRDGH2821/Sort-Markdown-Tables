@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.2.1](/compare/v0.2.0..v0.2.1) - 2026-05-09
+
+### Bug Fixes
+
+- **(parser)** error on duplicate smt comments before table - ([8f7eb63](/commit/8f7eb635624914b1c50c3ab1b754a58224a46b5b)) - MRDGH2821
+- **(smt)** unblock CI (rustfmt, clippy, megalinter) - ([c6e654e](/commit/c6e654e5af8298aa93fb9005997f3dd9306c13e6)) - MRDGH2821
+
+### Documentation
+
+- **(ai)** log release Actions audit - ([fd0db1e](/commit/fd0db1e292be283e44d48282945db9b8d348b735)) - MRDGH2821
+
+### Style
+
+- format files - ([1f509e1](/commit/1f509e1f23af87341b3ede04de8cb128de4effa1)) - MRDGH2821
+
+### Tests
+
+- **(smt)** extend integration scenarios and reconcile smt-core tasks - ([236bbca](/commit/236bbcae5979bd7d8c2f61a0416a2540b774b999)) - MRDGH2821
+- **(smt)** cover append, conflicts, stdin -w, and parse errors - ([2e55904](/commit/2e55904e8e834bb809450cc6b1b165af4e4fccaa)) - MRDGH2821
+
+### Ci
+
+- **(github)** derive release binary name from target - ([5f3d383](/commit/5f3d38316477179b2c532a7f747d4ad05f93dde7)) - MRDGH2821
+- **(github)** fix release builds for cross targets and Windows artifacts - ([299e227](/commit/299e227d19ff7de340af329766e18add744e4893)) - MRDGH2821
+
+---
+
 ## [0.2.0](/compare/v0.1.5..v0.2.0) - 2026-05-08
 
 ### Bug Fixes
