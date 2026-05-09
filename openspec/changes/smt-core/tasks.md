@@ -429,19 +429,19 @@ Implement output rendering and orchestration of the two-phase pipeline.
 
 **Checklist**:
 
-- [ ] Implement `render(doc: &Document) -> String`:
+- [x] Implement `render(doc: &Document) -> String`:
   - Iterate through blocks
   - For `PlainText`: concatenate lines with newlines
   - For `SortedTable`: output comment line, header, separator, then rows (using `row.raw`)
   - Return complete markdown string
-- [ ] Implement `write(doc: &Document, target: &OutputTarget, source: Option<PathBuf>) -> Result<(), SmtError>`:
+- [x] Implement `write(doc: &Document, target: &OutputTarget, source: Option<PathBuf>) -> Result<(), SmtError>`:
   - Match on target:
     - `Stdout`: render and print to stdout via `println!()`
     - `File { path, append: false }`: render and write to file (overwrite)
     - `File { path, append: true }`: render and append to file
     - `InPlace`: render, write atomically (see 5.2)
   - All I/O errors wrapped in `SmtError::Io`
-- [ ] Write unit tests for rendering and output
+- [x] Write unit tests for rendering and output
 
 **Dependencies**: 3.1, 4.2  
 **Success Criteria**:
