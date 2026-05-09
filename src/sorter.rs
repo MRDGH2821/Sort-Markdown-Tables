@@ -1,3 +1,8 @@
+//! Sort algorithms for **`SortedTable`** blocks: numeric vs lex keys, ascent/descent,
+//! case sensitivity — always via **`sort_by`** (stable).
+//!
+//! See [`sort_document`] to mutate [`Document`] in place and [`check_document`] for `--check`.
+
 // ============================================================================
 // PHASE 4: Sorter Module — Sorting Logic
 // ============================================================================

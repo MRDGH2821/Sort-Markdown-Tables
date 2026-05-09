@@ -36,7 +36,7 @@
 
 use clap::CommandFactory;
 use smt::{
-    cli::{parse_args, Args, InputSource, OutputTarget},
+    cli::{parse_args, should_print_help_when_stdin_tty, Args, InputSource, OutputTarget},
     error::SmtError,
     parser::{parse, Document},
     sorter::{check_document, sort_document, CheckResult},
@@ -52,14 +52,24 @@ use std::path::PathBuf;
 // ============================================================================
 
 fn main() {
-    let exit_code = run();
+    let exit_code = match parse_args() {
+        Ok(routing) => run_with_routing(routing, std::io::stdin().is_terminal()),
+        Err(e) => {
+            eprintln!("{}", e);
+            e.exit_code()
+        }
+    };
     std::process::exit(exit_code);
 }
 
-/// Main entry point for the application pipeline.
+/// Parsed routing + whether stdin **appears** interactive ([`IsTerminal`]).
+///
+/// **`stdin_is_tty`** is injected so integration-style coverage of the help shortcut does not
+/// require a real PTY (`should_print_help_when_stdin_tty`). Production passes
+/// `std::io::stdin().is_terminal()`.
 ///
 /// Algorithm:
-/// 1. Parse CLI arguments
+/// 1. Interpret routing from [`parse_args`] / [`smt::cli::finalize_cli`]
 /// 2. Based on input source, expand files or use stdin
 /// 3. For each file:
 ///    a. Read contents
@@ -74,19 +84,12 @@ fn main() {
 /// 6. Otherwise:
 ///    a. Write all documents to their targets
 ///    b. Exit 0 on success
-fn run() -> i32 {
-    // Step 1: Parse CLI arguments
-    let (input_source, output_target, check_mode, verbose) = match parse_args() {
-        Ok(args) => args,
-        Err(e) => {
-            eprintln!("{}", e);
-            return e.exit_code();
-        }
-    };
+fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_tty: bool) -> i32 {
+    let (input_source, output_target, check_mode, verbose) = routing;
 
     // Special case: no positional args + TTY stdin -> print help, exit 0.
     // (clap already handles explicit `--help` / `--version`.)
-    if matches!(input_source, InputSource::Stdin) && std::io::stdin().is_terminal() {
+    if should_print_help_when_stdin_tty(&input_source, stdin_is_tty) {
         let _ = Args::command().print_help();
         println!();
         return 0;
@@ -269,12 +272,21 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
 #[cfg(test)]
 mod tests {
     use super::*;
+    use clap::Parser;
+    use smt::cli::{finalize_cli, Args};
     use smt::parser::LineEnding;
     use smt::parser::{Block, SortOptions, Table, TableRow};
 
     // ========================================================================
     // TASK 5.4: Main Pipeline Tests
     // ========================================================================
+
+    #[test]
+    fn run_stdin_tty_shortcut_prints_help_exit_code_zero() {
+        let args = Args::try_parse_from(["smt"]).expect("argv");
+        let routing = finalize_cli(args).expect("routing");
+        assert_eq!(run_with_routing(routing, true), 0);
+    }
 
     #[test]
     fn test_process_file_single_table() {

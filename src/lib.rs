@@ -12,6 +12,12 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
+//! Sort Markdown Tables — **`smt` library**.
+//!
+//! The `smt` binary (`src/main.rs`) wires these modules. Key entry points:
+//! [`cli`], [`parser::parse`], [`sorter::sort_document`],
+//! [`writer::write_document`], [`error::SmtError`].
+
 pub mod cli;
 pub mod error;
 pub mod parser;

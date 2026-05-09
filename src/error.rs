@@ -1,3 +1,7 @@
+//! Central error enum for **`smt`**: CLI validation, Markdown parse failures, column options,
+//! and surfaced I/O problems as [`SmtError::Io`] or semantic variants ([`SmtError::FileNotFound`],
+//! [`SmtError::PermissionDenied`]) where appropriate.
+
 use std::path::PathBuf;
 use thiserror::Error;
 

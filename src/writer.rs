@@ -1,3 +1,8 @@
+//! Render [`Document`] strings and deliver them — stdout,
+//! [`crate::cli::OutputTarget`] routing, or inplace atomic writes.
+//!
+//! Entry points: [`render_document`], [`write_document`], [`write_documents_in_place_atomic`].
+
 // ============================================================================
 // PHASE 5: Writer Module — Output Handling
 // ============================================================================

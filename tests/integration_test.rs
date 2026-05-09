@@ -648,11 +648,7 @@ fn test_large_numeric_table_sorts_within_one_second() {
 fn test_malformed_table_missing_separator_exit_2() {
     let tmp_dir = TempDir::new().expect("Failed to create temp dir");
     let file = tmp_dir.path().join("bad_sep.md");
-    fs::write(
-        &file,
-        "<!-- smt -->\n| H |\n| not a separator |\n",
-    )
-    .expect("write");
+    fs::write(&file, "<!-- smt -->\n| H |\n| not a separator |\n").expect("write");
 
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
     cmd.arg(&file)
@@ -698,11 +694,7 @@ fn test_column_count_mismatch_exit_2() {
 fn test_invalid_smt_token_without_equals_exit_2() {
     let tmp_dir = TempDir::new().expect("Failed to create temp dir");
     let file = tmp_dir.path().join("bad_token.md");
-    fs::write(
-        &file,
-        "<!-- smt bogus -->\n| A |\n| - |\n| x |\n",
-    )
-    .expect("write");
+    fs::write(&file, "<!-- smt bogus -->\n| A |\n| - |\n| x |\n").expect("write");
 
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
     cmd.arg(&file)

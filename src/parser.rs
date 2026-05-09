@@ -1,3 +1,8 @@
+//! Markdown lexer-less parser for `<!-- smt ... -->` marked tables only.
+//!
+//! Produces [`Document`] values with plain-text spans and opted-in sorted table [`Block`]s.
+//! Options are extracted by [`parse_sort_options`]; orchestration passes through [`parse`].
+
 use crate::error::{SmtError, SourceLocation};
 use std::path::PathBuf;
 
@@ -351,7 +356,9 @@ enum ParserState {
     ReadingRows,
 }
 
-/// Parse markdown content into a Document
+/// Parse full markdown `content` into a [`Document`] with validated marked tables.
+///
+/// `source` is used only for `{path}:{line}:` diagnostics.
 pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtError> {
     let source_loc = SourceLocation(source.clone());
     let line_ending = if content.contains("\r\n") {

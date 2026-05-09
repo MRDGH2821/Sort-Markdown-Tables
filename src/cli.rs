@@ -1,3 +1,8 @@
+//! Command-line interface: **`clap`** argument definitions, glob expansion,
+//! stdin-vs-files routing (`InputSource`), and stdout / file / in-place targets (`OutputTarget`).
+//!
+//! The process entrypoint parses with [`finalize_cli`] (or [`parse_args`] wrapping [`Args::parse`]).
+
 use crate::error::SmtError;
 use clap::Parser;
 use std::path::PathBuf;
@@ -62,8 +67,8 @@ fn output_target_from_args(args: &Args) -> OutputTarget {
 
 /// Finalize routing and validation from an already-parsed [`Args`] value.
 ///
-/// Used by [`parse_args`] and unit tests via [`Args::try_parse_from`].
-fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
+/// Used by [`parse_args`] and by **binary** tests (and `main`) via [`Args::try_parse_from`].
+pub fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
     let input_source = detect_input_source(args.inputs.clone())?;
     let output_target = output_target_from_args(&args);
 
@@ -128,7 +133,8 @@ pub fn expand_globs(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError> {
     Ok(files)
 }
 
-/// Detect input source from command-line arguments
+/// Resolve positional arguments into [`InputSource`]: either [`InputSource::Stdin`] when
+/// `inputs` is empty (TTY vs pipe is opaque here; callers use [`should_print_help_when_stdin_tty`]).
 pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError> {
     use std::io::IsTerminal;
 
@@ -152,6 +158,18 @@ pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError>
 
         Ok(InputSource::Files(files))
     }
+}
+
+/// Returns true when the process should print help and exit successfully.
+///
+/// This applies when argv produced no explicit input files (`InputSource::Stdin`)
+/// **and** the stdin handle appears to be a terminal (interactive use with no piped content).
+///
+/// Fully unit-testable path for TTY-vs-pipe branching; cover end-to-end behavior with a PTY
+/// in integration tests.
+#[must_use]
+pub fn should_print_help_when_stdin_tty(input_source: &InputSource, stdin_is_tty: bool) -> bool {
+    matches!(input_source, InputSource::Stdin) && stdin_is_tty
 }
 
 #[cfg(test)]
@@ -328,6 +346,20 @@ mod tests {
         // Empty inputs always resolve to `InputSource::Stdin` (TTY vs non-TTY is not asserted here).
         let result = detect_input_source(vec![]).unwrap();
         assert!(matches!(result, InputSource::Stdin));
+    }
+
+    #[test]
+    fn stdin_tty_help_predicate_matches_routing_expectations() {
+        assert!(should_print_help_when_stdin_tty(&InputSource::Stdin, true));
+        assert!(!should_print_help_when_stdin_tty(
+            &InputSource::Stdin,
+            false
+        ));
+
+        assert!(!should_print_help_when_stdin_tty(
+            &InputSource::Files(vec![PathBuf::from("x.md")]),
+            true,
+        ));
     }
 
     #[test]
