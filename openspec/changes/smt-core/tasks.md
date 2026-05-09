@@ -512,7 +512,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
   - No inputs and non-TTY stdin: read from stdin, process normally
   - `--check` mode: don't write, just verify
   - `--verbose` with `--check`: print unsorted table locations
-- [ ] Error handling:
+- [x] Error handling:
   - All errors printed to stderr via `eprintln!()`
   - Correct exit codes: 0 (success), 1 (check failed), 2 (user error)
 - [x] Write unit/integration tests for main pipeline
