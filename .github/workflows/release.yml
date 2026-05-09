@@ -16,7 +16,6 @@ jobs:
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         uses: dtolnay/rust-toolchain@stable
       - name: Set artifact base name
-        shell: bash
         run: |
           echo "ASSET_BASE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
           if [[ "${{ matrix.target }}" == *"-windows-"* ]]; then
@@ -26,6 +25,7 @@ jobs:
             echo "BIN_NAME=smt" >> "$GITHUB_ENV"
             echo "ASSET_FILE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
           fi
+        shell: bash
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         name: Install Cross (for non-native targets)
         run: cargo install cross --git https://github.com/cross-rs/cross
