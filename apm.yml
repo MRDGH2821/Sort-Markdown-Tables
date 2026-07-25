@@ -1,0 +1,35 @@
+author: MRDGH2821
+dependencies:
+  apm:
+    - git: vercel-labs/skills
+      ref: v1.5.20
+      skills:
+        - find-skills
+    - git: github/awesome-copilot
+      skills:
+        - git-commit
+    - git: kucherenko/jscpd
+      ref: v5.0.12
+      skills:
+        - dry-refactoring
+    - git: dimillian/skills
+      skills:
+        - github
+    
+  mcp:
+    - args:
+        - mcp-nixos
+      command: uvx
+      name: nixos
+      registry: false
+      transport: stdio
+includes: auto
+name: Sort Markdown Tables
+scripts: {}
+targets:
+  - agent-skills
+  - antigravity
+  - copilot
+  - cursor
+  - opencode
+version: 0.0.0

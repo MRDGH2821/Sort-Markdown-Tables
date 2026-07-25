@@ -12,7 +12,9 @@
     "**/openspec/**",
     "**/report/**",
     "**/tests/fixtures/**",
-    "**/tests/perf/**"
+    "**/tests/perf/**",
+    "**/report/**",
+    "template/**"
   ],
   "reporters": ["html", "markdown"],
   "threshold": 25
