@@ -1,3 +1,4 @@
+---
 author: MRDGH2821
 dependencies:
   apm:
@@ -8,14 +9,11 @@ dependencies:
     - git: github/awesome-copilot
       skills:
         - git-commit
+        - gh-cli
     - git: kucherenko/jscpd
       ref: v5.0.12
       skills:
         - dry-refactoring
-    - git: dimillian/skills
-      skills:
-        - github
-    
   mcp:
     - args:
         - mcp-nixos
