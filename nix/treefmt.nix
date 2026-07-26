@@ -77,7 +77,10 @@
       enable = true;
       priority = 9;
     };
-    rustfmt.enable = true;
+    rustfmt = {
+      enable = true;
+      priority = 10;
+    };
     shellcheck.enable = true;
     shfmt.enable = true;
     sqlfluff.enable = true;
