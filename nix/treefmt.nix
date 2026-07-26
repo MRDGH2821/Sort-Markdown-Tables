@@ -57,6 +57,7 @@
         "*.pptx"
         "*.py"
         "*.rs"
+        "*.sh"
         "*.toml"
         "*.txt"
         "*.typ"
