@@ -13,7 +13,9 @@ use std::path::PathBuf;
 #[command(name = "Sort Markdown Tables")]
 #[command(version = concat!("v", env!("CARGO_PKG_VERSION")))]
 #[command(about = "Sort markdown tables opted-in via HTML comments", long_about = None)]
-#[command(help_template = "{name} {version}\n{about-with-newline}\n{usage-heading} {usage}\n\n{all-args}")]
+#[command(
+    help_template = "{name} {version}\n{about-with-newline}\n{usage-heading} {usage}\n\n{all-args}"
+)]
 pub struct Args {
     /// Input files or glob patterns
     pub inputs: Vec<String>,
@@ -46,10 +48,7 @@ pub enum InputSource {
 pub enum OutputTarget {
     Stdout,
     InPlace,
-    File {
-        path: PathBuf,
-        append: bool,
-    },
+    File { path: PathBuf, append: bool },
 }
 
 /// Maps parsed flags to the output destination (stdout, file, or in-place).
@@ -82,11 +81,11 @@ pub fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool
     match (&output_target, &input_source) {
         (OutputTarget::File { .. }, InputSource::Files(files)) if files.len() > 1 => {
             return Err(SmtError::WriteWithMultipleFiles);
-        },
+        }
         (OutputTarget::InPlace, InputSource::Stdin) => {
             return Err(SmtError::InPlaceWithStdin);
-        },
-        _ => { },
+        }
+        _ => {}
     }
     Ok((input_source, output_target, args.check, args.verbose))
 }
@@ -105,19 +104,24 @@ pub fn expand_globs(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError> {
     }
     let mut files = Vec::new();
     for pattern in patterns {
-        let glob_results =
-            glob_expand(&pattern).map_err(|_| SmtError::NoFilesMatched { pattern: pattern.clone() })?;
+        let glob_results = glob_expand(&pattern).map_err(|_| SmtError::NoFilesMatched {
+            pattern: pattern.clone(),
+        })?;
         let mut pattern_files = Vec::new();
         for entry in glob_results {
             match entry {
                 Ok(path) => pattern_files.push(path),
                 Err(_) => {
-                    return Err(SmtError::NoFilesMatched { pattern: pattern.clone() })
-                },
+                    return Err(SmtError::NoFilesMatched {
+                        pattern: pattern.clone(),
+                    });
+                }
             }
         }
         if pattern_files.is_empty() {
-            return Err(SmtError::NoFilesMatched { pattern: pattern.clone() });
+            return Err(SmtError::NoFilesMatched {
+                pattern: pattern.clone(),
+            });
         }
         files.extend(pattern_files);
     }
@@ -229,7 +233,7 @@ mod tests {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("o.md"));
                 assert!(!append);
-            },
+            }
             _ => panic!("expected File"),
         }
         let a = parse_args_from(&["smt", "f.md", "-w", "o.md", "--append"]).unwrap();
@@ -237,7 +241,7 @@ mod tests {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("o.md"));
                 assert!(append);
-            },
+            }
             _ => panic!("expected File append"),
         }
     }
@@ -278,7 +282,7 @@ mod tests {
                 assert_eq!(files[0], f);
                 assert_eq!(path, PathBuf::from("out.md"));
                 assert!(!append);
-            },
+            }
             _ => panic!("unexpected routing"),
         }
     }
@@ -319,7 +323,7 @@ mod tests {
         match result.unwrap_err() {
             SmtError::NoFilesMatched { pattern } => {
                 assert_eq!(pattern, "nonexistent_*.md");
-            },
+            }
             _ => panic!("Expected NoFilesMatched error"),
         }
     }
@@ -335,8 +339,14 @@ mod tests {
     #[test]
     fn stdin_tty_help_predicate_matches_routing_expectations() {
         assert!(should_print_help_when_stdin_tty(&InputSource::Stdin, true));
-        assert!(!should_print_help_when_stdin_tty(&InputSource::Stdin, false));
-        assert!(!should_print_help_when_stdin_tty(&InputSource::Files(vec![PathBuf::from("x.md")]), true,));
+        assert!(!should_print_help_when_stdin_tty(
+            &InputSource::Stdin,
+            false
+        ));
+        assert!(!should_print_help_when_stdin_tty(
+            &InputSource::Files(vec![PathBuf::from("x.md")]),
+            true,
+        ));
     }
 
     #[test]
@@ -350,7 +360,7 @@ mod tests {
         match result.unwrap() {
             InputSource::Files(files) => {
                 assert!(!files.is_empty());
-            },
+            }
             InputSource::Stdin => panic!("Expected Files variant"),
         }
     }
@@ -361,7 +371,7 @@ mod tests {
         match source {
             InputSource::Stdin => {
                 // Success
-            },
+            }
             InputSource::Files(_) => panic!("Expected Stdin"),
         }
     }
@@ -372,7 +382,7 @@ mod tests {
         match target {
             OutputTarget::Stdout => {
                 // Success
-            },
+            }
             _ => panic!("Expected Stdout"),
         }
     }
@@ -383,7 +393,7 @@ mod tests {
         match target {
             OutputTarget::InPlace => {
                 // Success
-            },
+            }
             _ => panic!("Expected InPlace"),
         }
     }
@@ -398,7 +408,7 @@ mod tests {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("output.md"));
                 assert!(!append);
-            },
+            }
             _ => panic!("Expected File"),
         }
     }
@@ -413,7 +423,7 @@ mod tests {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("output.md"));
                 assert!(append);
-            },
+            }
             _ => panic!("Expected File with append=true"),
         }
     }

@@ -3,10 +3,7 @@
 //! Produces [`Document`] values with plain-text spans and opted-in sorted table
 //! [`Block`]s. Options are extracted by [`parse_sort_options`]; orchestration
 //! passes through [`parse`].
-use crate::error::{
-    SmtError,
-    SourceLocation,
-};
+use crate::error::{SmtError, SourceLocation};
 use std::path::PathBuf;
 
 // # ============================================================================ TASK 3.1: Parser Data Structures
@@ -124,29 +121,38 @@ pub fn parse_sort_options(
     let trimmed = comment_text.trim();
 
     // Step 2: Strip "`<!--" prefix and "-->`" suffix
-    let no_prefix = trimmed.strip_prefix("<!--").ok_or_else(|| SmtError::InvalidOptionValue {
-        path: source_loc.clone(),
-        line: line_num,
-        key: "comment".to_string(),
-        value: comment_text.to_string(),
-        expected: "<!-- smt ... -->".to_string(),
-    })?.trim();
-    let no_suffix = no_prefix.strip_suffix("-->").ok_or_else(|| SmtError::InvalidOptionValue {
-        path: source_loc.clone(),
-        line: line_num,
-        key: "comment".to_string(),
-        value: comment_text.to_string(),
-        expected: "<!-- smt ... -->".to_string(),
-    })?.trim();
+    let no_prefix = trimmed
+        .strip_prefix("<!--")
+        .ok_or_else(|| SmtError::InvalidOptionValue {
+            path: source_loc.clone(),
+            line: line_num,
+            key: "comment".to_string(),
+            value: comment_text.to_string(),
+            expected: "<!-- smt ... -->".to_string(),
+        })?
+        .trim();
+    let no_suffix = no_prefix
+        .strip_suffix("-->")
+        .ok_or_else(|| SmtError::InvalidOptionValue {
+            path: source_loc.clone(),
+            line: line_num,
+            key: "comment".to_string(),
+            value: comment_text.to_string(),
+            expected: "<!-- smt ... -->".to_string(),
+        })?
+        .trim();
 
     // Step 3: Strip "smt" prefix
-    let after_smt = no_suffix.strip_prefix("smt").ok_or_else(|| SmtError::InvalidOptionValue {
-        path: source_loc.clone(),
-        line: line_num,
-        key: "comment".to_string(),
-        value: comment_text.to_string(),
-        expected: "<!-- smt ... -->".to_string(),
-    })?.trim();
+    let after_smt = no_suffix
+        .strip_prefix("smt")
+        .ok_or_else(|| SmtError::InvalidOptionValue {
+            path: source_loc.clone(),
+            line: line_num,
+            key: "comment".to_string(),
+            value: comment_text.to_string(),
+            expected: "<!-- smt ... -->".to_string(),
+        })?
+        .trim();
 
     // Step 4: If empty, return default SortOptions
     if after_smt.is_empty() {
@@ -188,7 +194,7 @@ pub fn parse_sort_options(
                     });
                 }
                 options.column = col;
-            },
+            }
             "order" => {
                 options.order = match value {
                     "asc" => SortOrder::Asc,
@@ -200,10 +206,10 @@ pub fn parse_sort_options(
                             key: "order".to_string(),
                             value: value.to_string(),
                             expected: "asc or desc".to_string(),
-                        })
-                    },
+                        });
+                    }
                 };
-            },
+            }
             "case" => {
                 options.case = match value {
                     "sensitive" => CaseSensitivity::Sensitive,
@@ -215,10 +221,10 @@ pub fn parse_sort_options(
                             key: "case".to_string(),
                             value: value.to_string(),
                             expected: "sensitive or insensitive".to_string(),
-                        })
-                    },
+                        });
+                    }
                 };
-            },
+            }
             "type" => {
                 options.sort_type = match value {
                     "numeric" => SortType::Numeric,
@@ -230,10 +236,10 @@ pub fn parse_sort_options(
                             key: "type".to_string(),
                             value: value.to_string(),
                             expected: "numeric or lexicographic".to_string(),
-                        })
-                    },
+                        });
+                    }
                 };
-            },
+            }
             _ => {
                 // Step 6d: Unknown key
                 return Err(SmtError::UnknownOption {
@@ -241,7 +247,7 @@ pub fn parse_sort_options(
                     line: line_num,
                     key: key.to_string(),
                 });
-            },
+            }
         }
     }
 
@@ -265,8 +271,8 @@ fn is_smt_comment(line: &str) -> bool {
             let content = content.trim();
 
             // Must start with "smt" keyword
-            return content.starts_with("smt") &&
-                (content.len() == 3 || content.chars().nth(3).is_some_and(char::is_whitespace));
+            return content.starts_with("smt")
+                && (content.len() == 3 || content.chars().nth(3).is_some_and(char::is_whitespace));
         }
     }
     false
@@ -300,7 +306,10 @@ fn extract_cells(line: &str) -> Vec<String> {
     if parts.len() < 2 {
         return Vec::new();
     }
-    parts[1 .. parts.len() - 1].iter().map(|s| s.trim().to_string()).collect()
+    parts[1..parts.len() - 1]
+        .iter()
+        .map(|s| s.trim().to_string())
+        .collect()
 }
 
 /// Check if a cell is a valid separator: `^:?-+:?$`
@@ -381,7 +390,7 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                     // Regular line - add to plain text block
                     current_plain_text.push(line.to_string());
                 }
-            },
+            }
             ParserState::ExpectTable => {
                 if is_empty_line(line) {
                     // Blank line after comment - track it separately
@@ -405,7 +414,7 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                         line: pending_comment_line_num,
                     });
                 }
-            },
+            }
             ParserState::ExpectSep => {
                 if is_separator_row(line) {
                     // Found separator - transition to ReadingRows
@@ -419,7 +428,7 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                         line: table_start_line,
                     });
                 }
-            },
+            }
             ParserState::ReadingRows => {
                 if is_table_row(line) {
                     // Collect data row
@@ -437,21 +446,27 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                     });
                 } else {
                     // End of table - finalize and emit
-                    finalize_table(&mut blocks, &mut current_plain_text, TableContext {
-                        header: &table_header,
-                        separator: &table_separator,
-                        rows: &table_rows,
-                        comment_line: &pending_comment_line,
-                        comment_line_num: pending_comment_line_num,
-                        options: &pending_options,
-                        start_line: table_start_line,
-                        blank_lines_after_comment: &blank_lines_after_comment,
-                    }, &mut previous_comment_line, &source_loc)?;
+                    finalize_table(
+                        &mut blocks,
+                        &mut current_plain_text,
+                        TableContext {
+                            header: &table_header,
+                            separator: &table_separator,
+                            rows: &table_rows,
+                            comment_line: &pending_comment_line,
+                            comment_line_num: pending_comment_line_num,
+                            options: &pending_options,
+                            start_line: table_start_line,
+                            blank_lines_after_comment: &blank_lines_after_comment,
+                        },
+                        &mut previous_comment_line,
+                        &source_loc,
+                    )?;
                     current_plain_text.push(line.to_string());
                     blank_lines_after_comment.clear();
                     state = ParserState::Normal;
                 }
-            },
+            }
         }
     }
 
@@ -461,34 +476,40 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
             if !current_plain_text.is_empty() {
                 blocks.push(Block::PlainText(current_plain_text));
             }
-        },
+        }
         ParserState::ExpectTable => {
             // Error: comment without table at end of file
             return Err(SmtError::CommentWithoutTable {
                 path: source_loc,
                 line: pending_comment_line_num,
             });
-        },
+        }
         ParserState::ExpectSep => {
             // Error: malformed table at end of file
             return Err(SmtError::MalformedTable {
                 path: source_loc,
                 line: table_start_line,
             });
-        },
+        }
         ParserState::ReadingRows => {
             // End of table at EOF - finalize
-            finalize_table(&mut blocks, &mut current_plain_text, TableContext {
-                header: &table_header,
-                separator: &table_separator,
-                rows: &table_rows,
-                comment_line: &pending_comment_line,
-                comment_line_num: pending_comment_line_num,
-                options: &pending_options,
-                start_line: table_start_line,
-                blank_lines_after_comment: &blank_lines_after_comment,
-            }, &mut previous_comment_line, &source_loc)?;
-        },
+            finalize_table(
+                &mut blocks,
+                &mut current_plain_text,
+                TableContext {
+                    header: &table_header,
+                    separator: &table_separator,
+                    rows: &table_rows,
+                    comment_line: &pending_comment_line,
+                    comment_line_num: pending_comment_line_num,
+                    options: &pending_options,
+                    start_line: table_start_line,
+                    blank_lines_after_comment: &blank_lines_after_comment,
+                },
+                &mut previous_comment_line,
+                &source_loc,
+            )?;
+        }
     }
     Ok(Document {
         source,
@@ -596,12 +617,12 @@ mod tests {
     // Test 3.6: Multiple options
     #[test]
     fn test_parse_options_multiple() {
-        let opts =
-            parse_sort_options(
-                "<!-- smt column=3 order=desc case=insensitive type=lexicographic -->",
-                1,
-                None,
-            ).unwrap();
+        let opts = parse_sort_options(
+            "<!-- smt column=3 order=desc case=insensitive type=lexicographic -->",
+            1,
+            None,
+        )
+        .unwrap();
         assert_eq!(opts.column, 3);
         assert_eq!(opts.order, SortOrder::Desc);
         assert_eq!(opts.case, CaseSensitivity::Insensitive);
@@ -691,11 +712,15 @@ mod tests {
         let doc = parse(markdown, None).unwrap();
         assert_eq!(doc.blocks.len(), 1);
         match &doc.blocks[0] {
-            Block::SortedTable { comment_line_number, table, .. } => {
+            Block::SortedTable {
+                comment_line_number,
+                table,
+                ..
+            } => {
                 assert_eq!(*comment_line_number, 1);
                 assert_eq!(table.rows.len(), 2);
                 assert_eq!(table.column_count, 2);
-            },
+            }
             _ => panic!("Expected SortedTable"),
         }
     }
@@ -711,7 +736,7 @@ mod tests {
         match &doc.blocks[0] {
             Block::PlainText(lines) => {
                 assert_eq!(lines.len(), 3);
-            },
+            }
             _ => panic!("Expected PlainText"),
         }
     }
@@ -729,10 +754,14 @@ mod tests {
         let markdown = "<!-- smt -->\n<!-- smt -->\n| H |\n| - |\n| x |\n";
         let result = parse(markdown, Some(PathBuf::from("dup.md")));
         match result {
-            Err(SmtError::DuplicateComment { line, previous_line, .. }) => {
+            Err(SmtError::DuplicateComment {
+                line,
+                previous_line,
+                ..
+            }) => {
                 assert_eq!(previous_line, 1);
                 assert_eq!(line, 2);
-            },
+            }
             other => panic!("Expected DuplicateComment, got {:?}", other),
         }
     }
@@ -756,7 +785,8 @@ mod tests {
     // Test 3.21: Multiple tables
     #[test]
     fn test_parse_multiple_tables() {
-        let markdown = "<!-- smt -->\n| A |\n| --- |\n| 1 |\ntext\n<!-- smt -->\n| B |\n| --- |\n| 2 |";
+        let markdown =
+            "<!-- smt -->\n| A |\n| --- |\n| 1 |\ntext\n<!-- smt -->\n| B |\n| --- |\n| 2 |";
         let doc = parse(markdown, None).unwrap();
 
         // Should have: SortedTable, PlainText, SortedTable
@@ -771,7 +801,7 @@ mod tests {
         match &doc.blocks[0] {
             Block::SortedTable { table, .. } => {
                 assert_eq!(table.rows[0].raw, "| Alice | 30 |");
-            },
+            }
             _ => panic!("Expected SortedTable"),
         }
     }
@@ -784,7 +814,7 @@ mod tests {
         match &doc.blocks[0] {
             Block::SortedTable { table, .. } => {
                 assert_eq!(table.rows.len(), 0);
-            },
+            }
             _ => panic!("Expected SortedTable"),
         }
     }
@@ -793,14 +823,14 @@ mod tests {
     #[test]
     fn test_parse_large_table() {
         let mut markdown = String::from("<!-- smt -->\n| ID | Name | Age |\n| --- | --- | --- |\n");
-        for i in 1 ..= 100 {
+        for i in 1..=100 {
             markdown.push_str(&format!("| {} | Person{} | {} |\n", i, i, 20 + i));
         }
         let doc = parse(&markdown, None).unwrap();
         match &doc.blocks[0] {
             Block::SortedTable { table, .. } => {
                 assert_eq!(table.rows.len(), 100);
-            },
+            }
             _ => panic!("Expected SortedTable"),
         }
     }
@@ -808,7 +838,8 @@ mod tests {
     // Test 3.25: Mixed plain text and tables
     #[test]
     fn test_parse_mixed_content() {
-        let markdown = "# Header\n\nSome text.\n\n<!-- smt -->\n| A |\n| --- |\n| 1 |\n\nMore text.\n";
+        let markdown =
+            "# Header\n\nSome text.\n\n<!-- smt -->\n| A |\n| --- |\n| 1 |\n\nMore text.\n";
         let doc = parse(markdown, None).unwrap();
 
         // PlainText, SortedTable, PlainText
@@ -839,8 +870,13 @@ mod tests {
 
     #[test]
     fn test_parse_fixture_case_insensitive_expected() {
-        let markdown = fs::read_to_string("tests/fixtures/expected/case_insensitive.expected.md").unwrap();
-        let doc = parse(&markdown, Some(PathBuf::from("case_insensitive.expected.md"))).unwrap();
+        let markdown =
+            fs::read_to_string("tests/fixtures/expected/case_insensitive.expected.md").unwrap();
+        let doc = parse(
+            &markdown,
+            Some(PathBuf::from("case_insensitive.expected.md")),
+        )
+        .unwrap();
         assert!(!doc.blocks.is_empty());
     }
 

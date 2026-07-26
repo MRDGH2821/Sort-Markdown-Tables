@@ -23,21 +23,11 @@ use crate::parser::Block;
 #[cfg(not(test))]
 use crate::parser::Document;
 #[cfg(test)]
-use crate::parser::{
-    Document,
-    Table,
-    TableRow,
-};
+use crate::parser::{Document, Table, TableRow};
 use std::fs;
 use std::fs::OpenOptions;
-use std::io::{
-    self,
-    Write,
-};
-use std::path::{
-    Path,
-    PathBuf,
-};
+use std::io::{self, Write};
+use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
 
 // # ============================================================================ TASK 5.1: Render Document to String
@@ -64,8 +54,13 @@ pub fn render_document(doc: &Document) -> String {
         match block {
             Block::PlainText(lines) => {
                 output.push(lines.join(newline));
-            },
-            Block::SortedTable { comment_line, table, blank_lines_after_comment, .. } => {
+            }
+            Block::SortedTable {
+                comment_line,
+                table,
+                blank_lines_after_comment,
+                ..
+            } => {
                 // Render the comment line
                 output.push(comment_line.clone());
 
@@ -80,7 +75,7 @@ pub fn render_document(doc: &Document) -> String {
                 for row in &table.rows {
                     output.push(row.raw.clone());
                 }
-            },
+            }
         }
     }
     output.join(newline)
@@ -109,14 +104,18 @@ fn write_atomic(path: &Path, content: &str) -> Result<(), SmtError> {
     let mut temp_file = NamedTempFile::new_in(dir).map_err(|e| map_io_error(&e, path))?;
 
     // Write content to temp file
-    temp_file.write_all(content.as_bytes()).map_err(|e| map_io_error(&e, path))?;
+    temp_file
+        .write_all(content.as_bytes())
+        .map_err(|e| map_io_error(&e, path))?;
 
     // Flush to ensure all data is written
     temp_file.flush().map_err(|e| map_io_error(&e, path))?;
 
     // Persist the temp file to the target path This performs an atomic rename on most
     // systems
-    temp_file.persist(path).map_err(|e| map_io_error(&e.error, path))?;
+    temp_file
+        .persist(path)
+        .map_err(|e| map_io_error(&e.error, path))?;
     Ok(())
 }
 
@@ -125,9 +124,15 @@ fn map_io_error(err: &io::Error, path: &Path) -> SmtError {
     use std::io::ErrorKind;
 
     match err.kind() {
-        ErrorKind::NotFound => SmtError::FileNotFound { path: path.to_path_buf() },
-        ErrorKind::PermissionDenied => SmtError::PermissionDenied { path: path.to_path_buf() },
-        _ => SmtError::Io { source: io::Error::new(err.kind(), err.to_string()) },
+        ErrorKind::NotFound => SmtError::FileNotFound {
+            path: path.to_path_buf(),
+        },
+        ErrorKind::PermissionDenied => SmtError::PermissionDenied {
+            path: path.to_path_buf(),
+        },
+        _ => SmtError::Io {
+            source: io::Error::new(err.kind(), err.to_string()),
+        },
     }
 }
 
@@ -158,9 +163,14 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
     for (path, content) in &entries {
         let dir = path.parent().unwrap_or_else(|| Path::new("."));
         let mut temp_file = NamedTempFile::new_in(dir).map_err(|e| map_io_error(&e, path))?;
-        temp_file.write_all(content.as_bytes()).map_err(|e| map_io_error(&e, path))?;
+        temp_file
+            .write_all(content.as_bytes())
+            .map_err(|e| map_io_error(&e, path))?;
         temp_file.flush().map_err(|e| map_io_error(&e, path))?;
-        temp_file.as_file().sync_all().map_err(|e| map_io_error(&e, path))?;
+        temp_file
+            .as_file()
+            .sync_all()
+            .map_err(|e| map_io_error(&e, path))?;
         temps.push((path.clone(), temp_file));
     }
 
@@ -222,7 +232,11 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
 /// 3. Return Ok(()) on success, SmtError on failure
 ///
 /// All errors are mapped to SmtError with source location context.
-pub fn write_document(doc: &Document, target: &OutputTarget, source: Option<&Path>) -> Result<(), SmtError> {
+pub fn write_document(
+    doc: &Document,
+    target: &OutputTarget,
+    source: Option<&Path>,
+) -> Result<(), SmtError> {
     // Render the document to string
     let content = render_document(doc);
     match target {
@@ -230,32 +244,32 @@ pub fn write_document(doc: &Document, target: &OutputTarget, source: Option<&Pat
             // Write to stdout
             println!("{}", content);
             Ok(())
-        },
+        }
         OutputTarget::File { path, append } => {
             // Write to a file (create new or append)
-            let mut file =
-                OpenOptions::new()
-                    .write(true)
-                    .create(true)
-                    .append(*append)
-                    .truncate(!*append)
-                    .open(path)
-                    .map_err(|e| map_io_error(&e, path))?;
-            file.write_all(content.as_bytes()).map_err(|e| map_io_error(&e, path))?;
+            let mut file = OpenOptions::new()
+                .write(true)
+                .create(true)
+                .append(*append)
+                .truncate(!*append)
+                .open(path)
+                .map_err(|e| map_io_error(&e, path))?;
+            file.write_all(content.as_bytes())
+                .map_err(|e| map_io_error(&e, path))?;
             file.flush().map_err(|e| map_io_error(&e, path))?;
             Ok(())
-        },
+        }
         OutputTarget::InPlace => {
-            let path =
-                source.ok_or_else(
-                    || SmtError::Io {
-                        source: io::Error::new(io::ErrorKind::InvalidInput, "InPlace target requires a source path"),
-                    },
-                )?;
+            let path = source.ok_or_else(|| SmtError::Io {
+                source: io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "InPlace target requires a source path",
+                ),
+            })?;
 
             // Atomic write: temp file in same directory + persist/rename.
             write_atomic(path, &content)
-        },
+        }
     }
 }
 
@@ -271,7 +285,10 @@ mod tests {
     fn test_render_plain_text_only() {
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["# Heading".to_string(), "Some text".to_string(),])],
+            blocks: vec![Block::PlainText(vec![
+                "# Heading".to_string(),
+                "Some text".to_string(),
+            ])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -297,13 +314,16 @@ mod tests {
             start_line: 1,
             header: "| Name | Age |".to_string(),
             separator: "| --- | --- |".to_string(),
-            rows: vec![TableRow {
-                raw: "| Alice | 30 |".to_string(),
-                cells: vec!["Alice".to_string(), "30".to_string()],
-            }, TableRow {
-                raw: "| Bob | 25 |".to_string(),
-                cells: vec!["Bob".to_string(), "25".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| Alice | 30 |".to_string(),
+                    cells: vec!["Alice".to_string(), "30".to_string()],
+                },
+                TableRow {
+                    raw: "| Bob | 25 |".to_string(),
+                    cells: vec!["Bob".to_string(), "25".to_string()],
+                },
+            ],
             column_count: 2,
         };
         let doc = Document {
@@ -340,13 +360,17 @@ mod tests {
         };
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["# Title".to_string()]), Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
-                comment_line_number: 2,
-                options: SortOptions::default(),
-                table,
-                blank_lines_after_comment: Vec::new(),
-            }, Block::PlainText(vec!["Done.".to_string()]),],
+            blocks: vec![
+                Block::PlainText(vec!["# Title".to_string()]),
+                Block::SortedTable {
+                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line_number: 2,
+                    options: SortOptions::default(),
+                    table,
+                    blank_lines_after_comment: Vec::new(),
+                },
+                Block::PlainText(vec!["Done.".to_string()]),
+            ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -380,19 +404,23 @@ mod tests {
         };
         let doc = Document {
             source: None,
-            blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
-                comment_line_number: 0,
-                options: SortOptions::default(),
-                table: table1,
-                blank_lines_after_comment: Vec::new(),
-            }, Block::PlainText(vec!["---".to_string()]), Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
-                comment_line_number: 4,
-                options: SortOptions::default(),
-                table: table2,
-                blank_lines_after_comment: Vec::new(),
-            },],
+            blocks: vec![
+                Block::SortedTable {
+                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line_number: 0,
+                    options: SortOptions::default(),
+                    table: table1,
+                    blank_lines_after_comment: Vec::new(),
+                },
+                Block::PlainText(vec!["---".to_string()]),
+                Block::SortedTable {
+                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line_number: 4,
+                    options: SortOptions::default(),
+                    table: table2,
+                    blank_lines_after_comment: Vec::new(),
+                },
+            ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };

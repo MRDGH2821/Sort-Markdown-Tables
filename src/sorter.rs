@@ -20,15 +20,7 @@
 use crate::error::SmtError;
 #[cfg(test)]
 use crate::parser::TableRow;
-use crate::parser::{
-    Block,
-    CaseSensitivity,
-    Document,
-    SortOptions,
-    SortOrder,
-    SortType,
-    Table,
-};
+use crate::parser::{Block, CaseSensitivity, Document, SortOptions, SortOrder, SortType, Table};
 use std::cmp::Ordering;
 use std::path::PathBuf;
 
@@ -49,7 +41,13 @@ pub struct CheckResult {
 pub fn check_document(doc: &Document) -> Vec<CheckResult> {
     let mut results = Vec::new();
     for block in &doc.blocks {
-        if let Block::SortedTable { comment_line_number, table, options, .. } = block {
+        if let Block::SortedTable {
+            comment_line_number,
+            table,
+            options,
+            ..
+        } = block
+        {
             let is_sorted = is_table_sorted(table, options);
             results.push(CheckResult {
                 source: doc.source.clone(),
@@ -88,7 +86,7 @@ fn compare_numeric(a: &str, b: &str, case: CaseSensitivity) -> Ordering {
         (Some(an), Some(bn)) => {
             // Use partial_cmp for f64, which handles NaN correctly
             an.partial_cmp(&bn).unwrap_or(Ordering::Equal)
-        },
+        }
         // a numeric, b non-numeric: a comes first
         (Some(_), None) => Ordering::Less,
         // a non-numeric, b numeric: b comes first
@@ -113,7 +111,7 @@ fn compare_lexicographic(a: &str, b: &str, case: CaseSensitivity) -> Ordering {
             let a_lower = a.to_lowercase();
             let b_lower = b.to_lowercase();
             a_lower.cmp(&b_lower)
-        },
+        }
         CaseSensitivity::Sensitive => a.cmp(b),
     }
 }
@@ -211,7 +209,11 @@ pub fn is_table_sorted(table: &Table, options: &SortOptions) -> bool {
     // Compare original rows with sorted rows Since we're comparing TableRow structs,
     // we compare the raw strings (which should be identical if sorting made no
     // changes)
-    table.rows.iter().zip(sorted_rows.iter()).all(|(orig, sorted)| orig.raw == sorted.raw)
+    table
+        .rows
+        .iter()
+        .zip(sorted_rows.iter())
+        .all(|(orig, sorted)| orig.raw == sorted.raw)
 }
 
 // # ============================================================================ UNIT TESTS
@@ -336,16 +338,20 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            }, TableRow {
-                raw: "| 20 |".to_string(),
-                cells: vec!["20".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+                TableRow {
+                    raw: "| 20 |".to_string(),
+                    cells: vec!["20".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -366,16 +372,20 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            }, TableRow {
-                raw: "| 20 |".to_string(),
-                cells: vec!["20".to_string()],
-            }, TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+                TableRow {
+                    raw: "| 20 |".to_string(),
+                    cells: vec!["20".to_string()],
+                },
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -396,16 +406,20 @@ mod tests {
             start_line: 1,
             header: "| Name |".to_string(),
             separator: "|------|".to_string(),
-            rows: vec![TableRow {
-                raw: "| charlie |".to_string(),
-                cells: vec!["charlie".to_string()],
-            }, TableRow {
-                raw: "| alice |".to_string(),
-                cells: vec!["alice".to_string()],
-            }, TableRow {
-                raw: "| bob |".to_string(),
-                cells: vec!["bob".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| charlie |".to_string(),
+                    cells: vec!["charlie".to_string()],
+                },
+                TableRow {
+                    raw: "| alice |".to_string(),
+                    cells: vec!["alice".to_string()],
+                },
+                TableRow {
+                    raw: "| bob |".to_string(),
+                    cells: vec!["bob".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -426,16 +440,20 @@ mod tests {
             start_line: 1,
             header: "| Name |".to_string(),
             separator: "|------|".to_string(),
-            rows: vec![TableRow {
-                raw: "| Charlie |".to_string(),
-                cells: vec!["Charlie".to_string()],
-            }, TableRow {
-                raw: "| alice |".to_string(),
-                cells: vec!["alice".to_string()],
-            }, TableRow {
-                raw: "| BOB |".to_string(),
-                cells: vec!["BOB".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| Charlie |".to_string(),
+                    cells: vec!["Charlie".to_string()],
+                },
+                TableRow {
+                    raw: "| alice |".to_string(),
+                    cells: vec!["alice".to_string()],
+                },
+                TableRow {
+                    raw: "| BOB |".to_string(),
+                    cells: vec!["BOB".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -457,16 +475,20 @@ mod tests {
             start_line: 1,
             header: "| A | B |".to_string(),
             separator: "|---|---|".to_string(),
-            rows: vec![TableRow {
-                raw: "| x | 20 |".to_string(),
-                cells: vec!["x".to_string(), "20".to_string()],
-            }, TableRow {
-                raw: "| y | 10 |".to_string(),
-                cells: vec!["y".to_string(), "10".to_string()],
-            }, TableRow {
-                raw: "| z | 5 |".to_string(),
-                cells: vec!["z".to_string(), "5".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| x | 20 |".to_string(),
+                    cells: vec!["x".to_string(), "20".to_string()],
+                },
+                TableRow {
+                    raw: "| y | 10 |".to_string(),
+                    cells: vec!["y".to_string(), "10".to_string()],
+                },
+                TableRow {
+                    raw: "| z | 5 |".to_string(),
+                    cells: vec!["z".to_string(), "5".to_string()],
+                },
+            ],
             column_count: 2,
         };
         let options = SortOptions {
@@ -489,19 +511,24 @@ mod tests {
             start_line: 1,
             header: "| Val | Order |".to_string(),
             separator: "|-----|-------|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 1 | first |".to_string(),
-                cells: vec!["1".to_string(), "first".to_string()],
-            }, TableRow {
-                raw: "| 1 | second |".to_string(),
-                cells: vec!["1".to_string(), "second".to_string()],
-            }, TableRow {
-                raw: "| 2 | third |".to_string(),
-                cells: vec!["2".to_string(), "third".to_string()],
-            }, TableRow {
-                raw: "| 1 | fourth |".to_string(),
-                cells: vec!["1".to_string(), "fourth".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 1 | first |".to_string(),
+                    cells: vec!["1".to_string(), "first".to_string()],
+                },
+                TableRow {
+                    raw: "| 1 | second |".to_string(),
+                    cells: vec!["1".to_string(), "second".to_string()],
+                },
+                TableRow {
+                    raw: "| 2 | third |".to_string(),
+                    cells: vec!["2".to_string(), "third".to_string()],
+                },
+                TableRow {
+                    raw: "| 1 | fourth |".to_string(),
+                    cells: vec!["1".to_string(), "fourth".to_string()],
+                },
+            ],
             column_count: 2,
         };
         let options = SortOptions {
@@ -536,13 +563,16 @@ mod tests {
                     start_line: 2,
                     header: "| Col |".to_string(),
                     separator: "|-----|".to_string(),
-                    rows: vec![TableRow {
-                        raw: "| 10 |".to_string(),
-                        cells: vec!["10".to_string()],
-                    }, TableRow {
-                        raw: "| 5 |".to_string(),
-                        cells: vec!["5".to_string()],
-                    },],
+                    rows: vec![
+                        TableRow {
+                            raw: "| 10 |".to_string(),
+                            cells: vec!["10".to_string()],
+                        },
+                        TableRow {
+                            raw: "| 5 |".to_string(),
+                            cells: vec!["5".to_string()],
+                        },
+                    ],
                     column_count: 1,
                 },
                 blank_lines_after_comment: Vec::new(),
@@ -563,53 +593,62 @@ mod tests {
     fn test_sort_document_multiple_tables() {
         let mut doc = Document {
             source: None,
-            blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
-                comment_line_number: 1,
-                options: SortOptions {
-                    column: 1,
-                    order: SortOrder::Asc,
-                    case: CaseSensitivity::Sensitive,
-                    sort_type: SortType::Numeric,
+            blocks: vec![
+                Block::SortedTable {
+                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line_number: 1,
+                    options: SortOptions {
+                        column: 1,
+                        order: SortOrder::Asc,
+                        case: CaseSensitivity::Sensitive,
+                        sort_type: SortType::Numeric,
+                    },
+                    table: Table {
+                        start_line: 2,
+                        header: "| Col |".to_string(),
+                        separator: "|-----|".to_string(),
+                        rows: vec![
+                            TableRow {
+                                raw: "| 10 |".to_string(),
+                                cells: vec!["10".to_string()],
+                            },
+                            TableRow {
+                                raw: "| 5 |".to_string(),
+                                cells: vec!["5".to_string()],
+                            },
+                        ],
+                        column_count: 1,
+                    },
+                    blank_lines_after_comment: Vec::new(),
                 },
-                table: Table {
-                    start_line: 2,
-                    header: "| Col |".to_string(),
-                    separator: "|-----|".to_string(),
-                    rows: vec![TableRow {
-                        raw: "| 10 |".to_string(),
-                        cells: vec!["10".to_string()],
-                    }, TableRow {
-                        raw: "| 5 |".to_string(),
-                        cells: vec!["5".to_string()],
-                    },],
-                    column_count: 1,
+                Block::SortedTable {
+                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line_number: 10,
+                    options: SortOptions {
+                        column: 1,
+                        order: SortOrder::Asc,
+                        case: CaseSensitivity::Sensitive,
+                        sort_type: SortType::Lexicographic,
+                    },
+                    table: Table {
+                        start_line: 11,
+                        header: "| Name |".to_string(),
+                        separator: "|------|".to_string(),
+                        rows: vec![
+                            TableRow {
+                                raw: "| charlie |".to_string(),
+                                cells: vec!["charlie".to_string()],
+                            },
+                            TableRow {
+                                raw: "| alice |".to_string(),
+                                cells: vec!["alice".to_string()],
+                            },
+                        ],
+                        column_count: 1,
+                    },
+                    blank_lines_after_comment: Vec::new(),
                 },
-                blank_lines_after_comment: Vec::new(),
-            }, Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
-                comment_line_number: 10,
-                options: SortOptions {
-                    column: 1,
-                    order: SortOrder::Asc,
-                    case: CaseSensitivity::Sensitive,
-                    sort_type: SortType::Lexicographic,
-                },
-                table: Table {
-                    start_line: 11,
-                    header: "| Name |".to_string(),
-                    separator: "|------|".to_string(),
-                    rows: vec![TableRow {
-                        raw: "| charlie |".to_string(),
-                        cells: vec!["charlie".to_string()],
-                    }, TableRow {
-                        raw: "| alice |".to_string(),
-                        cells: vec!["alice".to_string()],
-                    },],
-                    column_count: 1,
-                },
-                blank_lines_after_comment: Vec::new(),
-            },],
+            ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -635,16 +674,20 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            }, TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| 20 |".to_string(),
-                cells: vec!["20".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| 20 |".to_string(),
+                    cells: vec!["20".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -662,16 +705,20 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            }, TableRow {
-                raw: "| 20 |".to_string(),
-                cells: vec!["20".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+                TableRow {
+                    raw: "| 20 |".to_string(),
+                    cells: vec!["20".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -689,16 +736,20 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 20 |".to_string(),
-                cells: vec!["20".to_string()],
-            }, TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 20 |".to_string(),
+                    cells: vec!["20".to_string()],
+                },
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -755,16 +806,20 @@ mod tests {
             start_line: 1,
             header: "| Name |".to_string(),
             separator: "|------|".to_string(),
-            rows: vec![TableRow {
-                raw: "| alice |".to_string(),
-                cells: vec!["alice".to_string()],
-            }, TableRow {
-                raw: "| BOB |".to_string(),
-                cells: vec!["BOB".to_string()],
-            }, TableRow {
-                raw: "| Charlie |".to_string(),
-                cells: vec!["Charlie".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| alice |".to_string(),
+                    cells: vec!["alice".to_string()],
+                },
+                TableRow {
+                    raw: "| BOB |".to_string(),
+                    cells: vec!["BOB".to_string()],
+                },
+                TableRow {
+                    raw: "| Charlie |".to_string(),
+                    cells: vec!["Charlie".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -782,16 +837,20 @@ mod tests {
             start_line: 1,
             header: "| Value |".to_string(),
             separator: "|-------|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 3.14 |".to_string(),
-                cells: vec!["3.14".to_string()],
-            }, TableRow {
-                raw: "| 1.41 |".to_string(),
-                cells: vec!["1.41".to_string()],
-            }, TableRow {
-                raw: "| 2.71 |".to_string(),
-                cells: vec!["2.71".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 3.14 |".to_string(),
+                    cells: vec!["3.14".to_string()],
+                },
+                TableRow {
+                    raw: "| 1.41 |".to_string(),
+                    cells: vec!["1.41".to_string()],
+                },
+                TableRow {
+                    raw: "| 2.71 |".to_string(),
+                    cells: vec!["2.71".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -812,16 +871,20 @@ mod tests {
             start_line: 1,
             header: "| Num |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| -5 |".to_string(),
-                cells: vec!["-5".to_string()],
-            }, TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| -20 |".to_string(),
-                cells: vec!["-20".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| -5 |".to_string(),
+                    cells: vec!["-5".to_string()],
+                },
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| -20 |".to_string(),
+                    cells: vec!["-20".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -842,19 +905,24 @@ mod tests {
             start_line: 1,
             header: "| Val |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| apple |".to_string(),
-                cells: vec!["apple".to_string()],
-            }, TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            }, TableRow {
-                raw: "| banana |".to_string(),
-                cells: vec!["banana".to_string()],
-            }, TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| apple |".to_string(),
+                    cells: vec!["apple".to_string()],
+                },
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+                TableRow {
+                    raw: "| banana |".to_string(),
+                    cells: vec!["banana".to_string()],
+                },
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -880,16 +948,20 @@ mod tests {
             start_line: 1,
             header: "| Name |".to_string(),
             separator: "|------|".to_string(),
-            rows: vec![TableRow {
-                raw: "|charlie|".to_string(),
-                cells: vec!["charlie".to_string()],
-            }, TableRow {
-                raw: "|alice|".to_string(),
-                cells: vec!["alice".to_string()],
-            }, TableRow {
-                raw: "|bob|".to_string(),
-                cells: vec!["bob".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "|charlie|".to_string(),
+                    cells: vec!["charlie".to_string()],
+                },
+                TableRow {
+                    raw: "|alice|".to_string(),
+                    cells: vec!["alice".to_string()],
+                },
+                TableRow {
+                    raw: "|bob|".to_string(),
+                    cells: vec!["bob".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -912,16 +984,20 @@ mod tests {
             start_line: 1,
             header: "| A | B | C |".to_string(),
             separator: "|---|---|---|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 1 | 30 | x |".to_string(),
-                cells: vec!["1".to_string(), "30".to_string(), "x".to_string()],
-            }, TableRow {
-                raw: "| 2 | 10 | y |".to_string(),
-                cells: vec!["2".to_string(), "10".to_string(), "y".to_string()],
-            }, TableRow {
-                raw: "| 3 | 20 | z |".to_string(),
-                cells: vec!["3".to_string(), "20".to_string(), "z".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 1 | 30 | x |".to_string(),
+                    cells: vec!["1".to_string(), "30".to_string(), "x".to_string()],
+                },
+                TableRow {
+                    raw: "| 2 | 10 | y |".to_string(),
+                    cells: vec!["2".to_string(), "10".to_string(), "y".to_string()],
+                },
+                TableRow {
+                    raw: "| 3 | 20 | z |".to_string(),
+                    cells: vec!["3".to_string(), "20".to_string(), "z".to_string()],
+                },
+            ],
             column_count: 3,
         };
         let options = SortOptions {
@@ -942,13 +1018,16 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {
@@ -980,13 +1059,16 @@ mod tests {
             start_line: 1,
             header: "| Col |".to_string(),
             separator: "|-----|".to_string(),
-            rows: vec![TableRow {
-                raw: "| 10 |".to_string(),
-                cells: vec!["10".to_string()],
-            }, TableRow {
-                raw: "| 5 |".to_string(),
-                cells: vec!["5".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 10 |".to_string(),
+                    cells: vec!["10".to_string()],
+                },
+                TableRow {
+                    raw: "| 5 |".to_string(),
+                    cells: vec!["5".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let options = SortOptions {

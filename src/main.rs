@@ -41,34 +41,15 @@
 // * # Exit code 2: Error (user input, file I/O, parse error, etc.)
 use clap::CommandFactory;
 use smt::{
-    cli::{
-        parse_args,
-        should_print_help_when_stdin_tty,
-        Args,
-        InputSource,
-        OutputTarget,
-    },
+    cli::{Args, InputSource, OutputTarget, parse_args, should_print_help_when_stdin_tty},
     error::SmtError,
-    parser::{
-        parse,
-        Document,
-    },
-    sorter::{
-        check_document,
-        sort_document,
-        CheckResult,
-    },
-    writer::{
-        write_document,
-        write_documents_in_place_atomic,
-    },
+    parser::{Document, parse},
+    sorter::{CheckResult, check_document, sort_document},
+    writer::{write_document, write_documents_in_place_atomic},
 };
 use std::fs;
 use std::io::IsTerminal;
-use std::io::{
-    self,
-    Read,
-};
+use std::io::{self, Read};
 use std::path::PathBuf;
 
 // # ============================================================================ TASK 5.4: Main Pipeline Implementation
@@ -78,7 +59,7 @@ fn main() {
         Err(e) => {
             eprintln!("{}", e);
             e.exit_code()
-        },
+        }
     };
     std::process::exit(exit_code);
 }
@@ -121,7 +102,7 @@ fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_t
         InputSource::Stdin => {
             // For stdin, we have one "file" with path = None
             vec![]
-        },
+        }
     };
 
     // Step 3a: Process all files and collect results
@@ -133,11 +114,11 @@ fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_t
         match process_stdin(&output_target) {
             Ok(result) => {
                 results.push(result);
-            },
+            }
             Err(e) => {
                 eprintln!("{}", e);
                 return 2;
-            },
+            }
         }
     } else {
         // Process file(s)
@@ -145,11 +126,11 @@ fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_t
             match process_file(&file_path, &output_target) {
                 Ok(result) => {
                     results.push(result);
-                },
+                }
                 Err(e) => {
                     eprintln!("{}", e);
                     return 2;
-                },
+                }
             }
         }
     }
@@ -158,7 +139,13 @@ fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_t
     if check_mode {
         let mut unsorted_locations: Vec<CheckResult> = Vec::new();
         for result in &results {
-            unsorted_locations.extend(result.check_results.iter().filter(|r| !r.is_sorted).cloned());
+            unsorted_locations.extend(
+                result
+                    .check_results
+                    .iter()
+                    .filter(|r| !r.is_sorted)
+                    .cloned(),
+            );
         }
         if unsorted_locations.is_empty() {
             return 0;
@@ -173,9 +160,7 @@ fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_t
                 };
                 println!(
                     "{}:{}: table is not sorted (comment at line {})",
-                    display_path,
-                    r.table_start_line,
-                    r.comment_line
+                    display_path, r.table_start_line, r.comment_line
                 );
             }
         }
@@ -219,11 +204,18 @@ struct ProcessResult {
 }
 
 /// Process a single file: read, parse, sort, and check if modified.
-fn process_file(file_path: &PathBuf, _output_target: &OutputTarget) -> Result<ProcessResult, SmtError> {
+fn process_file(
+    file_path: &PathBuf,
+    _output_target: &OutputTarget,
+) -> Result<ProcessResult, SmtError> {
     // Read file contents
     let contents = fs::read_to_string(file_path).map_err(|e| match e.kind() {
-        io::ErrorKind::NotFound => SmtError::FileNotFound { path: file_path.clone() },
-        io::ErrorKind::PermissionDenied => SmtError::PermissionDenied { path: file_path.clone() },
+        io::ErrorKind::NotFound => SmtError::FileNotFound {
+            path: file_path.clone(),
+        },
+        io::ErrorKind::PermissionDenied => SmtError::PermissionDenied {
+            path: file_path.clone(),
+        },
         _ => SmtError::Io { source: e },
     })?;
 
@@ -251,7 +243,9 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
 
     // Read from stdin
     let mut contents = String::new();
-    io::stdin().read_to_string(&mut contents).map_err(|e| SmtError::Io { source: e })?;
+    io::stdin()
+        .read_to_string(&mut contents)
+        .map_err(|e| SmtError::Io { source: e })?;
 
     // Parse markdown (source = None for stdin)
     let mut doc = parse(&contents, None)?;
@@ -273,17 +267,9 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
 mod tests {
     use super::*;
     use clap::Parser;
-    use smt::cli::{
-        finalize_cli,
-        Args,
-    };
+    use smt::cli::{Args, finalize_cli};
     use smt::parser::LineEnding;
-    use smt::parser::{
-        Block,
-        SortOptions,
-        Table,
-        TableRow,
-    };
+    use smt::parser::{Block, SortOptions, Table, TableRow};
 
     // # ======================================================================== TASK 5.4: Main Pipeline Tests
     #[test]
@@ -344,7 +330,7 @@ mod tests {
         match result.unwrap_err() {
             SmtError::FileNotFound { path } => {
                 assert_eq!(path, missing_file);
-            },
+            }
             _ => panic!("Expected FileNotFound error"),
         }
     }
@@ -355,13 +341,16 @@ mod tests {
             start_line: 0,
             header: "| A |".to_string(),
             separator: "| - |".to_string(),
-            rows: vec![TableRow {
-                raw: "| 1 |".to_string(),
-                cells: vec!["1".to_string()],
-            }, TableRow {
-                raw: "| 2 |".to_string(),
-                cells: vec!["2".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 1 |".to_string(),
+                    cells: vec!["1".to_string()],
+                },
+                TableRow {
+                    raw: "| 2 |".to_string(),
+                    cells: vec!["2".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let doc = Document {
@@ -387,13 +376,16 @@ mod tests {
             start_line: 0,
             header: "| A |".to_string(),
             separator: "| - |".to_string(),
-            rows: vec![TableRow {
-                raw: "| 2 |".to_string(),
-                cells: vec!["2".to_string()],
-            }, TableRow {
-                raw: "| 1 |".to_string(),
-                cells: vec!["1".to_string()],
-            },],
+            rows: vec![
+                TableRow {
+                    raw: "| 2 |".to_string(),
+                    cells: vec!["2".to_string()],
+                },
+                TableRow {
+                    raw: "| 1 |".to_string(),
+                    cells: vec!["1".to_string()],
+                },
+            ],
             column_count: 1,
         };
         let doc = Document {
@@ -439,13 +431,17 @@ mod tests {
         };
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["# Heading".to_string()]), Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
-                comment_line_number: 1,
-                options: SortOptions::default(),
-                table,
-                blank_lines_after_comment: Vec::new(),
-            }, Block::PlainText(vec!["Done.".to_string()]),],
+            blocks: vec![
+                Block::PlainText(vec!["# Heading".to_string()]),
+                Block::SortedTable {
+                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line_number: 1,
+                    options: SortOptions::default(),
+                    table,
+                    blank_lines_after_comment: Vec::new(),
+                },
+                Block::PlainText(vec!["Done.".to_string()]),
+            ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
