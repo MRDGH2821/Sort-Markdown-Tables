@@ -34,6 +34,7 @@ inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
       args = [
         "--config"
         ".cspell.json"
+        "--no-must-find-files"
       ];
       enable = true;
     };
