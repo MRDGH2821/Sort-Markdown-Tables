@@ -14,6 +14,9 @@
     pname = "Sort-Markdown-Tables";
     strictDeps = true;
     version = (fromTOML (builtins.readFile ../../Cargo.toml)).package.version;
+    meta = {
+      mainProgram = "smt";
+    };
   };
   cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 in
