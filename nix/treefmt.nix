@@ -88,7 +88,9 @@
       excludes = [
         # keep-sorted start
         "**/.cspell.json"
+        "**/.typos.toml"
         ".cspell.json"
+        ".typos.toml"
         "CHANGELOG.md"
         # keep-sorted end
       ];

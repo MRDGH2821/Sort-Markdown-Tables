@@ -611,7 +611,7 @@ mod tests {
     // Test 3.7: Unknown option key
     #[test]
     fn test_parse_options_unknown_key() {
-        let result = parse_sort_options("<!-- smt column=2 -->", 1, None);
+        let result = parse_sort_options("<!-- smt colum=2 -->", 1, None);
         assert!(matches!(result, Err(SmtError::UnknownOption { .. })));
     }
 

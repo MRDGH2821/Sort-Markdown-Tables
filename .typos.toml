@@ -1,0 +1,19 @@
+# Typos configuration (https://github.com/crate-ci/typos)
+
+[default.extend-words]
+bunx = "bunx"
+cocogitto = "cocogitto"
+colum = "colum"
+inplace = "inplace"
+mrdgh = "mrdgh"
+nixos = "nixos"
+smt = "smt"
+treefmt = "treefmt"
+
+[files]
+extend-exclude = [
+  "**/.cspell.json",
+  "**/megalinter-reports/**",
+  "CHANGELOG.md",
+  "tests/fixtures/**"
+]
