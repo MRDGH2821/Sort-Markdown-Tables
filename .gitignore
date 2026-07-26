@@ -13,6 +13,8 @@ dist/
 megalinter-reports/
 node_modules/
 report/
+result
+result-*
 target/
 # keep-sorted end
 
