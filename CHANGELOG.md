@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.3.1](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.3.0..v0.3.1) - 2026-07-26
+
+### Bug Fixes
+
+- **(github)** add toolchain input to dtolnay/rust-toolchain workflow steps - ([9bd734e](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/9bd734eb30b722f78b6349126a580888ff9a518d)) - MRDGH2821
+
+### Miscellaneous Chores
+
+- add lycheeignore - ([5cfede3](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5cfede369bc2369e40aab6e0d735d68854ec7b23)) - MRDGH2821
+
+---
+
 ## [0.3.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.2.1..v0.3.0) - 2026-07-26
 
 ### Bug Fixes
