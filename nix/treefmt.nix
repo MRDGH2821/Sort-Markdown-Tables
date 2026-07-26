@@ -13,6 +13,10 @@
     dos2unix.enable = true;
     flake-edit.enable = true;
     genemichaels.enable = true;
+    gofmt.enable = true;
+    gofumpt.enable = true;
+    goimports.enable = true;
+    golangci-lint.enable = true;
     just.enable = true;
     keep-sorted.enable = true;
     nbstripout.enable = true;
