@@ -47,6 +47,17 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
       - run: cargo fmt -- --check
+  nix:
+    name: Nix Flake Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: DeterminateSystems/nix-installer-action@e5063704e095e3ae5d702b8764746f3640b99616 # v16
+      - uses: DeterminateSystems/magic-nix-cache-action@87b14cf437d03d37989d87f0fa5ce4f5dc1a330b # v9
+      - name: Run Nix Flake Check
+        run: nix flake check
   test:
     name: Test Suite
     runs-on: ubuntu-latest
@@ -61,9 +72,6 @@ jobs:
         run: cargo test --test integration_test
       - name: Run Doc Tests
         run: cargo test --doc
-      - uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
-        with:
-          toolchain: stable
 name: CI
 on:
   pull_request:
