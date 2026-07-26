@@ -653,3 +653,32 @@ fn test_inplace_with_stdin_error() {
     cmd.arg("-i").write_stdin(input_content);
     cmd.assert().failure().code(2);
 }
+
+// # ============================================================================ Version Tests (3 tests)
+#[test]
+fn test_version_flag_long() {
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("--version")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("Sort Markdown Tables v"));
+}
+
+#[test]
+fn test_version_flag_short() {
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-V")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("Sort Markdown Tables v"));
+}
+
+#[test]
+fn test_version_subcommand() {
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("version")
+        .assert()
+        .success()
+        .stdout(predicates::str::contains("Sort Markdown Tables v"));
+}
+

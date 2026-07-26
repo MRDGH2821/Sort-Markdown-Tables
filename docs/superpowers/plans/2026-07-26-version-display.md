@@ -20,11 +20,13 @@
 ### Task 1: Add Subcommand and Version Flag Parsing to `src/cli.rs` and `src/main.rs`
 
 **Files:**
+
 - Modify: `src/cli.rs`
 - Modify: `src/main.rs`
 - Test: `src/cli.rs` (unit tests)
 
 **Interfaces:**
+
 - Produces: `pub enum SmtSubcommand { Version }`, `pub struct Args { pub subcommand: Option<SmtSubcommand>, ... }`
 
 - [ ] **Step 1: Write failing unit test in `src/cli.rs`**
@@ -45,6 +47,7 @@ Expected: FAIL with missing fields/enum `SmtSubcommand`.
 - [ ] **Step 3: Implement `SmtSubcommand` and `Args` updates in `src/cli.rs` & `src/main.rs`**
 
 In `src/cli.rs`:
+
 ```rust
 use clap::{Parser, Subcommand};
 
@@ -68,6 +71,7 @@ pub struct Args {
 ```
 
 In `src/main.rs`, update `run_with_routing` to handle version subcommand:
+
 ```rust
 if let Some(smt::cli::SmtSubcommand::Version) = args.subcommand {
     println!("Sort Markdown Tables v{}", env!("CARGO_PKG_VERSION"));
@@ -94,6 +98,7 @@ Co-authored-by: Gemini 3.6 Flash via Antigravity <noreply@google.com>"
 ### Task 2: Add Integration Tests for `--version`, `-V`, and `version`
 
 **Files:**
+
 - Modify: `tests/integration_test.rs`
 
 - [ ] **Step 1: Write integration tests in `tests/integration_test.rs`**

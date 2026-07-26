@@ -7,12 +7,15 @@ Provide version reporting capability for `smt` via both `--version` / `-V` CLI f
 ## Requirements
 
 1. **Output Format**:
+
    ```text
    Sort Markdown Tables v<VERSION>
    ```
+
    For version `0.1.4`, the exact output is:
+
    ```text
-   Sort Markdown Tables 
+   Sort Markdown Tables
    v0.1.4
    ```
 
@@ -38,6 +41,7 @@ Update `Args` struct derive attributes and subcommand definitions:
 ### Subcommand Support
 
 Define `SmtSubcommand` enum:
+
 ```rust
 #[derive(Subcommand, Debug, Clone, PartialEq, Eq)]
 pub enum SmtSubcommand {
@@ -47,6 +51,7 @@ pub enum SmtSubcommand {
 ```
 
 In `Args`:
+
 ```rust
 #[command(subcommand)]
 pub subcommand: Option<SmtSubcommand>,
