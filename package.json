@@ -1,6 +1,6 @@
 {
   "name": "sort-markdown-tables",
-  "version": "0.0.0",
+  "version": "0.3.0",
   "devDependencies": {
     "prettier": "^3.9.6"
   }

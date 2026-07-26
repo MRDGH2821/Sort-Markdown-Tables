@@ -4,6 +4,76 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.3.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.2.1..v0.3.0) - 2026-07-26
+
+### Bug Fixes
+
+- fix parser test - ([3a512f5](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/3a512f59a0ef24448050b55ff2ccc26cfa3ed6c9)) - MRDGH2821
+
+### Documentation
+
+- **(ai)** tick writer module tasks - ([eda2e6a](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/eda2e6af4ab5710720075e103f9b119815d27ea4)) - MRDGH2821
+- **(ai)** tick main error-handling task - ([d7180ba](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d7180bac29ab6f9ffb40feb4536ca88cbca9a99b)) - MRDGH2821
+- **(ai)** tick verified phase-7 criteria - ([56ff7b6](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/56ff7b6e61101c57e371c019e5a3069668d2d372)) - MRDGH2821
+- **(cli)** add design spec for version subcommand and flags - ([7546dfa](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7546dfa1bcbd00627324cd45d53660bf02e5d61e)) - MRDGH2821
+- **(cli)** add implementation plan for version display - ([7a58241](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7a5824125b3038d7e50249c85daa1a16cfccf60a)) - MRDGH2821
+- **(cli)** log help page version display update - ([24ab425](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/24ab425d3ced5e4fdf108ac3b8bd3be8f32ef8fd)) - MRDGH2821
+- **(nix)** add design spec for nix package and app - ([e767cdb](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/e767cdb2c129929cbe637982dc49ed7218c164dd)) - MRDGH2821
+- **(nix)** add implementation plan for nix package and app - ([1cc637e](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/1cc637e4174cb160b9e9d9ed7fd9eb78c9984f97)) - MRDGH2821
+- document Nix Flakes usage in README - ([238f3e1](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/238f3e1cb181a404a323749ada16d9ee68d389d2)) - MRDGH2821
+
+### Features
+
+- **(cli)** add version subcommand and version attribute - ([acb0087](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/acb00876a0c4d3486c49f7ac4aa818759ba464b3)) - MRDGH2821
+- **(cli)** display version in help output - ([d8a94d7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d8a94d7218f9a63438903a5959949fb964059320)) - MRDGH2821
+- **(nix)** add crane input to flake.nix - ([564d892](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/564d892a23dd0e49d3913872ede8d3e9b737f74e)) - MRDGH2821
+- **(nix)** add Sort-Markdown-Tables package derivation - ([79f36fc](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/79f36fc6db08c6e1d28b66197b8e8287c3353b4c)) - MRDGH2821
+- **(nix)** add smt binary app default output - ([f13452c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/f13452c7a66346ee41187ea88f4dc367448203e7)) - MRDGH2821
+- **(nix)** add cargo test and clippy flake checks - ([47b3163](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/47b3163e20489963a1da57991fb281bca20d5140)) - MRDGH2821
+
+### Miscellaneous Chores
+
+- **(ai)** archive smt-core change artifacts - ([63da1cb](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/63da1cb64a6895ab2867e4255563a770e6db76fb)) - MRDGH2821
+- **(cli)** clean up temporary SDD files - ([7d8dd08](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7d8dd08b9ebcd9e3c5ea6af40997fb6aa5f1e4c1)) - MRDGH2821
+- **(cocogitto)** add typos scope - ([3d29de3](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/3d29de3103836819b3cadeabec60a80d705fe117)) - MRDGH2821
+- **(nix)** ignore nix result build outputs in gitignore - ([11b4b46](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/11b4b466fa0eed6faa2fc1d0ffc22009f3ed939c)) - MRDGH2821
+- **(nix)** untrack result symlink - ([57ad57c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/57ad57c856e996a189687d4f45da67dd4a5fb52b)) - MRDGH2821
+- **(pre-commit)** add cspell args - ([1704246](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/170424609a53e9e1979458458962086a1af1b5e1)) - MRDGH2821
+- update repo - ([2663c6d](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/2663c6d84aa2ffac984eb51a91edada1139606c6)) - MRDGH2821
+- add gh-cli skill - ([12a4ab4](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/12a4ab40289ee29e730e6bdb83fe20b7eeec0c18)) - MRDGH2821
+- fix broken links in changelog - ([2c02c10](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/2c02c10ddca2ca1be08eea9c475e8e79b01a97dd)) - MRDGH2821
+- add cargo.toml version bumping command - ([cf93226](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/cf93226eb1e64eadda30f156a96c00351b167b50)) - MRDGH2821
+- fix link - ([0b7fc25](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/0b7fc252bec64a56ed7f4e59b185caf7d1c6b8f7)) - MRDGH2821
+- merge branch 'fix/ci-errors' - ([2133531](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/213353118ca40a34f654eab2169a7e635ff31533)) - MRDGH2821
+
+### Refactoring
+
+- **(cli)** remove version subcommand in favor of version flags - ([d6b11f7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d6b11f73d1196936f337c78403452cf95e70863e)) - MRDGH2821
+- **(smt)** make TTY help path testable without PTY - ([468d399](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/468d39967fe8d393ce7b4472ebece412d4978af8)) - MRDGH2821
+
+### Style
+
+- format files - ([b128a7b](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/b128a7be87f314ac0ae09d9edc394ad8fe00ccda)) - MRDGH2821
+- format files - ([6792b17](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/6792b17753ab44791274ebd5c29a9a3a48f5bad5)) - MRDGH2821
+
+### Tests
+
+- **(cli)** expand Args routing and CLI unit coverage - ([0311ac8](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/0311ac896c5f19306dba767c3f751007314c2aa6)) - MRDGH2821
+- **(cli)** add integration tests for version flag and subcommand - ([5d9e759](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5d9e759a1be2c718e96bc82bcd00cf27fb87a427)) - MRDGH2821
+- **(smt)** add Phase 6.3 edge-case integration coverage - ([7cc16a5](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7cc16a54c6d1ca3aab1fc166a7ff081f746c66fc)) - MRDGH2821
+
+### Build
+
+- add lock file - ([beb2c0f](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/beb2c0f4788bc797a66b7ee79d79ae95a5fbe824)) - MRDGH2821
+
+### Ci
+
+- **(github)** fail release workflow on any matrix target failure - ([a2a5fcc](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/a2a5fcc7d90de904780c453e8529b19ba64a5942)) - MRDGH2821
+- **(github)** add nix flake check job and clean up test job - ([67f0619](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/67f0619af19b16ca2879d037fb37bd2b37cd3816)) - MRDGH2821
+- update hashes - ([739e681](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/739e681db5b42577949da605564aa5339043c73c)) - MRDGH2821
+
+---
+
 ## [0.2.1](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.2.0..v0.2.1) - 2026-05-09
 
 ### Bug Fixes
