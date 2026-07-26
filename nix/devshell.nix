@@ -11,13 +11,42 @@
     echo "===> Cross-compiling release targets from .github/workflows/release.yml (Jobs: $JOBS)..."
     ${pkgs.yq}/bin/yq '.jobs.build.strategy.matrix.include[].target' .github/workflows/release.yml \
       | grep -v "apple-darwin" \
-      | xargs -I {} -P "$JOBS" cross build --release --target {}
+      | xargs -I {} -P "$JOBS" ${pkgs.lib.getExe pkgs.cargo-cross} build --release --target {}
+  '';
+  cross-build-seq = pkgs.writeShellScriptBin "cross-build-seq" ''
+    set -euo pipefail
+    TARGETS=($(${pkgs.lib.getExe pkgs.yq} '.jobs.build.strategy.matrix.include[].target' .github/workflows/release.yml | grep -v "apple-darwin"))
+    TOTAL=''${#TARGETS[@]}
+    echo "===> Sequential cross-compilation for $TOTAL targets from .github/workflows/release.yml..."
+    COUNT=0
+    FAILED=()
+
+    for target in "''${TARGETS[@]}"; do
+      COUNT=$((COUNT + 1))
+      echo "------------------------------------------------------------"
+      echo "[$COUNT/$TOTAL] Building release binary for: $target"
+      echo "------------------------------------------------------------"
+      if ${pkgs.lib.getExe pkgs.cargo-cross} build --release --target "$target"; then
+        echo "✓ Finished $target successfully"
+      else
+        echo "✗ Failed $target"
+        FAILED+=("$target")
+      fi
+    done
+
+    echo "============================================================"
+    echo "Summary: $((TOTAL - ''${#FAILED[@]}))/$TOTAL target builds succeeded."
+    if [ ''${#FAILED[@]} -gt 0 ]; then
+      echo "Failed targets: ''${FAILED[*]}"
+      exit 1
+    fi
   '';
 in
   pkgs.mkShell {
     inherit (pre-commit-check) shellHook;
     packages = [
       cross-build-all
+      cross-build-seq
       llm-pkgs.antigravity-cli
       llm-pkgs.apm
       llm-pkgs.copilot-cli
