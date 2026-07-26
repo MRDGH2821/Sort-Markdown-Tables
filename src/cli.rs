@@ -12,7 +12,8 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[command(name = "Sort Markdown Tables")]
 #[command(version = concat!("v", env!("CARGO_PKG_VERSION")))]
-#[command(about = "Sort Markdown Tables", long_about = None)]
+#[command(about = "Sort markdown tables opted-in via HTML comments", long_about = None)]
+#[command(help_template = "{name} {version}\n{about-with-newline}\n{usage-heading} {usage}\n\n{all-args}")]
 pub struct Args {
     /// Input files or glob patterns
     pub inputs: Vec<String>,

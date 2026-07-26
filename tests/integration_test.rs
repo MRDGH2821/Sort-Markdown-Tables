@@ -666,3 +666,9 @@ fn test_version_flag_short() {
     let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
     cmd.arg("-V").assert().success().stdout(predicates::str::contains("Sort Markdown Tables v"));
 }
+
+#[test]
+fn test_help_displays_version() {
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("--help").assert().success().stdout(predicates::str::contains("Sort Markdown Tables v"));
+}
