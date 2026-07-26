@@ -5,6 +5,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:numtide/blueprint";
     };
+    crane.url = "github:ipetkov/crane";
     git-hooks = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:cachix/git-hooks.nix";
