@@ -47,6 +47,7 @@ use smt::{
         Args,
         InputSource,
         OutputTarget,
+        SmtSubcommand,
     },
     error::SmtError,
     parser::{
@@ -104,8 +105,16 @@ fn main() {
 ///    which files are unsorted c. Exit 1 if any unsorted, 0 if all sorted
 ///
 /// 6. Otherwise: a. Write all documents to their targets b. Exit 0 on success
-fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_tty: bool) -> i32 {
-    let (input_source, output_target, check_mode, verbose) = routing;
+fn run_with_routing(
+    routing: (InputSource, OutputTarget, bool, bool, Option<SmtSubcommand>),
+    stdin_is_tty: bool,
+) -> i32 {
+    let (input_source, output_target, check_mode, verbose, subcommand) = routing;
+
+    if let Some(SmtSubcommand::Version) = subcommand {
+        println!("Sort Markdown Tables v{}", env!("CARGO_PKG_VERSION"));
+        return 0;
+    }
 
     // Special case: no positional args + TTY stdin -> print help, exit 0. (clap
     // already handles explicit `--help` / `--version`.)

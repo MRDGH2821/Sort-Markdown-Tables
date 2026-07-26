@@ -5,14 +5,25 @@
 //! The process entrypoint parses with [`finalize_cli`] (or [`parse_args`] wrapping
 //! [`Args::parse`]).
 use crate::error::SmtError;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use std::path::PathBuf;
+
+/// Subcommands supported by smt
+#[derive(Subcommand, Debug, Clone, PartialEq, Eq)]
+pub enum SmtSubcommand {
+    /// Display version information
+    Version,
+}
 
 /// Args struct for CLI argument parsing with clap
 #[derive(Parser, Debug)]
-#[command(name = "smt")]
+#[command(name = "Sort Markdown Tables")]
+#[command(version = concat!("v", env!("CARGO_PKG_VERSION")))]
 #[command(about = "Sort Markdown Tables", long_about = None)]
 pub struct Args {
+    /// Subcommand to run
+    #[command(subcommand)]
+    pub subcommand: Option<SmtSubcommand>,
     /// Input files or glob patterns
     pub inputs: Vec<String>,
     /// Sort files in-place
@@ -68,7 +79,9 @@ fn output_target_from_args(args: &Args) -> OutputTarget {
 ///
 /// Used by [`parse_args`] and by **binary** tests (and `main`) via
 /// [`Args::try_parse_from`].
-pub fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
+pub fn finalize_cli(
+    args: Args,
+) -> Result<(InputSource, OutputTarget, bool, bool, Option<SmtSubcommand>), SmtError> {
     let input_source = detect_input_source(args.inputs.clone())?;
     let output_target = output_target_from_args(&args);
 
@@ -84,13 +97,13 @@ pub fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool
         (OutputTarget::InPlace, InputSource::Stdin) => {
             return Err(SmtError::InPlaceWithStdin);
         },
-        _ => { },
+        _ => {},
     }
-    Ok((input_source, output_target, args.check, args.verbose))
+    Ok((input_source, output_target, args.check, args.verbose, args.subcommand))
 }
 
 /// Parse command-line arguments and validate flag combinations
-pub fn parse_args() -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
+pub fn parse_args() -> Result<(InputSource, OutputTarget, bool, bool, Option<SmtSubcommand>), SmtError> {
     finalize_cli(Args::parse())
 }
 
@@ -168,6 +181,12 @@ mod tests {
 
     fn parse_args_from(argv: &[&str]) -> Result<Args, clap::Error> {
         Args::try_parse_from(argv.iter().copied())
+    }
+
+    #[test]
+    fn test_cli_version_subcommand_parsing() {
+        let args = Args::try_parse_from(["smt", "version"]).unwrap();
+        assert_eq!(args.subcommand, Some(SmtSubcommand::Version));
     }
 
     #[test]
@@ -268,7 +287,7 @@ mod tests {
         std::fs::write(&f, "# x").unwrap();
         let argv = vec!["smt", f.to_str().unwrap(), "-w", "out.md"];
         let args = Args::try_parse_from(argv).unwrap();
-        let (src, out, check, verbose) = finalize_cli(args).unwrap();
+        let (src, out, check, verbose, _subcommand) = finalize_cli(args).unwrap();
         assert!(!check && !verbose);
         match (src, out) {
             (InputSource::Files(files), OutputTarget::File { path, append }) => {
