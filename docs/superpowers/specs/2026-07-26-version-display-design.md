@@ -7,10 +7,13 @@ Provide version reporting capability for `smt` via `--version` / `-V` CLI flags.
 ## Requirements
 
 1. **Output Format**:
+
    ```text
    Sort Markdown Tables v<VERSION>
    ```
+
    For version `0.1.4`, the exact output is:
+
    ```text
    Sort Markdown Tables v0.1.4
    ```
