@@ -1,8 +1,9 @@
 //! Command-line interface: **`clap`** argument definitions, glob expansion,
-//! stdin-vs-files routing (`InputSource`), and stdout / file / in-place targets (`OutputTarget`).
+//! stdin-vs-files routing (`InputSource`), and stdout / file / in-place targets
+//! (`OutputTarget`).
 //!
-//! The process entrypoint parses with [`finalize_cli`] (or [`parse_args`] wrapping [`Args::parse`]).
-
+//! The process entrypoint parses with [`finalize_cli`] (or [`parse_args`] wrapping
+//! [`Args::parse`]).
 use crate::error::SmtError;
 use clap::Parser;
 use std::path::PathBuf;
@@ -14,23 +15,18 @@ use std::path::PathBuf;
 pub struct Args {
     /// Input files or glob patterns
     pub inputs: Vec<String>,
-
     /// Sort files in-place
     #[arg(short, long, conflicts_with_all = ["write", "check"])]
     pub in_place: bool,
-
     /// Write output to a specific file
     #[arg(short, long, conflicts_with_all = ["in_place", "check"])]
     pub write: Option<PathBuf>,
-
     /// Append to output file (requires --write)
     #[arg(long, requires = "write")]
     pub append: bool,
-
     /// Check if tables are sorted without modifying files
     #[arg(long, conflicts_with_all = ["in_place", "write"])]
     pub check: bool,
-
     /// Print verbose output
     #[arg(long)]
     pub verbose: bool,
@@ -48,7 +44,10 @@ pub enum InputSource {
 pub enum OutputTarget {
     Stdout,
     InPlace,
-    File { path: PathBuf, append: bool },
+    File {
+        path: PathBuf,
+        append: bool,
+    },
 }
 
 /// Maps parsed flags to the output destination (stdout, file, or in-place).
@@ -67,25 +66,26 @@ fn output_target_from_args(args: &Args) -> OutputTarget {
 
 /// Finalize routing and validation from an already-parsed [`Args`] value.
 ///
-/// Used by [`parse_args`] and by **binary** tests (and `main`) via [`Args::try_parse_from`].
+/// Used by [`parse_args`] and by **binary** tests (and `main`) via
+/// [`Args::try_parse_from`].
 pub fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
     let input_source = detect_input_source(args.inputs.clone())?;
     let output_target = output_target_from_args(&args);
 
     // Additional validation not expressible purely in clap attributes.
     //
-    // - `--write` with multiple input files is not allowed.
-    // - `--in-place` with stdin is not allowed.
+    // * `--write` with multiple input files is not allowed.
+    //
+    // * `--in-place` with stdin is not allowed.
     match (&output_target, &input_source) {
         (OutputTarget::File { .. }, InputSource::Files(files)) if files.len() > 1 => {
             return Err(SmtError::WriteWithMultipleFiles);
-        }
+        },
         (OutputTarget::InPlace, InputSource::Stdin) => {
             return Err(SmtError::InPlaceWithStdin);
-        }
-        _ => {}
+        },
+        _ => { },
     }
-
     Ok((input_source, output_target, args.check, args.verbose))
 }
 
@@ -101,49 +101,38 @@ pub fn expand_globs(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError> {
     if patterns.is_empty() {
         return Ok(Vec::new());
     }
-
     let mut files = Vec::new();
-
     for pattern in patterns {
-        let glob_results = glob_expand(&pattern).map_err(|_| SmtError::NoFilesMatched {
-            pattern: pattern.clone(),
-        })?;
-
+        let glob_results =
+            glob_expand(&pattern).map_err(|_| SmtError::NoFilesMatched { pattern: pattern.clone() })?;
         let mut pattern_files = Vec::new();
         for entry in glob_results {
             match entry {
                 Ok(path) => pattern_files.push(path),
                 Err(_) => {
-                    return Err(SmtError::NoFilesMatched {
-                        pattern: pattern.clone(),
-                    })
-                }
+                    return Err(SmtError::NoFilesMatched { pattern: pattern.clone() })
+                },
             }
         }
-
         if pattern_files.is_empty() {
-            return Err(SmtError::NoFilesMatched {
-                pattern: pattern.clone(),
-            });
+            return Err(SmtError::NoFilesMatched { pattern: pattern.clone() });
         }
-
         files.extend(pattern_files);
     }
-
     Ok(files)
 }
 
-/// Resolve positional arguments into [`InputSource`]: either [`InputSource::Stdin`] when
-/// `inputs` is empty (TTY vs pipe is opaque here; callers use [`should_print_help_when_stdin_tty`]).
+/// Resolve positional arguments into [`InputSource`]: either
+/// [`InputSource::Stdin`] when `inputs` is empty (TTY vs pipe is opaque here;
+/// callers use [`should_print_help_when_stdin_tty`]).
 pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError> {
     use std::io::IsTerminal;
 
     if inputs.is_empty() {
         // No input files provided
         if std::io::stdin().is_terminal() {
-            // TTY input: no inputs and stdin is a TTY (interactive)
-            // In this case, main.rs should print help and exit 0
-            // For now, return Stdin and let main.rs handle it
+            // TTY input: no inputs and stdin is a TTY (interactive) In this case, main.rs
+            // should print help and exit 0 For now, return Stdin and let main.rs handle it
             Ok(InputSource::Stdin)
         } else {
             // Non-TTY input: read from stdin
@@ -153,9 +142,8 @@ pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError>
         // Input files provided: expand globs
         let files = expand_globs(inputs)?;
 
-        // Validate: if we're using --write, can't have multiple files
-        // (This is checked in main.rs)
-
+        // Validate: if we're using --write, can't have multiple files (This is checked in
+        // main.rs)
         Ok(InputSource::Files(files))
     }
 }
@@ -163,10 +151,11 @@ pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError>
 /// Returns true when the process should print help and exit successfully.
 ///
 /// This applies when argv produced no explicit input files (`InputSource::Stdin`)
-/// **and** the stdin handle appears to be a terminal (interactive use with no piped content).
+/// **and** the stdin handle appears to be a terminal (interactive use with no
+/// piped content).
 ///
-/// Fully unit-testable path for TTY-vs-pipe branching; cover end-to-end behavior with a PTY
-/// in integration tests.
+/// Fully unit-testable path for TTY-vs-pipe branching; cover end-to-end behavior
+/// with a PTY in integration tests.
 #[must_use]
 pub fn should_print_help_when_stdin_tty(input_source: &InputSource, stdin_is_tty: bool) -> bool {
     matches!(input_source, InputSource::Stdin) && stdin_is_tty
@@ -190,7 +179,6 @@ mod tests {
         assert!(!a.append);
         assert!(!a.check);
         assert!(!a.verbose);
-
         let a = parse_args_from(&["smt", "--verbose"]).unwrap();
         assert!(a.verbose);
     }
@@ -219,14 +207,11 @@ mod tests {
         let a = parse_args_from(&["smt", "a.md", "-i"]).unwrap();
         assert_eq!(a.inputs, vec!["a.md"]);
         assert!(a.in_place);
-
         let a = parse_args_from(&["smt", "x.md", "-w", "out.md"]).unwrap();
         assert_eq!(a.inputs, vec!["x.md"]);
         assert_eq!(a.write.as_ref().unwrap(), &PathBuf::from("out.md"));
-
         let a = parse_args_from(&["smt", "x.md", "-w", "out.md", "--append"]).unwrap();
         assert!(a.append);
-
         let a = parse_args_from(&["smt", "t.md", "--check"]).unwrap();
         assert!(a.check);
     }
@@ -235,25 +220,22 @@ mod tests {
     fn output_target_maps_stdout_write_in_place_append() {
         let a = parse_args_from(&["smt"]).unwrap();
         assert!(matches!(output_target_from_args(&a), OutputTarget::Stdout));
-
         let a = parse_args_from(&["smt", "-i", "f.md"]).unwrap();
         assert!(matches!(output_target_from_args(&a), OutputTarget::InPlace));
-
         let a = parse_args_from(&["smt", "f.md", "-w", "o.md"]).unwrap();
         match output_target_from_args(&a) {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("o.md"));
                 assert!(!append);
-            }
+            },
             _ => panic!("expected File"),
         }
-
         let a = parse_args_from(&["smt", "f.md", "-w", "o.md", "--append"]).unwrap();
         match output_target_from_args(&a) {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("o.md"));
                 assert!(append);
-            }
+            },
             _ => panic!("expected File append"),
         }
     }
@@ -294,7 +276,7 @@ mod tests {
                 assert_eq!(files[0], f);
                 assert_eq!(path, PathBuf::from("out.md"));
                 assert!(!append);
-            }
+            },
             _ => panic!("unexpected routing"),
         }
     }
@@ -322,7 +304,6 @@ mod tests {
         let test_dir = tempfile::TempDir::new().unwrap();
         let test_file = test_dir.path().join("test.md");
         std::fs::write(&test_file, "# Test").unwrap();
-
         let pattern = format!("{}/*.md", test_dir.path().display());
         let result = expand_globs(vec![pattern]);
         assert!(result.is_ok());
@@ -336,14 +317,15 @@ mod tests {
         match result.unwrap_err() {
             SmtError::NoFilesMatched { pattern } => {
                 assert_eq!(pattern, "nonexistent_*.md");
-            }
+            },
             _ => panic!("Expected NoFilesMatched error"),
         }
     }
 
     #[test]
     fn test_detect_input_source_no_inputs() {
-        // Empty inputs always resolve to `InputSource::Stdin` (TTY vs non-TTY is not asserted here).
+        // Empty inputs always resolve to `InputSource::Stdin` (TTY vs non-TTY is not
+        // asserted here).
         let result = detect_input_source(vec![]).unwrap();
         assert!(matches!(result, InputSource::Stdin));
     }
@@ -351,15 +333,8 @@ mod tests {
     #[test]
     fn stdin_tty_help_predicate_matches_routing_expectations() {
         assert!(should_print_help_when_stdin_tty(&InputSource::Stdin, true));
-        assert!(!should_print_help_when_stdin_tty(
-            &InputSource::Stdin,
-            false
-        ));
-
-        assert!(!should_print_help_when_stdin_tty(
-            &InputSource::Files(vec![PathBuf::from("x.md")]),
-            true,
-        ));
+        assert!(!should_print_help_when_stdin_tty(&InputSource::Stdin, false));
+        assert!(!should_print_help_when_stdin_tty(&InputSource::Files(vec![PathBuf::from("x.md")]), true,));
     }
 
     #[test]
@@ -367,14 +342,13 @@ mod tests {
         let test_dir = tempfile::TempDir::new().unwrap();
         let test_file = test_dir.path().join("test.md");
         std::fs::write(&test_file, "# Test").unwrap();
-
         let pattern = format!("{}/*.md", test_dir.path().display());
         let result = detect_input_source(vec![pattern]);
         assert!(result.is_ok());
         match result.unwrap() {
             InputSource::Files(files) => {
                 assert!(!files.is_empty());
-            }
+            },
             InputSource::Stdin => panic!("Expected Files variant"),
         }
     }
@@ -385,7 +359,7 @@ mod tests {
         match source {
             InputSource::Stdin => {
                 // Success
-            }
+            },
             InputSource::Files(_) => panic!("Expected Stdin"),
         }
     }
@@ -396,7 +370,7 @@ mod tests {
         match target {
             OutputTarget::Stdout => {
                 // Success
-            }
+            },
             _ => panic!("Expected Stdout"),
         }
     }
@@ -407,7 +381,7 @@ mod tests {
         match target {
             OutputTarget::InPlace => {
                 // Success
-            }
+            },
             _ => panic!("Expected InPlace"),
         }
     }
@@ -422,7 +396,7 @@ mod tests {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("output.md"));
                 assert!(!append);
-            }
+            },
             _ => panic!("Expected File"),
         }
     }
@@ -437,7 +411,7 @@ mod tests {
             OutputTarget::File { path, append } => {
                 assert_eq!(path, PathBuf::from("output.md"));
                 assert!(append);
-            }
+            },
             _ => panic!("Expected File with append=true"),
         }
     }

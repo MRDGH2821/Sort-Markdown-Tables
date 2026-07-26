@@ -42,6 +42,7 @@
         "*.aac"
         "*.docx"
         "*.envrc"
+        "*.gitkeep"
         "*.jinja"
         "*.jpg"
         "*.lock"
@@ -51,6 +52,7 @@
         "*.png"
         "*.pptx"
         "*.py"
+        "*.rs"
         "*.toml"
         "*.txt"
         "*.typ"
@@ -113,7 +115,6 @@
   projectRootFile = "flake.nix";
   settings = {
     "allow-missing-formatter" = true;
-    excludes = ["**/skills/**"];
     formatter = {
       cspell-sort = {
         command = "${pkgs.lib.getExe pkgs.yq-go}";
@@ -202,5 +203,13 @@
         priority = 0;
       };
     };
+    global.excludes = [
+      # keep-sorted start
+      "**/openspec/**"
+      "**/skills/**"
+      "openspec/**"
+      "tests/fixtures/**"
+      # keep-sorted end
+    ];
   };
 }

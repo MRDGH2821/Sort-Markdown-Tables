@@ -1,45 +1,56 @@
 //! Render [`Document`] strings and deliver them — stdout,
 //! [`crate::cli::OutputTarget`] routing, or inplace atomic writes.
 //!
-//! Entry points: [`render_document`], [`write_document`], [`write_documents_in_place_atomic`].
-
-// ============================================================================
-// PHASE 5: Writer Module — Output Handling
-// ============================================================================
+//! Entry points: [`render_document`], [`write_document`],
+//! [`write_documents_in_place_atomic`].
+// # ============================================================================ PHASE 5: Writer Module — Output Handling
 //
-// Responsibility: Render Document to string and write to various targets
-// (stdout, file, or in-place with atomic writes).
+// Responsibility: Render Document to string and write to various targets (stdout,
+// file, or in-place with atomic writes).
 //
 // Key requirements:
+//
 // 1. render_document: Join all blocks + tables into a single string
+//
 // 2. write_document: Route to stdout/file/in-place with error handling
+//
 // 3. Atomic writes for -i mode using tempfile::NamedTempFile
-// 4. Preserve all non-sorted content exactly as-is
-// ============================================================================
-
+//
+// 4. # Preserve all non-sorted content exactly as-is
 use crate::cli::OutputTarget;
 use crate::error::SmtError;
 use crate::parser::Block;
 #[cfg(not(test))]
 use crate::parser::Document;
 #[cfg(test)]
-use crate::parser::{Document, Table, TableRow};
+use crate::parser::{
+    Document,
+    Table,
+    TableRow,
+};
 use std::fs;
 use std::fs::OpenOptions;
-use std::io::{self, Write};
-use std::path::{Path, PathBuf};
+use std::io::{
+    self,
+    Write,
+};
+use std::path::{
+    Path,
+    PathBuf,
+};
 use tempfile::NamedTempFile;
 
-// ============================================================================
-// TASK 5.1: Render Document to String
-// ============================================================================
-
+// # ============================================================================ TASK 5.1: Render Document to String
 /// Render a Document to a complete markdown string.
 ///
 /// Algorithm:
+///
 /// 1. Iterate through all blocks
+///
 /// 2. For PlainText blocks: join lines with newlines
+///
 /// 3. For SortedTable blocks: render table (header, separator, sorted rows)
+///
 /// 4. Join all rendered blocks with newlines
 ///
 /// The rendered output preserves all content, with sorted tables updated.
@@ -48,20 +59,13 @@ pub fn render_document(doc: &Document) -> String {
         crate::parser::LineEnding::Lf => "\n",
         crate::parser::LineEnding::CrLf => "\r\n",
     };
-
     let mut output = Vec::new();
-
     for block in &doc.blocks {
         match block {
             Block::PlainText(lines) => {
                 output.push(lines.join(newline));
-            }
-            Block::SortedTable {
-                comment_line,
-                table,
-                blank_lines_after_comment,
-                ..
-            } => {
+            },
+            Block::SortedTable { comment_line, table, blank_lines_after_comment, .. } => {
                 // Render the comment line
                 output.push(comment_line.clone());
 
@@ -73,27 +77,26 @@ pub fn render_document(doc: &Document) -> String {
                 // Render the table: header, separator, and sorted rows
                 output.push(table.header.clone());
                 output.push(table.separator.clone());
-
                 for row in &table.rows {
                     output.push(row.raw.clone());
                 }
-            }
+            },
         }
     }
-
     output.join(newline)
 }
 
-// ============================================================================
-// TASK 5.2: Atomic Write Logic for In-Place Mode
-// ============================================================================
-
+// # ============================================================================ TASK 5.2: Atomic Write Logic for In-Place Mode
 /// Write to a file atomically using tempfile.
 ///
 /// Algorithm:
+///
 /// 1. Create a NamedTempFile in the same directory as the target
+///
 /// 2. Write content to the temp file
+///
 /// 3. If write succeeds: persist (rename) temp → target
+///
 /// 4. If write fails: temp file auto-deleted, original untouched
 ///
 /// This ensures that on ANY error, the original file is never corrupted.
@@ -106,19 +109,14 @@ fn write_atomic(path: &Path, content: &str) -> Result<(), SmtError> {
     let mut temp_file = NamedTempFile::new_in(dir).map_err(|e| map_io_error(&e, path))?;
 
     // Write content to temp file
-    temp_file
-        .write_all(content.as_bytes())
-        .map_err(|e| map_io_error(&e, path))?;
+    temp_file.write_all(content.as_bytes()).map_err(|e| map_io_error(&e, path))?;
 
     // Flush to ensure all data is written
     temp_file.flush().map_err(|e| map_io_error(&e, path))?;
 
-    // Persist the temp file to the target path
-    // This performs an atomic rename on most systems
-    temp_file
-        .persist(path)
-        .map_err(|e| map_io_error(&e.error, path))?;
-
+    // Persist the temp file to the target path This performs an atomic rename on most
+    // systems
+    temp_file.persist(path).map_err(|e| map_io_error(&e.error, path))?;
     Ok(())
 }
 
@@ -127,15 +125,9 @@ fn map_io_error(err: &io::Error, path: &Path) -> SmtError {
     use std::io::ErrorKind;
 
     match err.kind() {
-        ErrorKind::NotFound => SmtError::FileNotFound {
-            path: path.to_path_buf(),
-        },
-        ErrorKind::PermissionDenied => SmtError::PermissionDenied {
-            path: path.to_path_buf(),
-        },
-        _ => SmtError::Io {
-            source: io::Error::new(err.kind(), err.to_string()),
-        },
+        ErrorKind::NotFound => SmtError::FileNotFound { path: path.to_path_buf() },
+        ErrorKind::PermissionDenied => SmtError::PermissionDenied { path: path.to_path_buf() },
+        _ => SmtError::Io { source: io::Error::new(err.kind(), err.to_string()) },
     }
 }
 
@@ -144,7 +136,6 @@ fn backup_path_for(path: &Path) -> PathBuf {
     if !base.exists() {
         return base;
     }
-
     for i in 1.. {
         let candidate = PathBuf::from(format!("{}.{}", base.display(), i));
         if !candidate.exists() {
@@ -167,23 +158,19 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
     for (path, content) in &entries {
         let dir = path.parent().unwrap_or_else(|| Path::new("."));
         let mut temp_file = NamedTempFile::new_in(dir).map_err(|e| map_io_error(&e, path))?;
-        temp_file
-            .write_all(content.as_bytes())
-            .map_err(|e| map_io_error(&e, path))?;
+        temp_file.write_all(content.as_bytes()).map_err(|e| map_io_error(&e, path))?;
         temp_file.flush().map_err(|e| map_io_error(&e, path))?;
-        temp_file
-            .as_file()
-            .sync_all()
-            .map_err(|e| map_io_error(&e, path))?;
+        temp_file.as_file().sync_all().map_err(|e| map_io_error(&e, path))?;
         temps.push((path.clone(), temp_file));
     }
 
     // Commit (with rollback):
-    // 1) move originals to backups
-    // 2) persist temp files into final paths
+    //
+    // 1. move originals to backups
+    //
+    // 2. persist temp files into final paths
     let mut backups: Vec<(PathBuf, PathBuf)> = Vec::with_capacity(entries.len());
     let mut persisted: Vec<PathBuf> = Vec::new();
-
     let rollback = |backups: Vec<(PathBuf, PathBuf)>, persisted: Vec<PathBuf>| {
         // Best-effort: restore originals from backups.
         for path in persisted {
@@ -194,7 +181,6 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
             let _ = fs::rename(&backup, &path);
         }
     };
-
     for (path, _) in &temps {
         let backup = backup_path_for(path);
         fs::rename(path, &backup).map_err(|e| {
@@ -203,7 +189,6 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
         })?;
         backups.push((path.clone(), backup));
     }
-
     for (path, temp_file) in temps {
         if let Err(e) = temp_file.persist(&path) {
             rollback(backups, persisted);
@@ -216,95 +201,80 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
     for (_path, backup) in backups {
         let _ = fs::remove_file(backup);
     }
-
     Ok(())
 }
 
-// ============================================================================
-// TASK 5.3: Write Document Orchestration
-// ============================================================================
-
+// # ============================================================================ TASK 5.3: Write Document Orchestration
 /// Write a rendered document to the specified output target.
 ///
 /// Algorithm:
+///
 /// 1. Render the document to string
+///
 /// 2. Match on OutputTarget:
-///    - Stdout: println!()
-///    - File { path, append }: write to file (create if new, append if flag set)
-///    - InPlace: atomic write (temp file + rename)
+///
+///    * Stdout: println!()
+///
+///    * File { path, append }: write to file (create if new, append if flag set)
+///
+///    * InPlace: atomic write (temp file + rename)
+///
 /// 3. Return Ok(()) on success, SmtError on failure
 ///
 /// All errors are mapped to SmtError with source location context.
-pub fn write_document(
-    doc: &Document,
-    target: &OutputTarget,
-    source: Option<&Path>,
-) -> Result<(), SmtError> {
+pub fn write_document(doc: &Document, target: &OutputTarget, source: Option<&Path>) -> Result<(), SmtError> {
     // Render the document to string
     let content = render_document(doc);
-
     match target {
         OutputTarget::Stdout => {
             // Write to stdout
             println!("{}", content);
             Ok(())
-        }
+        },
         OutputTarget::File { path, append } => {
             // Write to a file (create new or append)
-            let mut file = OpenOptions::new()
-                .write(true)
-                .create(true)
-                .append(*append)
-                .truncate(!*append)
-                .open(path)
-                .map_err(|e| map_io_error(&e, path))?;
-
-            file.write_all(content.as_bytes())
-                .map_err(|e| map_io_error(&e, path))?;
+            let mut file =
+                OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .append(*append)
+                    .truncate(!*append)
+                    .open(path)
+                    .map_err(|e| map_io_error(&e, path))?;
+            file.write_all(content.as_bytes()).map_err(|e| map_io_error(&e, path))?;
             file.flush().map_err(|e| map_io_error(&e, path))?;
-
             Ok(())
-        }
+        },
         OutputTarget::InPlace => {
-            let path = source.ok_or_else(|| SmtError::Io {
-                source: io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "InPlace target requires a source path",
-                ),
-            })?;
+            let path =
+                source.ok_or_else(
+                    || SmtError::Io {
+                        source: io::Error::new(io::ErrorKind::InvalidInput, "InPlace target requires a source path"),
+                    },
+                )?;
 
             // Atomic write: temp file in same directory + persist/rename.
             write_atomic(path, &content)
-        }
+        },
     }
 }
 
-// ============================================================================
-// UNIT TESTS
-// ============================================================================
-
+// # ============================================================================ UNIT TESTS
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::parser::LineEnding;
     use crate::parser::SortOptions;
 
-    // ========================================================================
-    // TASK 5.1: Render Document Tests
-    // ========================================================================
-
+    // # ======================================================================== TASK 5.1: Render Document Tests
     #[test]
     fn test_render_plain_text_only() {
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec![
-                "# Heading".to_string(),
-                "Some text".to_string(),
-            ])],
+            blocks: vec![Block::PlainText(vec!["# Heading".to_string(), "Some text".to_string(),])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         assert_eq!(rendered, "# Heading\nSome text");
     }
@@ -317,7 +287,6 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         assert_eq!(rendered, "");
     }
@@ -328,19 +297,15 @@ mod tests {
             start_line: 1,
             header: "| Name | Age |".to_string(),
             separator: "| --- | --- |".to_string(),
-            rows: vec![
-                TableRow {
-                    raw: "| Alice | 30 |".to_string(),
-                    cells: vec!["Alice".to_string(), "30".to_string()],
-                },
-                TableRow {
-                    raw: "| Bob | 25 |".to_string(),
-                    cells: vec!["Bob".to_string(), "25".to_string()],
-                },
-            ],
+            rows: vec![TableRow {
+                raw: "| Alice | 30 |".to_string(),
+                cells: vec!["Alice".to_string(), "30".to_string()],
+            }, TableRow {
+                raw: "| Bob | 25 |".to_string(),
+                cells: vec!["Bob".to_string(), "25".to_string()],
+            },],
             column_count: 2,
         };
-
         let doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
@@ -353,7 +318,6 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         assert!(rendered.contains("<!-- smt -->"));
         assert!(rendered.contains("| Name | Age |"));
@@ -374,24 +338,18 @@ mod tests {
             }],
             column_count: 2,
         };
-
         let doc = Document {
             source: None,
-            blocks: vec![
-                Block::PlainText(vec!["# Title".to_string()]),
-                Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
-                    comment_line_number: 2,
-                    options: SortOptions::default(),
-                    table,
-                    blank_lines_after_comment: Vec::new(),
-                },
-                Block::PlainText(vec!["Done.".to_string()]),
-            ],
+            blocks: vec![Block::PlainText(vec!["# Title".to_string()]), Block::SortedTable {
+                comment_line: "<!-- smt -->".to_string(),
+                comment_line_number: 2,
+                options: SortOptions::default(),
+                table,
+                blank_lines_after_comment: Vec::new(),
+            }, Block::PlainText(vec!["Done.".to_string()]),],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         assert!(rendered.contains("# Title"));
         assert!(rendered.contains("<!-- smt -->"));
@@ -410,7 +368,6 @@ mod tests {
             }],
             column_count: 1,
         };
-
         let table2 = Table {
             start_line: 5,
             header: "| X |".to_string(),
@@ -421,33 +378,29 @@ mod tests {
             }],
             column_count: 1,
         };
-
         let doc = Document {
             source: None,
-            blocks: vec![
-                Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
-                    comment_line_number: 0,
-                    options: SortOptions::default(),
-                    table: table1,
-                    blank_lines_after_comment: Vec::new(),
-                },
-                Block::PlainText(vec!["---".to_string()]),
-                Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
-                    comment_line_number: 4,
-                    options: SortOptions::default(),
-                    table: table2,
-                    blank_lines_after_comment: Vec::new(),
-                },
-            ],
+            blocks: vec![Block::SortedTable {
+                comment_line: "<!-- smt -->".to_string(),
+                comment_line_number: 0,
+                options: SortOptions::default(),
+                table: table1,
+                blank_lines_after_comment: Vec::new(),
+            }, Block::PlainText(vec!["---".to_string()]), Block::SortedTable {
+                comment_line: "<!-- smt -->".to_string(),
+                comment_line_number: 4,
+                options: SortOptions::default(),
+                table: table2,
+                blank_lines_after_comment: Vec::new(),
+            },],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         let lines: Vec<&str> = rendered.lines().collect();
-        // Should have: comment, header, separator, row, "---", comment, header, separator, row
+
+        // Should have: comment, header, separator, row, "---", comment, header,
+        // separator, row
         assert!(lines.len() >= 9);
         assert_eq!(lines[0], "<!-- smt -->");
         assert_eq!(lines[1], "| Col |");
@@ -464,7 +417,6 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         assert_eq!(rendered, "Line 1\nLine 2\nLine 3");
     }
@@ -477,26 +429,19 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let rendered = render_document(&doc);
         assert_eq!(rendered, "");
     }
 
-    // ========================================================================
-    // TASK 5.2: Atomic Write Tests
-    // ========================================================================
-
+    // # ======================================================================== TASK 5.2: Atomic Write Tests
     #[test]
     fn test_write_atomic_success() {
         let temp_dir = tempfile::TempDir::new().unwrap();
         let test_file = temp_dir.path().join("test.md");
-
         let content = "# Test\nContent";
         let result = write_atomic(&test_file, content);
-
         assert!(result.is_ok());
         assert!(test_file.exists());
-
         let written = std::fs::read_to_string(&test_file).unwrap();
         assert_eq!(written, content);
     }
@@ -512,7 +457,6 @@ mod tests {
         // Overwrite with atomic write
         let new_content = "New content";
         let result = write_atomic(&test_file, new_content);
-
         assert!(result.is_ok());
         let written = std::fs::read_to_string(&test_file).unwrap();
         assert_eq!(written, new_content);
@@ -521,7 +465,6 @@ mod tests {
     #[test]
     fn test_write_atomic_invalid_directory() {
         let test_file = Path::new("/nonexistent/directory/file.md");
-
         let result = write_atomic(test_file, "content");
         assert!(result.is_err());
     }
@@ -531,18 +474,13 @@ mod tests {
         let temp_dir = tempfile::TempDir::new().unwrap();
         let subdir = temp_dir.path().join("subdir");
         std::fs::create_dir(&subdir).unwrap();
-
         let test_file = subdir.join("test.md");
         let result = write_atomic(&test_file, "content");
-
         assert!(result.is_ok());
         assert!(test_file.exists());
     }
 
-    // ========================================================================
-    // TASK 5.3: Write Document Tests
-    // ========================================================================
-
+    // # ======================================================================== TASK 5.3: Write Document Tests
     #[test]
     fn test_write_document_stdout() {
         let doc = Document {
@@ -551,7 +489,6 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::Stdout;
         let result = write_document(&doc, &target, None);
 
@@ -563,23 +500,19 @@ mod tests {
     fn test_write_document_to_file() {
         let temp_dir = tempfile::TempDir::new().unwrap();
         let output_file = temp_dir.path().join("output.md");
-
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["# Test".to_string()])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::File {
             path: output_file.clone(),
             append: false,
         };
-
         let result = write_document(&doc, &target, None);
         assert!(result.is_ok());
         assert!(output_file.exists());
-
         let written = std::fs::read_to_string(&output_file).unwrap();
         assert!(written.contains("# Test"));
     }
@@ -591,22 +524,18 @@ mod tests {
 
         // Write initial content
         std::fs::write(&output_file, "Initial\n").unwrap();
-
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["Appended".to_string()])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::File {
             path: output_file.clone(),
             append: true,
         };
-
         let result = write_document(&doc, &target, None);
         assert!(result.is_ok());
-
         let written = std::fs::read_to_string(&output_file).unwrap();
         assert!(written.contains("Initial"));
         assert!(written.contains("Appended"));
@@ -616,21 +545,17 @@ mod tests {
     fn test_write_document_creates_new_file() {
         let temp_dir = tempfile::TempDir::new().unwrap();
         let output_file = temp_dir.path().join("new_file.md");
-
         assert!(!output_file.exists());
-
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec!["New file".to_string()])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::File {
             path: output_file.clone(),
             append: false,
         };
-
         let result = write_document(&doc, &target, None);
         assert!(result.is_ok());
         assert!(output_file.exists());
@@ -640,7 +565,6 @@ mod tests {
     fn test_write_document_with_table() {
         let temp_dir = tempfile::TempDir::new().unwrap();
         let output_file = temp_dir.path().join("table.md");
-
         let table = Table {
             start_line: 1,
             header: "| Name |".to_string(),
@@ -651,7 +575,6 @@ mod tests {
             }],
             column_count: 1,
         };
-
         let doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
@@ -664,15 +587,12 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::File {
             path: output_file.clone(),
             append: false,
         };
-
         let result = write_document(&doc, &target, None);
         assert!(result.is_ok());
-
         let written = std::fs::read_to_string(&output_file).unwrap();
         assert!(written.contains("<!-- smt -->"));
         assert!(written.contains("Alice"));
@@ -686,7 +606,6 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::InPlace;
         let result = write_document(&doc, &target, None);
 
@@ -702,12 +621,10 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-
         let target = OutputTarget::File {
             path: Path::new("/nonexistent/directory/file.md").to_path_buf(),
             append: false,
         };
-
         let result = write_document(&doc, &target, None);
         assert!(result.is_err());
     }

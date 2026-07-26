@@ -6,23 +6,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       # Native builds (macOS / Windows / Linux x86_64 GNU): install the matrix target on the runner host.
       # Linux + `cross`: do NOT install the target via rustup; `cross` provides a containerized toolchain.
       - if: matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu'
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
         with:
           targets: ${{ matrix.target }}
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@2c7215f132e9ebf062739d9130488b56d53c060c # master
       - name: Set artifact base name
         run: |
-          echo "ASSET_BASE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
-          if [[ "${{ matrix.target }}" == *"-windows-"* ]]; then
+          TARGET="${{ matrix.target }}"
+          echo "ASSET_BASE=smt-${TARGET}" >> "$GITHUB_ENV"
+          if [[ "$TARGET" == *"-windows-"* ]]; then
             echo "BIN_NAME=smt.exe" >> "$GITHUB_ENV"
-            echo "ASSET_FILE=smt-${{ matrix.target }}.exe" >> "$GITHUB_ENV"
+            echo "ASSET_FILE=smt-${TARGET}.exe" >> "$GITHUB_ENV"
           else
             echo "BIN_NAME=smt" >> "$GITHUB_ENV"
-            echo "ASSET_FILE=smt-${{ matrix.target }}" >> "$GITHUB_ENV"
+            echo "ASSET_FILE=smt-${TARGET}" >> "$GITHUB_ENV"
           fi
         shell: bash
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
@@ -178,9 +181,13 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     name: Create GitHub Release
     needs: build
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Download All Artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -209,24 +216,27 @@ jobs:
         name: Get Changelog Entry
         run: |
           # Extract changelog for this version from CHANGELOG.md
-          VERSION=${GITHUB_REF#refs/tags/v}
+          VERSION="${GITHUB_REF#refs/tags/v}"
           if [ -f "CHANGELOG.md" ]; then
             # Get content between this version and next version header
             awk "/^## \[${VERSION}\]/{flag=1; next} /^## /{flag=0} flag" CHANGELOG.md > changelog_entry.txt
             if [ -s changelog_entry.txt ]; then
-              echo "changelog<<EOF" >> $GITHUB_OUTPUT
-              cat changelog_entry.txt >> $GITHUB_OUTPUT
-              echo "EOF" >> $GITHUB_OUTPUT
+              {
+                echo "changelog<<EOF"
+                cat changelog_entry.txt
+                echo "EOF"
+              } >> "$GITHUB_OUTPUT"
             else
-              echo "changelog=Release $VERSION" >> $GITHUB_OUTPUT
+              echo "changelog=Release ${VERSION}" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "changelog=Release $VERSION" >> $GITHUB_OUTPUT
+            echo "changelog=Release ${VERSION}" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
       - env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         name: Create Release
+        # zizmor: ignore[superfluous-actions]
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           body: ${{ steps.changelog.outputs.changelog }}
@@ -240,4 +250,4 @@ on:
       - v[0-9]+.[0-9]+.[0-9]+
       - v[0-9]+.[0-9]+.[0-9]+-*
 permissions:
-  contents: write
+  contents: read

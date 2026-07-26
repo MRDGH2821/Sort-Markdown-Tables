@@ -1,7 +1,7 @@
-//! Central error enum for **`smt`**: CLI validation, Markdown parse failures, column options,
-//! and surfaced I/O problems as [`SmtError::Io`] or semantic variants ([`SmtError::FileNotFound`],
-//! [`SmtError::PermissionDenied`]) where appropriate.
-
+//! Central error enum for **`smt`**: CLI validation, Markdown parse failures,
+//! column options, and surfaced I/O problems as [`SmtError::Io`] or semantic
+//! variants ([`SmtError::FileNotFound`], [`SmtError::PermissionDenied`]) where
+//! appropriate.
 use std::path::PathBuf;
 use thiserror::Error;
 
@@ -24,37 +24,33 @@ pub enum SmtError {
     // CLI errors
     #[error("--write cannot be used with multiple input files")]
     WriteWithMultipleFiles,
-
     #[error("--append requires --write")]
     AppendWithoutWrite,
-
     #[error("--in-place cannot be used with stdin")]
     InPlaceWithStdin,
-
     #[error("no files matched pattern \"{pattern}\"")]
-    NoFilesMatched { pattern: String },
-
+    NoFilesMatched {
+        pattern: String,
+    },
     // Parse errors
     #[error("{path}:{line}: smt comment is not followed by a table")]
-    CommentWithoutTable { path: SourceLocation, line: usize },
-
+    CommentWithoutTable {
+        path: SourceLocation,
+        line: usize,
+    },
     #[error("{path}:{line}: duplicate smt comment (previous at line {previous_line})")]
     DuplicateComment {
         path: SourceLocation,
         line: usize,
         previous_line: usize,
     },
-
     #[error("{path}:{line}: unknown option \"{key}\" in smt comment")]
     UnknownOption {
         path: SourceLocation,
         line: usize,
         key: String,
     },
-
-    #[error(
-        "{path}:{line}: invalid value \"{value}\" for option \"{key}\" (expected: {expected})"
-    )]
+    #[error("{path}:{line}: invalid value \"{value}\" for option \"{key}\" (expected: {expected})")]
     InvalidOptionValue {
         path: SourceLocation,
         line: usize,
@@ -62,13 +58,16 @@ pub enum SmtError {
         value: String,
         expected: String,
     },
-
     #[error("{path}:{line}: column must be >= 1 in smt comment")]
-    ColumnZero { path: SourceLocation, line: usize },
-
+    ColumnZero {
+        path: SourceLocation,
+        line: usize,
+    },
     #[error("{path}:{line}: column must be a positive integer in smt comment")]
-    ColumnNotInteger { path: SourceLocation, line: usize },
-
+    ColumnNotInteger {
+        path: SourceLocation,
+        line: usize,
+    },
     #[error("{path}:{line}: column {column} is out of range (table has {actual} columns)")]
     ColumnOutOfRange {
         path: SourceLocation,
@@ -76,17 +75,20 @@ pub enum SmtError {
         column: usize,
         actual: usize,
     },
-
     #[error("{path}:{line}: malformed table (missing separator row)")]
-    MalformedTable { path: SourceLocation, line: usize },
-
+    MalformedTable {
+        path: SourceLocation,
+        line: usize,
+    },
     // I/O errors
     #[error("file not found: {path}")]
-    FileNotFound { path: PathBuf },
-
+    FileNotFound {
+        path: PathBuf,
+    },
     #[error("permission denied: {path}")]
-    PermissionDenied { path: PathBuf },
-
+    PermissionDenied {
+        path: PathBuf,
+    },
     #[error("I/O error: {source}")]
     Io {
         #[from]
@@ -95,8 +97,7 @@ pub enum SmtError {
 }
 
 impl SmtError {
-    /// Return the exit code for this error
-    /// All errors map to exit code 2
+    /// Return the exit code for this error All errors map to exit code 2
     pub fn exit_code(&self) -> i32 {
         2
     }
@@ -109,10 +110,7 @@ mod tests {
     #[test]
     fn test_write_with_multiple_files_message() {
         let err = SmtError::WriteWithMultipleFiles;
-        assert_eq!(
-            err.to_string(),
-            "--write cannot be used with multiple input files"
-        );
+        assert_eq!(err.to_string(), "--write cannot be used with multiple input files");
     }
 
     #[test]
@@ -129,13 +127,8 @@ mod tests {
 
     #[test]
     fn test_no_files_matched_message() {
-        let err = SmtError::NoFilesMatched {
-            pattern: "*.nonexistent".to_string(),
-        };
-        assert_eq!(
-            err.to_string(),
-            "no files matched pattern \"*.nonexistent\""
-        );
+        let err = SmtError::NoFilesMatched { pattern: "*.nonexistent".to_string() };
+        assert_eq!(err.to_string(), "no files matched pattern \"*.nonexistent\"");
     }
 
     #[test]
@@ -144,10 +137,7 @@ mod tests {
             path: SourceLocation(Some(PathBuf::from("test.md"))),
             line: 5,
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:5: smt comment is not followed by a table"
-        );
+        assert_eq!(err.to_string(), "test.md:5: smt comment is not followed by a table");
     }
 
     #[test]
@@ -156,10 +146,7 @@ mod tests {
             path: SourceLocation(None),
             line: 5,
         };
-        assert_eq!(
-            err.to_string(),
-            "<stdin>:5: smt comment is not followed by a table"
-        );
+        assert_eq!(err.to_string(), "<stdin>:5: smt comment is not followed by a table");
     }
 
     #[test]
@@ -169,10 +156,7 @@ mod tests {
             line: 10,
             previous_line: 5,
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:10: duplicate smt comment (previous at line 5)"
-        );
+        assert_eq!(err.to_string(), "test.md:10: duplicate smt comment (previous at line 5)");
     }
 
     #[test]
@@ -180,12 +164,9 @@ mod tests {
         let err = SmtError::UnknownOption {
             path: SourceLocation(Some(PathBuf::from("test.md"))),
             line: 3,
-            key: "colum".to_string(),
+            key: "column".to_string(),
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:3: unknown option \"colum\" in smt comment"
-        );
+        assert_eq!(err.to_string(), "test.md:3: unknown option \"column\" in smt comment");
     }
 
     #[test]
@@ -209,10 +190,7 @@ mod tests {
             path: SourceLocation(Some(PathBuf::from("test.md"))),
             line: 3,
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:3: column must be >= 1 in smt comment"
-        );
+        assert_eq!(err.to_string(), "test.md:3: column must be >= 1 in smt comment");
     }
 
     #[test]
@@ -221,10 +199,7 @@ mod tests {
             path: SourceLocation(Some(PathBuf::from("test.md"))),
             line: 3,
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:3: column must be a positive integer in smt comment"
-        );
+        assert_eq!(err.to_string(), "test.md:3: column must be a positive integer in smt comment");
     }
 
     #[test]
@@ -235,10 +210,7 @@ mod tests {
             column: 5,
             actual: 3,
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:3: column 5 is out of range (table has 3 columns)"
-        );
+        assert_eq!(err.to_string(), "test.md:3: column 5 is out of range (table has 3 columns)");
     }
 
     #[test]
@@ -247,95 +219,78 @@ mod tests {
             path: SourceLocation(Some(PathBuf::from("test.md"))),
             line: 3,
         };
-        assert_eq!(
-            err.to_string(),
-            "test.md:3: malformed table (missing separator row)"
-        );
+        assert_eq!(err.to_string(), "test.md:3: malformed table (missing separator row)");
     }
 
     #[test]
     fn test_file_not_found_message() {
-        let err = SmtError::FileNotFound {
-            path: PathBuf::from("missing.md"),
-        };
+        let err = SmtError::FileNotFound { path: PathBuf::from("missing.md") };
         assert_eq!(err.to_string(), "file not found: missing.md");
     }
 
     #[test]
     fn test_permission_denied_message() {
-        let err = SmtError::PermissionDenied {
-            path: PathBuf::from("/restricted/file.md"),
-        };
+        let err = SmtError::PermissionDenied { path: PathBuf::from("/restricted/file.md") };
         assert_eq!(err.to_string(), "permission denied: /restricted/file.md");
     }
 
     #[test]
     fn test_io_error_message() {
-        let err = SmtError::Io {
-            source: std::io::Error::other("mock failure"),
-        };
+        let err = SmtError::Io { source: std::io::Error::other("mock failure") };
         assert!(err.to_string().starts_with("I/O error:"), "{err}");
     }
 
     #[test]
     fn test_all_errors_exit_code_2() {
-        let errors = vec![
-            SmtError::WriteWithMultipleFiles,
-            SmtError::AppendWithoutWrite,
-            SmtError::InPlaceWithStdin,
-            SmtError::NoFilesMatched {
-                pattern: "test".to_string(),
-            },
-            SmtError::CommentWithoutTable {
-                path: SourceLocation(None),
-                line: 1,
-            },
-            SmtError::DuplicateComment {
-                path: SourceLocation(None),
-                line: 1,
-                previous_line: 1,
-            },
-            SmtError::UnknownOption {
-                path: SourceLocation(None),
-                line: 1,
-                key: "test".to_string(),
-            },
-            SmtError::InvalidOptionValue {
-                path: SourceLocation(None),
-                line: 1,
-                key: "test".to_string(),
-                value: "test".to_string(),
-                expected: "test".to_string(),
-            },
-            SmtError::ColumnZero {
-                path: SourceLocation(None),
-                line: 1,
-            },
-            SmtError::ColumnNotInteger {
-                path: SourceLocation(None),
-                line: 1,
-            },
-            SmtError::ColumnOutOfRange {
-                path: SourceLocation(None),
-                line: 1,
-                column: 1,
-                actual: 1,
-            },
-            SmtError::MalformedTable {
-                path: SourceLocation(None),
-                line: 1,
-            },
-            SmtError::FileNotFound {
-                path: PathBuf::from("test"),
-            },
-            SmtError::PermissionDenied {
-                path: PathBuf::from("test"),
-            },
-            SmtError::Io {
-                source: std::io::Error::other("mock I/O failure"),
-            },
-        ];
-
+        let errors =
+            vec![
+                SmtError::WriteWithMultipleFiles,
+                SmtError::AppendWithoutWrite,
+                SmtError::InPlaceWithStdin,
+                SmtError::NoFilesMatched { pattern: "test".to_string(), },
+                SmtError::CommentWithoutTable {
+                    path: SourceLocation(None),
+                    line: 1,
+                },
+                SmtError::DuplicateComment {
+                    path: SourceLocation(None),
+                    line: 1,
+                    previous_line: 1,
+                },
+                SmtError::UnknownOption {
+                    path: SourceLocation(None),
+                    line: 1,
+                    key: "test".to_string(),
+                },
+                SmtError::InvalidOptionValue {
+                    path: SourceLocation(None),
+                    line: 1,
+                    key: "test".to_string(),
+                    value: "test".to_string(),
+                    expected: "test".to_string(),
+                },
+                SmtError::ColumnZero {
+                    path: SourceLocation(None),
+                    line: 1,
+                },
+                SmtError::ColumnNotInteger {
+                    path: SourceLocation(None),
+                    line: 1,
+                },
+                SmtError::ColumnOutOfRange {
+                    path: SourceLocation(None),
+                    line: 1,
+                    column: 1,
+                    actual: 1,
+                },
+                SmtError::MalformedTable {
+                    path: SourceLocation(None),
+                    line: 1,
+                },
+                SmtError::FileNotFound { path: PathBuf::from("test"), },
+                SmtError::PermissionDenied { path: PathBuf::from("test"), },
+                SmtError::Io { source: std::io::Error::other("mock I/O failure"), },
+            ];
         for err in errors {
             assert_eq!(err.exit_code(), 2, "Error: {}", err);
         }
