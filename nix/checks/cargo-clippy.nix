@@ -11,16 +11,16 @@
   };
   commonArgs = {
     inherit src;
-    meta.mainProgram = "smt";
     pname = "Sort-Markdown-Tables";
     strictDeps = true;
     version = (fromTOML (builtins.readFile ../../Cargo.toml)).package.version;
   };
   cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 in
-  craneLib.buildPackage (
+  craneLib.cargoClippy (
     commonArgs
     // {
       inherit cargoArtifacts;
+      cargoClippyExtraArgs = "--all-targets -- -D warnings";
     }
   )
