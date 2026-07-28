@@ -16,5 +16,14 @@ build-std = ["std", "panic_unwind"]
 [target.mipsel-unknown-linux-gnu]
 build-std = ["std", "panic_unwind"]
 
+# Solaris: libstd and rustix reference XPG4/XNET symbols (__xnet7_socket,
+# __sysconf_xpg7, __link_xpg4). These live in libxnet. Do NOT add explicit
+# -L paths; the cross-rs sysroot search handles discovery.
+[target.sparcv9-sun-solaris.env]
+passthrough = ["RUSTFLAGS=-C link-arg=-lxnet"]
+
+[target.x86_64-pc-solaris.env]
+passthrough = ["RUSTFLAGS=-C link-arg=-lxnet"]
+
 [target.x86_64-unknown-dragonfly]
 build-std = ["std", "panic_unwind"]
