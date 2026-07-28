@@ -24,6 +24,7 @@ scopes = [
   "cli",
   "cocogitto",
   "copier",
+  "cross",
   "cspell",
   "github",
   "jscpd",
