@@ -38,7 +38,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux x86 / x86_64 (Tier 1 & Tier 2)
+          # Linux x86 / x86_64
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - os: ubuntu-latest
@@ -58,6 +58,8 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
+          - os: ubuntu-latest
+            target: aarch64_be-unknown-linux-gnu
           - os: ubuntu-latest
             target: arm-unknown-linux-gnueabi
           - os: ubuntu-latest
@@ -82,6 +84,21 @@ jobs:
             target: thumbv7neon-unknown-linux-gnueabihf
           - os: ubuntu-latest
             target: thumbv7neon-unknown-linux-musleabihf
+          # Bare Metal / Embedded Thumb
+          - os: ubuntu-latest
+            target: thumbv6m-none-eabi
+          - os: ubuntu-latest
+            target: thumbv7em-none-eabi
+          - os: ubuntu-latest
+            target: thumbv7em-none-eabihf
+          - os: ubuntu-latest
+            target: thumbv7m-none-eabi
+          - os: ubuntu-latest
+            target: thumbv8m.base-none-eabi
+          - os: ubuntu-latest
+            target: thumbv8m.main-none-eabi
+          - os: ubuntu-latest
+            target: thumbv8m.main-none-eabihf
           # Linux MIPS & MIPS64
           - os: ubuntu-latest
             target: mips-unknown-linux-gnu
@@ -124,21 +141,32 @@ jobs:
             target: s390x-unknown-linux-musl
           - os: ubuntu-latest
             target: sparc64-unknown-linux-gnu
-          # Android NDK (cross-rs supported)
+          # Android NDK
           - os: ubuntu-latest
             target: aarch64-linux-android
+          - os: ubuntu-latest
+            target: arm-linux-androideabi
           - os: ubuntu-latest
             target: armv7-linux-androideabi
           - os: ubuntu-latest
             target: i686-linux-android
           - os: ubuntu-latest
+            target: thumbv7neon-linux-androideabi
+          - os: ubuntu-latest
             target: x86_64-linux-android
-          # macOS (Tier 1)
+          # WebAssembly / Emscripten
+          - os: ubuntu-latest
+            target: wasm32-unknown-emscripten
+          # macOS & iOS
           - os: macos-latest
             target: x86_64-apple-darwin
           - os: macos-latest
             target: aarch64-apple-darwin
-          # Windows (Tier 1 & Tier 2)
+          - os: macos-latest
+            target: i686-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-ios
+          # Windows
           - os: windows-latest
             target: x86_64-pc-windows-msvc
           - os: windows-latest
@@ -146,12 +174,16 @@ jobs:
           - os: windows-latest
             target: aarch64-pc-windows-msvc
           - os: ubuntu-latest
+            target: thumbv7a-pc-windows-msvc
+          - os: ubuntu-latest
             target: x86_64-pc-windows-gnu
           - os: ubuntu-latest
             target: i686-pc-windows-gnu
           - os: windows-latest
             target: x86_64-pc-windows-gnullvm
-          # BSDs, illumos & Solaris (cross std targets)
+          # BSDs, illumos & Solaris
+          - os: ubuntu-latest
+            target: x86_64-unknown-dragonfly
           - os: ubuntu-latest
             target: x86_64-unknown-freebsd
           - os: ubuntu-latest
@@ -160,6 +192,8 @@ jobs:
             target: x86_64-unknown-netbsd
           - os: ubuntu-latest
             target: x86_64-unknown-illumos
+          - os: ubuntu-latest
+            target: x86_64-pc-solaris
           - os: ubuntu-latest
             target: sparcv9-sun-solaris
 name: Target Verification

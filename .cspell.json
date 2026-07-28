@@ -14,7 +14,8 @@
     "megalinter",
     "megalinter-reports",
     "package-lock.json",
-    "report"
+    "report",
+    "targets.txt"
   ],
   "language": "en,en-GB",
   "noConfigSearch": true,
