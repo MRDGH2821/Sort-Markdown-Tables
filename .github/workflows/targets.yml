@@ -1,0 +1,154 @@
+---
+jobs:
+  build-target:
+    continue-on-error: false
+    name: Build Target (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - if: matrix.os != 'ubuntu-latest' || matrix.target == 'x86_64-unknown-linux-gnu'
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        with:
+          targets: ${{ matrix.target }}
+          toolchain: stable
+      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+        uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+        with:
+          toolchain: stable
+      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+        name: Install Cross (for non-native targets)
+        run: cargo install cross --git https://github.com/cross-rs/cross
+      - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
+        name: Install LLVM/MinGW (gnullvm linker)
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+        with:
+          install: mingw-w64-x86_64-clang mingw-w64-x86_64-llvm
+          msystem: MINGW64
+          path-type: inherit
+          update: true
+      - if: matrix.target == 'x86_64-unknown-linux-gnu' || startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows')
+        name: Build Binary (native)
+        run: cargo build --release --target ${{ matrix.target }}
+      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+        name: Build Binary (cross)
+        run: cross build --release --target ${{ matrix.target }}
+    strategy:
+      matrix:
+        include:
+          # Linux x86_64 (Tier 1)
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          # Linux i686 (Tier 1)
+          - os: ubuntu-latest
+            target: i686-unknown-linux-gnu
+          # Linux ARM64 (Tier 2)
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          # Linux x86_64 musl (Tier 2)
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+          # Linux ARM64 musl (Tier 2)
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
+          # macOS x86_64 (Tier 1)
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          # macOS ARM64 (Tier 1)
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          # Windows x86_64 (Tier 1)
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          # Windows i686 (Tier 1)
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+          # Windows ARM64 (Tier 2)
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+          # Windows x86_64 GNU — cross Docker image
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+          - os: ubuntu-latest
+            target: i686-pc-windows-gnu
+          # gnullvm has no cross-rs image; build on Windows (LLVM/MinGW Rust toolchain)
+          - os: windows-latest
+            target: x86_64-pc-windows-gnullvm
+          # FreeBSD x86_64 (Tier 2)
+          - os: ubuntu-latest
+            target: x86_64-unknown-freebsd
+          # ---- Additional cross-rs supported targets ----
+          # Linux (x86 variants)
+          - os: ubuntu-latest
+            target: i586-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: i586-unknown-linux-musl
+          - os: ubuntu-latest
+            target: i686-unknown-linux-musl
+          # Linux (ARM / AArch64)
+          - os: ubuntu-latest
+            target: arm-unknown-linux-gnueabi
+          - os: ubuntu-latest
+            target: arm-unknown-linux-gnueabihf
+          - os: ubuntu-latest
+            target: arm-unknown-linux-musleabi
+          - os: ubuntu-latest
+            target: arm-unknown-linux-musleabihf
+          - os: ubuntu-latest
+            target: armv5te-unknown-linux-gnueabi
+          - os: ubuntu-latest
+            target: armv5te-unknown-linux-musleabi
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-gnueabi
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-musleabi
+          - os: ubuntu-latest
+            target: armv7-unknown-linux-musleabihf
+          - os: ubuntu-latest
+            target: thumbv7neon-unknown-linux-gnueabihf
+          # Linux (LoongArch)
+          - os: ubuntu-latest
+            target: loongarch64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: loongarch64-unknown-linux-musl
+          # Linux (PowerPC)
+          - os: ubuntu-latest
+            target: powerpc-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: powerpc64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: powerpc64le-unknown-linux-gnu
+          # Linux (RISC-V / S390x / SPARC)
+          - os: ubuntu-latest
+            target: riscv64gc-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: riscv64gc-unknown-linux-musl
+          - os: ubuntu-latest
+            target: s390x-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: sparc64-unknown-linux-gnu
+          # BSDs / illumos / Solaris (cross std targets)
+          - os: ubuntu-latest
+            target: i686-unknown-freebsd
+          - os: ubuntu-latest
+            target: x86_64-unknown-netbsd
+          - os: ubuntu-latest
+            target: x86_64-unknown-illumos
+          - os: ubuntu-latest
+            target: sparcv9-sun-solaris
+name: Target Verification
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+permissions:
+  contents: read

@@ -8,6 +8,7 @@
     "**/node_modules/**",
     "**/vscode-extension/**",
     ".github/workflows/release.yml",
+    ".github/workflows/targets.yml",
     ".vscode",
     ".zed",
     "megalinter",
