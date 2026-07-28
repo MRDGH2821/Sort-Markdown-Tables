@@ -12,14 +12,17 @@ jobs:
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
           targets: ${{ matrix.target }}
-          toolchain: ${{ matrix.nightly && 'nightly' || 'stable' }}
+          toolchain: ${{ matrix.nightly == true && 'nightly' || 'stable' }}
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
-          toolchain: ${{ matrix.nightly && 'nightly' || 'stable' }}
-      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+          toolchain: ${{ matrix.nightly == true && 'nightly' || 'stable' }}
+      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu' && matrix.target != 'wasm32-unknown-emscripten'
         name: Install Cross (for non-native targets)
         run: cargo install cross --git https://github.com/cross-rs/cross
+      - if: matrix.target == 'wasm32-unknown-emscripten'
+        name: Install Emscripten SDK
+        uses: mymindstorm/setup-emsdk@6ab9eb1bda2574c4ddb79809fc9247783eaf9021 # v14
       - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
         name: Install LLVM/MinGW (gnullvm linker)
         uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
@@ -35,9 +38,14 @@ jobs:
       - if: matrix.target == 'x86_64-unknown-linux-gnu' || startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows')
         name: Build Binary (native)
         run: cargo build --release --target ${{ matrix.target }}
-      - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
+      - if: matrix.target == 'wasm32-unknown-emscripten'
+        name: Build Binary (emscripten)
+        run: cargo build --release --target ${{ matrix.target }}
+      - env:
+          RUSTUP_TOOLCHAIN: ${{ matrix.nightly == true && 'nightly' || 'stable' }}
+        if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu' && matrix.target != 'wasm32-unknown-emscripten'
         name: Build Binary (cross)
-        run: ${{ matrix.nightly && 'cross +nightly build --release --target ' || 'cross build --release --target ' }}${{ matrix.target }}
+        run: cross build --release --target ${{ matrix.target }}
     strategy:
       fail-fast: false
       matrix:
