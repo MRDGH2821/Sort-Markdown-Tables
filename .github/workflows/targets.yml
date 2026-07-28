@@ -12,11 +12,11 @@ jobs:
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
           targets: ${{ matrix.target }}
-          toolchain: stable
+          toolchain: ${{ matrix.nightly && 'nightly' || 'stable' }}
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.nightly && 'nightly' || 'stable' }}
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         name: Install Cross (for non-native targets)
         run: cargo install cross --git https://github.com/cross-rs/cross
@@ -37,7 +37,7 @@ jobs:
         run: cargo build --release --target ${{ matrix.target }}
       - if: matrix.os == 'ubuntu-latest' && matrix.target != 'x86_64-unknown-linux-gnu'
         name: Build Binary (cross)
-        run: cross build --release --target ${{ matrix.target }}
+        run: ${{ matrix.nightly && 'cross +nightly build --release --target ' || 'cross build --release --target ' }}${{ matrix.target }}
     strategy:
       fail-fast: false
       matrix:
@@ -60,7 +60,8 @@ jobs:
             target: aarch64-unknown-linux-gnu
           - os: ubuntu-latest
             target: aarch64-unknown-linux-musl
-          - os: ubuntu-latest
+          - nightly: true
+            os: ubuntu-latest
             target: aarch64_be-unknown-linux-gnu
           - os: ubuntu-latest
             target: arm-unknown-linux-gnueabi
@@ -85,13 +86,17 @@ jobs:
           - os: ubuntu-latest
             target: thumbv7neon-unknown-linux-gnueabihf
           # Linux MIPS & MIPS64
-          - os: ubuntu-latest
+          - nightly: true
+            os: ubuntu-latest
             target: mips-unknown-linux-gnu
-          - os: ubuntu-latest
+          - nightly: true
+            os: ubuntu-latest
             target: mipsel-unknown-linux-gnu
-          - os: ubuntu-latest
+          - nightly: true
+            os: ubuntu-latest
             target: mips64-unknown-linux-gnuabi64
-          - os: ubuntu-latest
+          - nightly: true
+            os: ubuntu-latest
             target: mips64el-unknown-linux-gnuabi64
           # Linux LoongArch, PowerPC, RISC-V, S390x, SPARC
           - os: ubuntu-latest
@@ -149,7 +154,8 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-gnullvm
           # BSDs, illumos & Solaris
-          - os: ubuntu-latest
+          - nightly: true
+            os: ubuntu-latest
             target: x86_64-unknown-dragonfly
           - os: ubuntu-latest
             target: x86_64-unknown-freebsd
