@@ -11,6 +11,7 @@
     ".github/workflows/targets.yml",
     ".vscode",
     ".zed",
+    "Cross.toml",
     "megalinter",
     "megalinter-reports",
     "package-lock.json",

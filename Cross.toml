@@ -1,0 +1,5 @@
+[target.sparcv9-sun-solaris.env]
+passthrough = ["RUSTFLAGS=-C link-arg=-lxnet"]
+
+[target.x86_64-pc-solaris.env]
+passthrough = ["RUSTFLAGS=-C link-arg=-lxnet"]
