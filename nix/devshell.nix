@@ -58,5 +58,6 @@ in
       llm-pkgs.rtk
       pkgs.nil
       pkgs.nixd
+      pkgs.act
     ];
   }
