@@ -1,6 +1,9 @@
 [target.aarch64_be-unknown-linux-gnu]
 build-std = ["std", "panic_unwind"]
 
+[target.aarch64_be-unknown-linux-gnu.env]
+passthrough = ["RUSTFLAGS=--cfg rustix_use_libc"]
+
 [target.mips-unknown-linux-gnu]
 build-std = ["std", "panic_unwind"]
 
@@ -12,16 +15,6 @@ build-std = ["std", "panic_unwind"]
 
 [target.mipsel-unknown-linux-gnu]
 build-std = ["std", "panic_unwind"]
-
-[target.sparcv9-sun-solaris.env]
-passthrough = [
-  "RUSTFLAGS=-C link-arg=-L/usr/xpg4/lib/sparcv9 -C link-arg=-L/usr/xpg4/lib -C link-arg=-lxnet"
-]
-
-[target.x86_64-pc-solaris.env]
-passthrough = [
-  "RUSTFLAGS=-C link-arg=-L/usr/xpg4/lib/amd64 -C link-arg=-L/usr/xpg4/lib -C link-arg=-lxnet"
-]
 
 [target.x86_64-unknown-dragonfly]
 build-std = ["std", "panic_unwind"]

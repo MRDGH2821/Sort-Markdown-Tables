@@ -27,13 +27,13 @@ jobs:
         name: Install LLVM/MinGW (gnullvm linker)
         uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
-          install: mingw-w64-x86_64-clang mingw-w64-x86_64-llvm
-          msystem: MINGW64
+          install: mingw-w64-clang-x86_64-clang
+          msystem: CLANG64
           path-type: inherit
           update: true
       - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
-        name: Add MinGW64 to PATH for gnullvm
-        run: echo "C:\msys64\mingw64\bin" >> $env:GITHUB_PATH
+        name: Add CLANG64 to PATH for gnullvm
+        run: echo "C:\msys64\clang64\bin" >> $env:GITHUB_PATH
         shell: pwsh
       - if: matrix.target == 'x86_64-unknown-linux-gnu' || startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows')
         name: Build Binary (native)
