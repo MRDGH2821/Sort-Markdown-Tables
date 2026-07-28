@@ -38,56 +38,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux x86_64 (Tier 1)
+          # Linux x86 / x86_64 (Tier 1 & Tier 2)
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-          # Linux i686 (Tier 1)
-          - os: ubuntu-latest
-            target: i686-unknown-linux-gnu
-          # Linux ARM64 (Tier 2)
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-          # Linux x86_64 musl (Tier 2)
           - os: ubuntu-latest
             target: x86_64-unknown-linux-musl
-          # Linux ARM64 musl (Tier 2)
           - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-          # macOS x86_64 (Tier 1)
-          - os: macos-latest
-            target: x86_64-apple-darwin
-          # macOS ARM64 (Tier 1)
-          - os: macos-latest
-            target: aarch64-apple-darwin
-          # Windows x86_64 (Tier 1)
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-          # Windows i686 (Tier 1)
-          - os: windows-latest
-            target: i686-pc-windows-msvc
-          # Windows ARM64 (Tier 2)
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
-          # Windows x86_64 GNU — cross Docker image
+            target: i686-unknown-linux-gnu
           - os: ubuntu-latest
-            target: x86_64-pc-windows-gnu
-          - os: ubuntu-latest
-            target: i686-pc-windows-gnu
-          # gnullvm has no cross-rs image; build on Windows (LLVM/MinGW Rust toolchain)
-          - os: windows-latest
-            target: x86_64-pc-windows-gnullvm
-          # FreeBSD x86_64 (Tier 2)
-          - os: ubuntu-latest
-            target: x86_64-unknown-freebsd
-          # ---- Additional cross-rs supported targets ----
-          # Linux (x86 variants)
+            target: i686-unknown-linux-musl
           - os: ubuntu-latest
             target: i586-unknown-linux-gnu
           - os: ubuntu-latest
             target: i586-unknown-linux-musl
           - os: ubuntu-latest
-            target: i686-unknown-linux-musl
-          # Linux (ARM / AArch64)
+            target: x86_64-unknown-linux-gnux32
+          # Linux ARM & AArch64
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-musl
           - os: ubuntu-latest
             target: arm-unknown-linux-gnueabi
           - os: ubuntu-latest
@@ -110,19 +80,40 @@ jobs:
             target: armv7-unknown-linux-musleabihf
           - os: ubuntu-latest
             target: thumbv7neon-unknown-linux-gnueabihf
-          # Linux (LoongArch)
+          - os: ubuntu-latest
+            target: thumbv7neon-unknown-linux-musleabihf
+          # Linux MIPS & MIPS64
+          - os: ubuntu-latest
+            target: mips-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: mips-unknown-linux-musl
+          - os: ubuntu-latest
+            target: mipsel-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: mipsel-unknown-linux-musl
+          - os: ubuntu-latest
+            target: mips64-unknown-linux-gnuabi64
+          - os: ubuntu-latest
+            target: mips64-unknown-linux-muslabi64
+          - os: ubuntu-latest
+            target: mips64el-unknown-linux-gnuabi64
+          - os: ubuntu-latest
+            target: mips64el-unknown-linux-muslabi64
+          # Linux LoongArch, PowerPC, RISC-V, S390x, SPARC
           - os: ubuntu-latest
             target: loongarch64-unknown-linux-gnu
           - os: ubuntu-latest
             target: loongarch64-unknown-linux-musl
-          # Linux (PowerPC)
           - os: ubuntu-latest
             target: powerpc-unknown-linux-gnu
           - os: ubuntu-latest
             target: powerpc64-unknown-linux-gnu
           - os: ubuntu-latest
             target: powerpc64le-unknown-linux-gnu
-          # Linux (RISC-V / S390x / SPARC)
+          - os: ubuntu-latest
+            target: powerpc64le-unknown-linux-musl
+          - os: ubuntu-latest
+            target: riscv32gc-unknown-linux-gnu
           - os: ubuntu-latest
             target: riscv64gc-unknown-linux-gnu
           - os: ubuntu-latest
@@ -130,14 +121,47 @@ jobs:
           - os: ubuntu-latest
             target: s390x-unknown-linux-gnu
           - os: ubuntu-latest
+            target: s390x-unknown-linux-musl
+          - os: ubuntu-latest
             target: sparc64-unknown-linux-gnu
-          # BSDs / illumos / Solaris (cross std targets)
+          # Android NDK (cross-rs supported)
+          - os: ubuntu-latest
+            target: aarch64-linux-android
+          - os: ubuntu-latest
+            target: armv7-linux-androideabi
+          - os: ubuntu-latest
+            target: i686-linux-android
+          - os: ubuntu-latest
+            target: x86_64-linux-android
+          # macOS (Tier 1)
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          # Windows (Tier 1 & Tier 2)
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: x86_64-pc-windows-gnu
+          - os: ubuntu-latest
+            target: i686-pc-windows-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-gnullvm
+          # BSDs, illumos & Solaris (cross std targets)
+          - os: ubuntu-latest
+            target: x86_64-unknown-freebsd
           - os: ubuntu-latest
             target: i686-unknown-freebsd
           - os: ubuntu-latest
             target: x86_64-unknown-netbsd
           - os: ubuntu-latest
             target: x86_64-unknown-illumos
+          - os: ubuntu-latest
+            target: sparcv9-sun-solaris
 name: Target Verification
 on:
   pull_request:
