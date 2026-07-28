@@ -4,7 +4,6 @@
   ...
 }: let
   pre-commit-check = import ./checks/pre-commit-check.nix {inherit inputs pkgs;};
-  llm-pkgs = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system};
   yqExe = pkgs.lib.getExe pkgs.yq;
   crossExe = pkgs.lib.getExe pkgs.cargo-cross;
   cross-build-all = pkgs.writeShellScriptBin "cross-build-all" ''
@@ -49,13 +48,7 @@ in
     packages = [
       cross-build-all
       cross-build-seq
-      llm-pkgs.antigravity-cli
-      llm-pkgs.apm
-      llm-pkgs.copilot-cli
-      llm-pkgs.cursor-agent
-      llm-pkgs.git-surgeon
-      llm-pkgs.opencode
-      llm-pkgs.rtk
+
       pkgs.nil
       pkgs.nixd
       pkgs.act

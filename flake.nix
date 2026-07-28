@@ -10,10 +10,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:cachix/git-hooks.nix";
     };
-    llm-agents = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:numtide/llm-agents.nix";
-    };
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";
     pedantix = {
       inputs.nixpkgs.follows = "nixpkgs";
