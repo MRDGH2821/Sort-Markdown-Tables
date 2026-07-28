@@ -1,5 +1,35 @@
+[target.aarch64_be-unknown-linux-gnu]
+build-std = ["std", "panic_unwind"]
+
+[target.mips-unknown-linux-gnu]
+build-std = ["std", "panic_unwind"]
+
+[target.mips-unknown-linux-musl]
+build-std = ["std", "panic_unwind"]
+
+[target.mips64-unknown-linux-gnuabi64]
+build-std = ["std", "panic_unwind"]
+
+[target.mips64-unknown-linux-muslabi64]
+build-std = ["std", "panic_unwind"]
+
+[target.mips64el-unknown-linux-gnuabi64]
+build-std = ["std", "panic_unwind"]
+
+[target.mips64el-unknown-linux-muslabi64]
+build-std = ["std", "panic_unwind"]
+
+[target.mipsel-unknown-linux-gnu]
+build-std = ["std", "panic_unwind"]
+
+[target.mipsel-unknown-linux-musl]
+build-std = ["std", "panic_unwind"]
+
 [target.sparcv9-sun-solaris.env]
 passthrough = ["RUSTFLAGS=-C link-arg=-lxnet"]
 
 [target.x86_64-pc-solaris.env]
 passthrough = ["RUSTFLAGS=-C link-arg=-lxnet"]
+
+[target.x86_64-unknown-dragonfly]
+build-std = ["std", "panic_unwind"]
