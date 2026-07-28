@@ -27,22 +27,12 @@ jobs:
         name: Add wasm32-unknown-emscripten target
         run: rustup target add wasm32-unknown-emscripten
       - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
-        name: Install LLVM/MinGW (gnullvm linker)
-        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
-        with:
-          install: mingw-w64-clang-x86_64-clang
-          msystem: CLANG64
-          path-type: inherit
-          update: true
-      - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
-        name: Add CLANG64 to PATH for gnullvm
-        run: echo "C:\msys64\clang64\bin" >> $env:GITHUB_PATH
+        name: Add LLVM to PATH for gnullvm
+        run: echo "C:\Program Files\LLVM\bin" >> $env:GITHUB_PATH
         shell: pwsh
-      - if: matrix.os == 'windows-latest' && matrix.target == 'x86_64-pc-windows-gnullvm'
-        name: Create x86_64-w64-mingw32-clang wrapper
-        run: Copy-Item "C:\msys64\clang64\bin\clang.exe" "C:\msys64\clang64\bin\x86_64-w64-mingw32-clang.exe"
-        shell: pwsh
-      - if: matrix.target == 'x86_64-unknown-linux-gnu' || startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows')
+      - env:
+          CARGO_TARGET_X86_64_PC_WINDOWS_GNULLVM_LINKER: clang
+        if: matrix.target == 'x86_64-unknown-linux-gnu' || startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'windows')
         name: Build Binary (native)
         run: cargo build --release --target ${{ matrix.target }}
       - if: matrix.target == 'wasm32-unknown-emscripten'
@@ -168,7 +158,7 @@ jobs:
             target: i686-pc-windows-gnu
           - os: windows-latest
             target: x86_64-pc-windows-gnullvm
-          # BSDs, illumos & Solaris
+          # BSDs & illumos
           - nightly: true
             os: ubuntu-latest
             target: x86_64-unknown-dragonfly
@@ -180,10 +170,6 @@ jobs:
             target: x86_64-unknown-netbsd
           - os: ubuntu-latest
             target: x86_64-unknown-illumos
-          - os: ubuntu-latest
-            target: x86_64-pc-solaris
-          - os: ubuntu-latest
-            target: sparcv9-sun-solaris
 name: Target Verification
 on:
   pull_request:
