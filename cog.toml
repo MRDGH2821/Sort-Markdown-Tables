@@ -33,6 +33,7 @@ scopes = [
   "parser",
   "pre-commit",
   "prettier",
+  "release",
   "smt",
   "sorter",
   "treefmt",
