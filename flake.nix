@@ -25,8 +25,14 @@
     extra-trusted-public-keys = ["niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="];
   };
   outputs = inputs:
-    inputs.blueprint {
+    (inputs.blueprint {
       inherit inputs;
       prefix = "nix/";
+    })
+    // {
+      treefmtModules = rec {
+        default = sort-markdown-tables;
+        sort-markdown-tables = ./nix/treefmt-module.nix;
+      };
     };
 }

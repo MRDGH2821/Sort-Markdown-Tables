@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  inputs,
+  pkgs,
+  ...
+}: {
   programs = {
     actionlint.enable = true;
     alejandra = {
@@ -84,6 +88,15 @@
     };
     shellcheck.enable = true;
     shfmt.enable = true;
+    sort-markdown-tables = {
+      enable = true;
+      excludes = [
+        "**/openspec/**"
+        "openspec/**"
+        "tests/fixtures/**"
+      ];
+      package = pkgs.callPackage ./packages/Sort-Markdown-Tables.nix {inherit inputs;};
+    };
     sqlfluff.enable = true;
     sqlfluff-lint.enable = true;
     statix.enable = true;
@@ -166,12 +179,6 @@
           "otbs"
         ];
         priority = 3;
-      };
-      sort-markdown-tables = {
-        command = "smt";
-        includes = ["*.md"];
-        options = ["-i"];
-        priority = 2;
       };
       tombi-format = {
         command = "${pkgs.lib.getExe pkgs.tombi}";

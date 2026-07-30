@@ -4,7 +4,9 @@
   ...
 }: let
   treefmtEval = inputs.treefmt.lib.evalModule pkgs {
+    _module.args = {inherit inputs;};
     imports = [
+      ./treefmt-module.nix
       ./treefmt.nix
       inputs.pedantix.treefmtModules.default
     ];
