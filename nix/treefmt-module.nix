@@ -9,9 +9,9 @@ in {
   config = lib.mkIf cfg.enable {
     settings.formatter.sort-markdown-tables =
       {
-        command = lib.getExe cfg.package;
         inherit (cfg) excludes;
         inherit (cfg) includes;
+        command = lib.getExe cfg.package;
         options = ["-i"];
       }
       // (lib.optionalAttrs (cfg.priority != null) {inherit (cfg) priority;});

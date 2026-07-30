@@ -46,6 +46,7 @@ in
   pkgs.mkShell {
     inherit (pre-commit-check) shellHook;
     packages = [
+      (import ./formatter.nix {inherit inputs pkgs;})
       cross-build-all
       cross-build-seq
 
