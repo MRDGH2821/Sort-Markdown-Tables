@@ -30,6 +30,8 @@ pub enum SmtError {
     InPlaceWithStdin,
     #[error("no files matched pattern \"{pattern}\"")]
     NoFilesMatched { pattern: String },
+    #[error("no markdown files found in the specified directories")]
+    NoMarkdownFilesFound,
     // Parse errors
     #[error("{path}:{line}: smt comment is not followed by a table")]
     CommentWithoutTable { path: SourceLocation, line: usize },
@@ -118,6 +120,15 @@ mod tests {
         assert_eq!(
             err.to_string(),
             "no files matched pattern \"*.nonexistent\""
+        );
+    }
+
+    #[test]
+    fn test_no_markdown_files_found_message() {
+        let err = SmtError::NoMarkdownFilesFound;
+        assert_eq!(
+            err.to_string(),
+            "no markdown files found in the specified directories"
         );
     }
 
@@ -269,6 +280,7 @@ mod tests {
             SmtError::NoFilesMatched {
                 pattern: "test".to_string(),
             },
+            SmtError::NoMarkdownFilesFound,
             SmtError::CommentWithoutTable {
                 path: SourceLocation(None),
                 line: 1,

@@ -6,7 +6,7 @@
 //! [`Args::parse`]).
 use crate::error::SmtError;
 use clap::Parser;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Args struct for CLI argument parsing with clap
 #[derive(Parser, Debug)]
@@ -31,6 +31,9 @@ pub struct Args {
     /// Check if tables are sorted without modifying files
     #[arg(long, conflicts_with_all = ["in_place", "write"])]
     pub check: bool,
+    /// Recursively scan directories for markdown files
+    #[arg(short, long)]
+    pub recursive: bool,
     /// Print verbose output
     #[arg(long)]
     pub verbose: bool,
@@ -70,7 +73,11 @@ fn output_target_from_args(args: &Args) -> OutputTarget {
 /// Used by [`parse_args`] and by **binary** tests (and `main`) via
 /// [`Args::try_parse_from`].
 pub fn finalize_cli(args: Args) -> Result<(InputSource, OutputTarget, bool, bool), SmtError> {
-    let input_source = detect_input_source(args.inputs.clone())?;
+    let input_source = if args.recursive {
+        detect_input_source_recursive(args.inputs.clone())?
+    } else {
+        detect_input_source(args.inputs.clone())?
+    };
     let output_target = output_target_from_args(&args);
 
     // Additional validation not expressible purely in clap attributes.
@@ -152,6 +159,64 @@ pub fn detect_input_source(inputs: Vec<String>) -> Result<InputSource, SmtError>
         // main.rs)
         Ok(InputSource::Files(files))
     }
+}
+
+/// Recursively scan directories for markdown files (`**/*.md`).
+///
+/// When `inputs` is empty, scans the current directory. Each input that is a
+/// directory is expanded to `dir/**/*.md`; plain files and glob patterns are
+/// passed through to [`expand_globs`].
+pub fn detect_input_source_recursive(inputs: Vec<String>) -> Result<InputSource, SmtError> {
+    let patterns = if inputs.is_empty() {
+        // No inputs with --recursive: scan current directory
+        vec![".".to_string()]
+    } else {
+        inputs
+    };
+
+    let expanded = expand_recursive_patterns(patterns)?;
+    if expanded.is_empty() {
+        return Err(SmtError::NoMarkdownFilesFound);
+    }
+    Ok(InputSource::Files(expanded))
+}
+
+/// Convert a mixed list of directories, files, and globs into concrete file
+/// paths. Directories become `dir/**/*.md` glob patterns.
+fn expand_recursive_patterns(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError> {
+    let mut glob_patterns: Vec<String> = Vec::new();
+
+    for pattern in patterns {
+        let path = Path::new(&pattern);
+        if path.is_dir() {
+            // Convert directory to recursive glob
+            let dir_glob = format!("{}/**/*.md", pattern.trim_end_matches('/'));
+            glob_patterns.push(dir_glob);
+        } else {
+            // Pass files and glob patterns through as-is
+            glob_patterns.push(pattern);
+        }
+    }
+
+    if glob_patterns.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    // Use expand_globs but tolerate individual patterns matching nothing —
+    // collect all matches across all patterns and only error if the total is
+    // zero (handled by caller via NoMarkdownFilesFound).
+    let mut all_files: Vec<PathBuf> = Vec::new();
+    for pattern in glob_patterns {
+        match expand_globs(vec![pattern]) {
+            Ok(files) => all_files.extend(files),
+            Err(SmtError::NoFilesMatched { .. }) => {
+                // Tolerate individual patterns with no matches in recursive
+                // mode — the caller checks the aggregate.
+            }
+            Err(e) => return Err(e),
+        }
+    }
+    Ok(all_files)
 }
 
 /// Returns true when the process should print help and exit successfully.
@@ -425,6 +490,109 @@ mod tests {
                 assert!(append);
             }
             _ => panic!("Expected File with append=true"),
+        }
+    }
+
+    #[test]
+    fn parse_flags_recursive_short_and_long() {
+        let a = parse_args_from(&["smt", "-r"]).unwrap();
+        assert!(a.recursive);
+        let a = parse_args_from(&["smt", "--recursive"]).unwrap();
+        assert!(a.recursive);
+    }
+
+    #[test]
+    fn parse_flags_recursive_defaults_to_false() {
+        let a = parse_args_from(&["smt"]).unwrap();
+        assert!(!a.recursive);
+    }
+
+    #[test]
+    fn recursive_scans_directory_for_md_files() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::write(dir.path().join("a.md"), "# A").unwrap();
+        std::fs::write(dir.path().join("b.md"), "# B").unwrap();
+        std::fs::write(dir.path().join("c.txt"), "not markdown").unwrap();
+
+        let result =
+            detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
+        assert!(result.is_ok());
+        match result.unwrap() {
+            InputSource::Files(files) => {
+                assert_eq!(files.len(), 2);
+                assert!(files.iter().all(|f| f.extension().unwrap() == "md"));
+            }
+            InputSource::Stdin => panic!("Expected Files"),
+        }
+    }
+
+    #[test]
+    fn recursive_scans_nested_subdirectories() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let sub = dir.path().join("sub");
+        let subsub = sub.join("deep");
+        std::fs::create_dir_all(&subsub).unwrap();
+        std::fs::write(dir.path().join("top.md"), "# Top").unwrap();
+        std::fs::write(sub.join("mid.md"), "# Mid").unwrap();
+        std::fs::write(subsub.join("deep.md"), "# Deep").unwrap();
+
+        let result =
+            detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
+        assert!(result.is_ok());
+        match result.unwrap() {
+            InputSource::Files(files) => {
+                assert_eq!(files.len(), 3);
+            }
+            InputSource::Stdin => panic!("Expected Files"),
+        }
+    }
+
+    #[test]
+    fn recursive_mixed_dir_and_file_args() {
+        let dir = tempfile::TempDir::new().unwrap();
+        let sub = dir.path().join("docs");
+        std::fs::create_dir_all(&sub).unwrap();
+        let standalone = dir.path().join("standalone.md");
+        std::fs::write(&standalone, "# Standalone").unwrap();
+        std::fs::write(sub.join("nested.md"), "# Nested").unwrap();
+
+        let result = detect_input_source_recursive(vec![
+            sub.to_string_lossy().into_owned(),
+            standalone.to_string_lossy().into_owned(),
+        ]);
+        assert!(result.is_ok());
+        match result.unwrap() {
+            InputSource::Files(files) => {
+                assert_eq!(files.len(), 2);
+            }
+            InputSource::Stdin => panic!("Expected Files"),
+        }
+    }
+
+    #[test]
+    fn recursive_empty_directory_errors() {
+        let dir = tempfile::TempDir::new().unwrap();
+        // Empty directory — no .md files
+
+        let result =
+            detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
+        assert!(result.is_err());
+        assert!(matches!(result.unwrap_err(), SmtError::NoMarkdownFilesFound));
+    }
+
+    #[test]
+    fn finalize_recursive_with_directory() {
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::write(dir.path().join("test.md"), "# Test").unwrap();
+        let argv = vec!["smt", "-r", dir.path().to_str().unwrap()];
+        let args = Args::try_parse_from(argv).unwrap();
+        let (src, _out, _check, _verbose) = finalize_cli(args).unwrap();
+        match src {
+            InputSource::Files(files) => {
+                assert_eq!(files.len(), 1);
+                assert!(files[0].to_string_lossy().contains("test.md"));
+            }
+            InputSource::Stdin => panic!("Expected Files"),
         }
     }
 }
