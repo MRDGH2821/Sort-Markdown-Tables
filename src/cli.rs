@@ -173,7 +173,6 @@ pub fn detect_input_source_recursive(inputs: Vec<String>) -> Result<InputSource,
     } else {
         inputs
     };
-
     let expanded = expand_recursive_patterns(patterns)?;
     if expanded.is_empty() {
         return Err(SmtError::NoMarkdownFilesFound);
@@ -181,11 +180,10 @@ pub fn detect_input_source_recursive(inputs: Vec<String>) -> Result<InputSource,
     Ok(InputSource::Files(expanded))
 }
 
-/// Convert a mixed list of directories, files, and globs into concrete file
-/// paths. Directories become `dir/**/*.md` glob patterns.
+/// Convert a mixed list of directories, files, and globs into concrete file paths.
+/// Directories become `dir/**/*.md` glob patterns.
 fn expand_recursive_patterns(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtError> {
     let mut glob_patterns: Vec<String> = Vec::new();
-
     for pattern in patterns {
         let path = Path::new(&pattern);
         if path.is_dir() {
@@ -197,21 +195,20 @@ fn expand_recursive_patterns(patterns: Vec<String>) -> Result<Vec<PathBuf>, SmtE
             glob_patterns.push(pattern);
         }
     }
-
     if glob_patterns.is_empty() {
         return Ok(Vec::new());
     }
 
-    // Use expand_globs but tolerate individual patterns matching nothing —
-    // collect all matches across all patterns and only error if the total is
-    // zero (handled by caller via NoMarkdownFilesFound).
+    // Use expand_globs but tolerate individual patterns matching nothing — collect
+    // all matches across all patterns and only error if the total is zero (handled by
+    // caller via NoMarkdownFilesFound).
     let mut all_files: Vec<PathBuf> = Vec::new();
     for pattern in glob_patterns {
         match expand_globs(vec![pattern]) {
             Ok(files) => all_files.extend(files),
             Err(SmtError::NoFilesMatched { .. }) => {
-                // Tolerate individual patterns with no matches in recursive
-                // mode — the caller checks the aggregate.
+                // Tolerate individual patterns with no matches in recursive mode — the caller
+                // checks the aggregate.
             }
             Err(e) => return Err(e),
         }
@@ -513,9 +510,7 @@ mod tests {
         std::fs::write(dir.path().join("a.md"), "# A").unwrap();
         std::fs::write(dir.path().join("b.md"), "# B").unwrap();
         std::fs::write(dir.path().join("c.txt"), "not markdown").unwrap();
-
-        let result =
-            detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
+        let result = detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
         assert!(result.is_ok());
         match result.unwrap() {
             InputSource::Files(files) => {
@@ -535,9 +530,7 @@ mod tests {
         std::fs::write(dir.path().join("top.md"), "# Top").unwrap();
         std::fs::write(sub.join("mid.md"), "# Mid").unwrap();
         std::fs::write(subsub.join("deep.md"), "# Deep").unwrap();
-
-        let result =
-            detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
+        let result = detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
         assert!(result.is_ok());
         match result.unwrap() {
             InputSource::Files(files) => {
@@ -555,7 +548,6 @@ mod tests {
         let standalone = dir.path().join("standalone.md");
         std::fs::write(&standalone, "# Standalone").unwrap();
         std::fs::write(sub.join("nested.md"), "# Nested").unwrap();
-
         let result = detect_input_source_recursive(vec![
             sub.to_string_lossy().into_owned(),
             standalone.to_string_lossy().into_owned(),
@@ -572,12 +564,14 @@ mod tests {
     #[test]
     fn recursive_empty_directory_errors() {
         let dir = tempfile::TempDir::new().unwrap();
-        // Empty directory — no .md files
 
-        let result =
-            detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
+        // Empty directory — no .md files
+        let result = detect_input_source_recursive(vec![dir.path().to_string_lossy().into_owned()]);
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), SmtError::NoMarkdownFilesFound));
+        assert!(matches!(
+            result.unwrap_err(),
+            SmtError::NoMarkdownFilesFound
+        ));
     }
 
     #[test]
