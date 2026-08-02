@@ -111,6 +111,7 @@
         # keep-sorted start
         "**/.cspell.json"
         "**/.typos.toml"
+        ".agents/logs/**"
         ".cspell.json"
         ".typos.toml"
         "CHANGELOG.md"
