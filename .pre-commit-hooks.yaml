@@ -1,0 +1,21 @@
+---
+- args:
+    - -i
+  description: Sort markdown tables opted-in via <!-- smt --> HTML comments
+  entry: smt
+  files: \.md$
+  id: sort-markdown-tables
+  language: rust
+  name: Sort Markdown Tables
+  types:
+    - markdown
+- args:
+    - --check
+  description: Check that markdown tables opted-in via <!-- smt --> HTML comments are sorted
+  entry: smt
+  files: \.md$
+  id: sort-markdown-tables-check
+  language: rust
+  name: Sort Markdown Tables (check only)
+  types:
+    - markdown
