@@ -30,6 +30,10 @@
       prefix = "nix/";
     })
     // {
+      gitHooksModules = rec {
+        default = sort-markdown-tables;
+        sort-markdown-tables = ./nix/git-commit-module.nix;
+      };
       treefmtModules = rec {
         default = sort-markdown-tables;
         sort-markdown-tables = ./nix/treefmt-module.nix;
