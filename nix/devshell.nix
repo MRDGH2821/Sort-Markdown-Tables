@@ -50,6 +50,7 @@ in
       cross-build-all
       cross-build-seq
 
+      pkgs.mkdocs
       pkgs.nil
       pkgs.nixd
       pkgs.act
