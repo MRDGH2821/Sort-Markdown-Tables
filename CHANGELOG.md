@@ -4,6 +4,93 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.4.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.3.1..v0.4.0) - 2026-08-03
+
+### Bug Fixes
+
+- **(smt)** fix lychee CRLF line endings in .lycheeignore and add specific file ignore - ([75484a4](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/75484a434be28281042263bff1e8e3477703162b)) - MRDGH2821
+- fix linter error - ([3d2dd76](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/3d2dd76805e998e1f6faa2834d1a280ccf36b432)) - MRDGH2821
+
+### Documentation
+
+- **(ai)** add logs - ([576470c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/576470cc3c0057e500a5e3ffc37b749a763c4b79)) - MRDGH2821
+- **(ai)** add logs - ([336e4e5](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/336e4e5df78992af1b029d472fb0df7a6e0423a0)) - MRDGH2821
+- **(ai)** add logs - ([021a3a2](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/021a3a26b1f057736a4dfa90b1f57a3c9de9cd96)) - MRDGH2821
+- **(ai)** add logs - ([131c45d](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/131c45d5462f136b7c4ea40e0e73010af87f0906)) - MRDGH2821
+- **(ai)** add logs - ([b4d9ca9](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/b4d9ca9b9ce1b593a287dc83f7bf6381c8ba91ba)) - MRDGH2821
+- **(ai)** add logs - ([d97b79f](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d97b79fc88ff3dfa911a674524f26ffc0618a0fa)) - MRDGH2821
+- **(ai)** add logs - ([d7fe149](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d7fe149517bd802845f50dfb27cab5729b9b15fe)) - MRDGH2821
+- **(ai)** log pre-commit hooks distribution work - ([0827790](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/0827790548bb6da916200d6a729925b9555bfc91)) - MRDGH2821
+- **(ai)** log GitHub Actions lychee fix session - ([d19b849](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d19b84924394ba457806e295a3621af630812499)) - MRDGH2821
+- **(smt)** add integrations section for pre-commit, git-hooks.nix, and treefmt - ([d733382](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d7333828279fbc72e71718a583d25933c3d18149)) - MRDGH2821
+- **(smt)** split README into dedicated docs pages - ([d617a33](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d617a33fe5fbfba87254bd9323d6d2856f001878)) - MRDGH2821
+- **(treefmt)** add design spec and implementation plan for treefmt-nix module - ([b4e7947](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/b4e794779fb9b76af09833c6caf1e466084791bb)) - MRDGH2821
+
+### Features
+
+- **(cli)** add --recursive flag for directory scanning - ([91205b0](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/91205b0a70fa451e8f057213147c269ba71b7e07)) - MRDGH2821
+- **(nix)** add cross-compilation package targets for Nix - ([c6f0600](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/c6f0600e7379dd2a06735e4016d129447550c6e1)) - MRDGH2821
+- **(nix)** add cross-build-all helper script to devshell - ([5bd68a9](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5bd68a99e31529d75a7db44de5f1628bc5bcded6)) - MRDGH2821
+- **(nix)** add cross-build-seq sequential builder script to devshell - ([7b5d7a5](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7b5d7a5a2049eb46e9ca3c76fc023537cf61da9f)) - MRDGH2821
+- **(nix)** add treefmt package to devshell packages - ([ec36912](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/ec369129f7be7caf9f60f6a138941f5f2d7d9e08)) - MRDGH2821
+- **(nix)** add git-hooks.nix module for smt pre-commit hook - ([d09b3c7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d09b3c7861883a5140bc2d7ef1b9a1d7cca5a97d)) - MRDGH2821
+- **(pre-commit)** add distribution hooks for pre-commit framework - ([7f7053f](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7f7053f3fb7c8ff0cdf38838aca41d2bdcfd1d51)) - MRDGH2821
+- **(treefmt)** add sort-markdown-tables treefmt-nix program module - ([e09ae0b](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/e09ae0bc11107e1f8bf8f731f7b3a379711350f1)) - MRDGH2821
+- **(treefmt)** export treefmtModules and consume in local nix treefmt config - ([40ded3c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/40ded3c4c14fd22f7e668a2a74f0f59cc10f8d7f)) - MRDGH2821
+
+### Miscellaneous Chores
+
+- **(cocogitto)** add cross scope - ([4d7a56b](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/4d7a56b577d8a7d8936334a25eed8297fb753a42)) - MRDGH2821
+- **(copier)** update template - ([434793c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/434793cb2c408ae973c866383099380635296341)) - MRDGH2821
+- **(copier)** update template - ([5b8d8de](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5b8d8ded014b07c25d67738eb9d1a53c0114c93e)) - MRDGH2821
+- **(treefmt)** change priority of rustfmt - ([cbb27c6](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/cbb27c6c391dbd9421a9495003c6decdb5591b05)) - MRDGH2821
+- **(treefmt)** exclude \*.sh in prettier - ([caf0bd7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/caf0bd7a40dd9651bec2ebf975ea102537a375ec)) - MRDGH2821
+- **(treefmt)** exclude agent logs from typos checker - ([a1d794e](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/a1d794ea129b56c064ccd818cd2aaddf81cbc0d8)) - MRDGH2821
+- add act package - ([860e0c0](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/860e0c0c600b3410c5446e641c0eb2c978ac0878)) - MRDGH2821
+- delete old stuff - ([cea3815](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/cea3815294a57f4556dc3ba286bb7122d9aa0152)) - MRDGH2821
+- fix lychee errors - ([d926ec0](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d926ec0c8c8f7e1e1702eeaba7a64713f3e48e52)) - MRDGH2821
+- escape special characters - ([8a9ceba](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/8a9ceba46377871fc0451731b2c138de2ff45765)) - MRDGH2821
+
+### Refactoring
+
+- **(nix)** use pkgs.lib.getExe for yq and cargo-cross in devshell scripts - ([467bbcb](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/467bbcb188cf51571661eafd40a0fb19f40457bb)) - MRDGH2821
+
+### Style
+
+- **(nix)** format files using nix fmt - ([5a910fa](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5a910fa7507cc728734b34de4c1d5c074a2251e3)) - MRDGH2821
+- format with rustfmt - ([ff6d195](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/ff6d195e808b0b50c54d30f1f4d6f2dab43e0d00)) - MRDGH2821
+- format files - ([1817934](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/18179348d5b6f167882f09f6ca23192937deaeb5)) - MRDGH2821
+- format files - ([dd0415d](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/dd0415d18c62f1f51f644e7134bfe4deecc65e00)) - MRDGH2821
+- format markdown files with nix fmt - ([735c56f](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/735c56f15efebf482603eae80d2ddd95dbe56dd6)) - MRDGH2821
+- format file - ([93b2177](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/93b2177e547d05496311f065b06eaac73b1258dd)) - MRDGH2821
+
+### Build
+
+- **(cross)** add Cross.toml with target link options for Solaris - ([d47da70](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/d47da709565e7e318e0db6ee271a71a1021ac469)) - MRDGH2821
+- **(cross)** configure build-std and MinGW PATH for fixable targets - ([498cc0a](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/498cc0ac3076e127d2998d1c51d0d1cc5fd9c890)) - MRDGH2821
+- **(cross)** add Solaris XPG4 library paths and nightly toolchain for Tier 3 build-std targets - ([6e0cc25](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/6e0cc251a8d44b37bd8c895a49c35acc43371686)) - MRDGH2821
+- **(cross)** fix nightly toolchain passthrough and emscripten build setup - ([265ee76](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/265ee76fb10b5b02ce5ca8713d2ff4dceee04d77)) - MRDGH2821
+- **(cross)** fix aarch64_be rustix backend and gnullvm linker env - ([caeca6a](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/caeca6a67cc280c28c309d6448d8e2ed80ed4b08)) - MRDGH2821
+- **(cross)** fix wasm32 target, gnullvm wrapper, and Solaris lxnet - ([1212aad](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/1212aadac1b168cf65327a13221cb47d7f8b4151)) - MRDGH2821
+- **(cross)** configure gnullvm linker and prune solaris targets - ([9f6cef5](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/9f6cef5960d4d403befd39d10897c34c389ad1e0)) - MRDGH2821
+- **(cross)** install llvm-mingw for gnullvm target - ([199de7a](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/199de7a11424422b4858dc61c49cb895b2dc91df)) - MRDGH2821
+- **(github)** remove targets requiring custom docker images or unsupported toolchains - ([70988ce](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/70988ce06af9013f8e1d2d05f7305cab01978da6)) - MRDGH2821
+- **(release)** prune niche targets and fix gnullvm linker - ([08959b7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/08959b72b61c06c6035f445b3a7f6829bbb99f40)) - MRDGH2821
+- [**breaking**]update dependencies & rust edition - ([74e5cce](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/74e5cce62d75f8db02d6dc701559a04261fcb080)) - MRDGH2821
+
+### Ci
+
+- **(github)** add all official cross-rs targets to target verification workflow - ([6ee17d5](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/6ee17d5abd3180e2502a032ae8f349b84bf23837)) - MRDGH2821
+- **(github)** add all missing cross targets to target verification workflow - ([c09fbf4](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/c09fbf491f1995899048fb90ffbddf8c6052553f)) - MRDGH2821
+- remove formatting step - ([e30b014](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/e30b014217380a341762fc00b97c870bbe46c1cd)) - MRDGH2821
+- remove x86_64-pc-solaris target - ([640b684](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/640b68458194652c1d296a6522177f61705657b3)) - MRDGH2821
+- add target verification workflow to build binaries without publishing - ([423043f](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/423043f68d2bf95696420ed419fc3ec5ea0fee1f)) - MRDGH2821
+- remove sparcv9-sun-solaris target - ([a027da9](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/a027da9cf1a13839667221bf5a00fc0fc53acdc5)) - MRDGH2821
+- set fail-fast to false in target verification workflow - ([ca7d657](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/ca7d657dfc739190fc2f3d7eb81fa4c7789b4110)) - MRDGH2821
+- remove targets not compilable by cross - ([f301924](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/f301924d22131278cef7341a6afacbe95b9e001c)) - MRDGH2821
+
+---
+
 ## [0.3.1](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.3.0..v0.3.1) - 2026-07-26
 
 ### Bug Fixes
