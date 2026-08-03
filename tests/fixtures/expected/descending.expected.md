@@ -5,7 +5,7 @@ Sorting by score in descending order.
 <!-- smt column=2 order=desc -->
 
 | Rank | Score |
-| ---- | ----- |
+|------|-------|
 | 4    | 92    |
 | 6    | 89    |
 | 2    | 78    |

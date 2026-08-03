@@ -22,7 +22,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 <!-- smt -->
 
 | Name | Age |
-| ---- | --- |
+|------|-----|
 | Bob  | 30  |
 ```
 
@@ -79,25 +79,25 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 **Given** a table with a header, separator, and 5 data rows with `<!-- smt column=2 -->`:
 
 ```markdown
-| ID  | Name  |
-| --- | ----- |
-| 3   | Bob   |
-| 1   | Alice |
-| 2   | Carol |
-| 1   | David |
-| 4   | Eve   |
+| ID | Name  |
+|----|-------|
+| 3  | Bob   |
+| 1  | Alice |
+| 2  | Carol |
+| 1  | David |
+| 4  | Eve   |
 ```
 
 **When** sorted by column 2 (Name) in ascending order, **Then** only the data rows reorder (header and separator stay at top):
 
 ```markdown
-| ID  | Name  |
-| --- | ----- |
-| 1   | Alice |
-| 3   | Bob   |
-| 2   | Carol |
-| 1   | David |
-| 4   | Eve   |
+| ID | Name  |
+|----|-------|
+| 1  | Alice |
+| 3  | Bob   |
+| 2  | Carol |
+| 1  | David |
+| 4  | Eve   |
 ```
 
 ---
@@ -113,7 +113,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 <!-- smt type=numeric -->
 
 | Rank | Score |
-| ---- | ----- |
+|------|-------|
 | 2    | apple |
 | 1    | 95    |
 | 3    | 87    |
@@ -124,7 +124,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Rank | Score |
-| ---- | ----- |
+|------|-------|
 | 3    | 87    |
 | 1    | 95    |
 | 2    | apple |
@@ -137,7 +137,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Word   |
-| ------ |
+|--------|
 | Zebra  |
 | apple  |
 | Banana |
@@ -147,7 +147,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Word   |
-| ------ |
+|--------|
 | apple  |
 | Banana |
 | Zebra  |
@@ -159,7 +159,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Value |
-| ----- |
+|-------|
 | 10    |
 | 5     |
 | 20    |
@@ -169,7 +169,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Value |
-| ----- |
+|-------|
 | 20    |
 | 10    |
 | 5     |

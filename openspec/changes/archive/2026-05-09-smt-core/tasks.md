@@ -812,7 +812,7 @@ Final checks, performance validation, and pre-commit hook testing.
 ## Summary
 
 | Phase     | Tasks   | Description           | Est. Hours |
-| --------- | ------- | --------------------- | ---------- |
+|-----------|---------|-----------------------|------------|
 | 1         | 1.1–1.3 | Project Setup         | 1          |
 | 2         | 2.1–2.3 | Error & CLI           | 3          |
 | 3         | 3.1–3.4 | Parser                | 6.5        |

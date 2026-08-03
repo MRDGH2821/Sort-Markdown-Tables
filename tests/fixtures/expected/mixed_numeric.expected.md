@@ -5,7 +5,7 @@ This table has both numeric and non-numeric values. Numeric values should come f
 <!-- smt -->
 
 | Value  | Description |
-| ------ | ----------- |
+|--------|-------------|
 | 25     | Another     |
 | 50     | Number      |
 | 100    | Big         |

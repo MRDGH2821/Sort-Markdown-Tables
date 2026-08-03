@@ -7,7 +7,7 @@ This file has two separate tables, both marked for sorting.
 <!-- smt -->
 
 | Value |
-| ----- |
+|-------|
 | 30    |
 | 10    |
 | 20    |
@@ -16,8 +16,8 @@ This file has two separate tables, both marked for sorting.
 
 <!-- smt  column=2 type=lexicographic -->
 
-| ID  | Name |
-| --- | ---- |
-| 3   | Zara |
-| 1   | Bob  |
-| 2   | Amy  |
+| ID | Name |
+|----|------|
+| 3  | Zara |
+| 1  | Bob  |
+| 2  | Amy  |

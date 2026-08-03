@@ -5,7 +5,7 @@ This table is NOT sorted numerically.
 <!-- smt -->
 
 | Score |
-| ----- |
+|-------|
 | 95    |
 | 42    |
 | 73    |

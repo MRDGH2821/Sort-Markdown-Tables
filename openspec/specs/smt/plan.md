@@ -11,7 +11,7 @@ The tool is designed for CI pipelines and pre-commit hooks: it's fast, has zero 
 ## 2. Requirements Summary
 
 | Category          | Requirement                                                |
-| ----------------- | ---------------------------------------------------------- |
+|-------------------|------------------------------------------------------------|
 | Language          | Rust (stable toolchain)                                    |
 | Binary name       | `smt`                                                      |
 | Input             | Single file, glob pattern, or stdin                        |
@@ -31,7 +31,7 @@ The tool is designed for CI pipelines and pre-commit hooks: it's fast, has zero 
 <!-- smt -->
 
 | Name  | Age |
-| ----- | --- |
+|-------|-----|
 | Alice | 25  |
 | Bob   | 30  |
 ```
@@ -42,7 +42,7 @@ The tool is designed for CI pipelines and pre-commit hooks: it's fast, has zero 
 <!-- smt column=2 order=desc case=insensitive type=lexicographic -->
 
 | Name  | City      |
-| ----- | --------- |
+|-------|-----------|
 | Alice | Zurich    |
 | Bob   | Amsterdam |
 ```
@@ -60,7 +60,7 @@ The tool is designed for CI pipelines and pre-commit hooks: it's fast, has zero 
 ### Option Reference
 
 | Option   | Type    | Values                     | Default     | Description                                                                                   |
-| -------- | ------- | -------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
+|----------|---------|----------------------------|-------------|-----------------------------------------------------------------------------------------------|
 | `column` | integer | `1..N` (1-based)           | `1`         | Which column to sort by                                                                       |
 | `order`  | enum    | `asc`, `desc`              | `asc`       | Sort direction                                                                                |
 | `case`   | enum    | `sensitive`, `insensitive` | `sensitive` | Case sensitivity for lexicographic sort                                                       |
@@ -91,7 +91,7 @@ smt [OPTIONS] [FILE|GLOB...]
 ### Positional Arguments
 
 | Argument | Description                                                             |
-| -------- | ----------------------------------------------------------------------- |
+|----------|-------------------------------------------------------------------------|
 | `FILE`   | Path to a single markdown file                                          |
 | `GLOB`   | Glob pattern (e.g., `**/*.md`, `docs/*.md`). Multiple patterns allowed. |
 | _(none)_ | Read from stdin                                                         |
@@ -102,7 +102,7 @@ When no positional arguments are given and stdin IS a TTY, print usage help and 
 ### Flags & Options
 
 | Flag | Long         | Argument | Description                                                                                                       |
-| ---- | ------------ | -------- | ----------------------------------------------------------------------------------------------------------------- |
+|------|--------------|----------|-------------------------------------------------------------------------------------------------------------------|
 | `-i` | `--in-place` | _(none)_ | Sort tables and write back to the original files. Works with single files and globs.                              |
 | `-w` | `--write`    | `<PATH>` | Write output to a specific file path. Overwrites by default. Does NOT work with globs or multiple input files.    |
 |      | `--append`   | _(none)_ | When used with `-w`, append to the output file instead of overwriting. Only valid with `-w`.                      |
@@ -114,7 +114,7 @@ When no positional arguments are given and stdin IS a TTY, print usage help and 
 ### Mutual Exclusivity & Validation
 
 | Constraint                   | Error                                         |
-| ---------------------------- | --------------------------------------------- |
+|------------------------------|-----------------------------------------------|
 | `--check` + `-i`             | Mutually exclusive — exit 2                   |
 | `--check` + `-w`             | Mutually exclusive — exit 2                   |
 | `-i` + `-w`                  | Mutually exclusive — exit 2                   |
@@ -126,7 +126,7 @@ When no positional arguments are given and stdin IS a TTY, print usage help and 
 ### Output Behavior Matrix
 
 | Input       | Flag        | Output Destination                                                                          |
-| ----------- | ----------- | ------------------------------------------------------------------------------------------- |
+|-------------|-------------|---------------------------------------------------------------------------------------------|
 | Single file | _(none)_    | stdout                                                                                      |
 | Single file | `-i`        | Overwrite input file                                                                        |
 | Single file | `-w out.md` | Write to `out.md`                                                                           |
@@ -144,7 +144,7 @@ When no positional arguments are given and stdin IS a TTY, print usage help and 
 ## 5. Exit Codes
 
 | Code | Meaning               | When                                                                               |
-| ---- | --------------------- | ---------------------------------------------------------------------------------- |
+|------|-----------------------|------------------------------------------------------------------------------------|
 | `0`  | Success               | Tables sorted successfully, or `--check` confirms all tables are sorted            |
 | `1`  | Unsorted tables found | `--check` mode only — at least one marked table is not in sorted order             |
 | `2`  | User error            | Bad arguments, invalid comment options, malformed table, column out of range, etc. |
@@ -215,7 +215,7 @@ A markdown table consists of:
 ### Error Conditions
 
 | Condition                                              | Message (example)                                                                     | Exit Code |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------- | --------- |
+|--------------------------------------------------------|---------------------------------------------------------------------------------------|-----------|
 | `<!-- smt -->` with no table following                 | `error: smt comment at line 5 is not followed by a table`                             | 2         |
 | `column=99` on a 3-column table                        | `error: column 99 is out of range (table has 3 columns) at line 7`                    | 2         |
 | Unknown option key                                     | `error: unknown option "colum" in smt comment at line 3`                              | 2         |
@@ -354,7 +354,7 @@ Input(s) ──→ cli::parse_args()
 ### Required
 
 | Crate       | Version | Feature  | Purpose                                        |
-| ----------- | ------- | -------- | ---------------------------------------------- |
+|-------------|---------|----------|------------------------------------------------|
 | `clap`      | `4.x`   | `derive` | CLI argument parsing with derive macros        |
 | `thiserror` | `2.x`   | —        | Ergonomic custom error types                   |
 | `anyhow`    | `1.x`   | —        | Error propagation in main, context-rich errors |
@@ -363,7 +363,7 @@ Input(s) ──→ cli::parse_args()
 ### Optional / Consider
 
 | Crate                  | Purpose                                         | Decision                                                                                                                                                                           |
-| ---------------------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|------------------------|-------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `regex`                | Parsing `<!-- smt ... -->` comments             | **Skip** — the comment format is simple enough to parse with `str::strip_prefix`, `split_whitespace`, and `str::strip_suffix`. Hand-rolling avoids the compile-time cost of regex. |
 | `tempfile`             | Atomic file writes (write to temp, then rename) | **Recommended** for `-i` mode. Ensures no partial writes on crash.                                                                                                                 |
 | `atty` / `is-terminal` | Detect if stdin is a TTY                        | **Use `std::io::IsTerminal`** (stabilized in Rust 1.70). No crate needed.                                                                                                          |
@@ -379,7 +379,7 @@ Zero unnecessary dependencies. The binary should compile fast and produce a smal
 ### Unit Tests
 
 | Module   | What to Test                                                                    |
-| -------- | ------------------------------------------------------------------------------- |
+|----------|---------------------------------------------------------------------------------|
 | `parser` | Comment detection (valid, invalid, with options, without)                       |
 | `parser` | Option parsing (all valid combos, unknown keys, invalid values, missing values) |
 | `parser` | Table extraction (header, separator, data rows, edge cases)                     |
@@ -398,7 +398,7 @@ Zero unnecessary dependencies. The binary should compile fast and produce a smal
 ### Integration Tests
 
 | Test             | Description                                                   |
-| ---------------- | ------------------------------------------------------------- |
+|------------------|---------------------------------------------------------------|
 | Basic sort       | `smt file.md` sorts and prints to stdout                      |
 | In-place         | `smt -i file.md` modifies file                                |
 | Write to file    | `smt -w out.md file.md` creates out.md                        |
@@ -424,7 +424,7 @@ Zero unnecessary dependencies. The binary should compile fast and produce a smal
 ### Recommended Test Crates
 
 | Crate               | Purpose                                                       |
-| ------------------- | ------------------------------------------------------------- |
+|---------------------|---------------------------------------------------------------|
 | `assert_cmd`        | Run the compiled binary and assert on stdout/stderr/exit code |
 | `predicates`        | Rich assertions for string matching                           |
 | `tempfile`          | Create temporary files/dirs for in-place and write tests      |
@@ -437,7 +437,7 @@ Zero unnecessary dependencies. The binary should compile fast and produce a smal
 These are explicitly **NOT in scope** for v1 but are noted for future reference:
 
 | Feature                         | Notes                                                               |
-| ------------------------------- | ------------------------------------------------------------------- |
+|---------------------------------|---------------------------------------------------------------------|
 | Multi-column sort               | `column=2,3` — sort by column 2, then by column 3 as tiebreaker     |
 | Custom sort key                 | `key=regex:...` — extract sort key via regex                        |
 | Column alignment / reformatting | Auto-pad columns to align pipes after sorting                       |

@@ -3,7 +3,7 @@
 This markdown file contains a table but it's not marked with the <!-- smt --> comment.
 
 | Name  | Age |
-| ----- | --- |
+|-------|-----|
 | Zoe   | 30  |
 | Alice | 25  |
 | Bob   | 35  |
