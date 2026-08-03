@@ -266,15 +266,14 @@ fn is_smt_comment(line: &str) -> bool {
     }
 
     // Extract content between `<!-- and -->`
-    if let Some(content) = trimmed.strip_prefix("<!--") {
-        if let Some(content) = content.strip_suffix("-->") {
+    if let Some(content) = trimmed.strip_prefix("<!--")
+        && let Some(content) = content.strip_suffix("-->") {
             let content = content.trim();
 
             // Must start with "smt" keyword
             return content.starts_with("smt")
                 && (content.len() == 3 || content.chars().nth(3).is_some_and(char::is_whitespace));
         }
-    }
     false
 }
 
