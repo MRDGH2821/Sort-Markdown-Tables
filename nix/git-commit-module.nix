@@ -1,5 +1,6 @@
 {
   config,
+  inputs ? {},
   lib,
   pkgs,
   ...
@@ -21,7 +22,9 @@ in {
     enable = lib.mkEnableOption "sort-markdown-tables pre-commit hook";
     package = lib.mkOption {
       default =
-        pkgs.sort-markdown-tables or pkgs.smt or (pkgs.callPackage ./packages/Sort-Markdown-Tables.nix {});
+        pkgs.sort-markdown-tables or pkgs.smt or (pkgs.callPackage ./packages/Sort-Markdown-Tables.nix {
+          craneLib = pkgs.craneLib or (inputs.crane.mkLib pkgs);
+        });
       defaultText = lib.literalExpression "pkgs.sort-markdown-tables";
       description = "The sort-markdown-tables package to use.";
       type = lib.types.package;
