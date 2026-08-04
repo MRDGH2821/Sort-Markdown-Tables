@@ -54,6 +54,7 @@
         "*.jinja"
         "*.jpg"
         "*.lock"
+        "*.md"
         "*.mp4"
         "*.nix"
         "*.pdf"
@@ -68,6 +69,7 @@
         ".envrc"
         "LICENCE"
         "LICENSE"
+        "docs/**"
         "justfile"
         # keep-sorted end
       ];

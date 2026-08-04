@@ -50,14 +50,16 @@ Tables are sorted **only** when marked with an `<!-- smt -->` HTML comment direc
 ### 1. Install `smt`
 
 === "Cargo"
-`bash
+
+    ```bash
     cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
-    `
+    ```
 
 === "Nix Flakes"
-`bash
+
+    ```bash
     nix run github:MRDGH2821/Sort-Markdown-Tables -- --help
-    `
+    ```
 
 ### 2. Run Commands
 

@@ -47,24 +47,26 @@ You can customize sorting behavior by adding attributes inside the comment:
 Useful for scores, ages, prices, or version numbers. Handles floats, negative numbers, and `NaN` values safely.
 
 === "Before"
-`markdown
+
+    ```markdown
     <!-- smt type=numeric column=2 order=asc -->
     | Item     | Price ($) |
     | -------- | --------- |
     | Laptop   | 1200.50   |
     | Mouse    | 25.00     |
     | Keyboard | 89.99     |
-    `
+    ```
 
 === "After"
-`markdown
+
+    ```markdown
     <!-- smt type=numeric column=2 order=asc -->
     | Item     | Price ($) |
     | -------- | --------- |
     | Mouse    | 25.00     |
     | Keyboard | 89.99     |
     | Laptop   | 1200.50   |
-    `
+    ```
 
 ---
 
@@ -73,50 +75,54 @@ Useful for scores, ages, prices, or version numbers. Handles floats, negative nu
 Columns are 1-indexed (`column=1` is the first data column).
 
 === "Before"
-`markdown
+
+    ```markdown
     <!-- smt column=2 order=asc -->
-    | Project | Language | Stars |
-    | ------- | -------- | ----- |
-    | smt     | Rust     | 150   |
-    | app     | Go       | 300   |
-    | web     | TypeScript| 200  |
-    `
+    | Project | Language  | Stars |
+    | ------- | --------- | ----- |
+    | smt     | Rust      | 150   |
+    | app     | Go        | 300   |
+    | web     | TypeScript| 200   |
+    ```
 
 === "After"
-`markdown
+
+    ```markdown
     <!-- smt column=2 order=asc -->
-    | Project | Language | Stars |
-    | ------- | -------- | ----- |
-    | app     | Go       | 300   |
-    | smt     | Rust     | 150   |
-    | web     | TypeScript| 200  |
-    `
+    | Project | Language  | Stars |
+    | ------- | --------- | ----- |
+    | app     | Go        | 300   |
+    | smt     | Rust      | 150   |
+    | web     | TypeScript| 200   |
+    ```
 
 ---
 
 ### Case-Insensitive Alphabetical Sorting (`case=insensitive`)
 
 === "Before"
-`markdown
+
+    ```markdown
     <!-- smt case=insensitive order=asc -->
-    | Fruit      |
-    | ---------- |
-    | apple      |
-    | Banana     |
-    | cherry     |
-    | Apricot    |
-    `
+    | Fruit   |
+    | ------- |
+    | apple   |
+    | Banana  |
+    | cherry  |
+    | Apricot |
+    ```
 
 === "After"
-`markdown
+
+    ```markdown
     <!-- smt case=insensitive order=asc -->
-    | Fruit      |
-    | ---------- |
-    | apple      |
-    | Apricot    |
-    | Banana     |
-    | cherry     |
-    `
+    | Fruit   |
+    | ------- |
+    | apple   |
+    | Apricot |
+    | Banana  |
+    | cherry  |
+    ```
 
 ---
 
