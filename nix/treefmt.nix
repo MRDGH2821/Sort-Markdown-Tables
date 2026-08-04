@@ -227,6 +227,7 @@
       "**/openspec/**"
       "**/skills/**"
       "openspec/**"
+      "site/**"
       "tests/fixtures/**"
       # keep-sorted end
     ];

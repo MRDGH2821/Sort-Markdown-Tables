@@ -15,6 +15,7 @@ node_modules/
 report/
 result
 result-*
+site/
 target/
 # keep-sorted end
 
