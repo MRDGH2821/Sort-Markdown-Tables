@@ -79,4 +79,3 @@ smt -r -i docs/
 - 📦 [**Installation**](installation.md) — Learn how to install via Cargo, Nix Flakes, or pre-built binaries.
 - 📖 [**Usage Guide**](usage.md) — Detailed guide on comment syntax, sort attributes, CLI flags, and exit codes.
 - 🔌 [**Integrations**](integrations.md) — Set up `smt` with `pre-commit`, `git-hooks.nix`, `treefmt`, or GitHub Actions.
-- 🛠️ [**Architecture & Contributing**](architecture.md) — Learn about the internal pipeline, module layout, and how to contribute.
