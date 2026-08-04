@@ -3,10 +3,6 @@ baseurl: /Sort-Markdown-Tables
 description: A zero-dependency Rust CLI tool to sort markdown tables.
 domain: mrdgh2821.github.io
 github_username: MRDGH2821
-kramdown:
-  hard_wrap: false
-  input: GFM
-markdown: kramdown
 # Build settings
 # theme: jekyll-theme-leap-day
 # theme: minima
