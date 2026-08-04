@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   pkgs,
   ...
@@ -101,7 +100,6 @@
         "openspec/**"
         "tests/fixtures/**"
       ];
-      package = pkgs.callPackage ./packages/Sort-Markdown-Tables.nix {inherit inputs;};
     };
     sqlfluff.enable = true;
     sqlfluff-lint.enable = true;

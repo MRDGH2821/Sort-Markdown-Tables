@@ -1,10 +1,15 @@
 {
   config,
+  inputs ? {},
   lib,
   pkgs,
   ...
 }: let
   cfg = config.programs.sort-markdown-tables;
+  craneLib =
+    if inputs ? crane
+    then inputs.crane.mkLib pkgs
+    else pkgs.craneLib or null;
 in {
   config = lib.mkIf cfg.enable {
     settings.formatter.sort-markdown-tables =
@@ -30,7 +35,12 @@ in {
     };
     package = lib.mkOption {
       default =
-        pkgs.sort-markdown-tables or pkgs.smt or (pkgs.callPackage ./packages/Sort-Markdown-Tables.nix {});
+        pkgs.sort-markdown-tables or pkgs.smt or (pkgs.callPackage ./packages/Sort-Markdown-Tables.nix (
+          {
+            inherit inputs;
+          }
+          // (lib.optionalAttrs (craneLib != null) {inherit craneLib;})
+        ));
       defaultText = lib.literalExpression "pkgs.sort-markdown-tables";
       description = "The sort-markdown-tables package to use.";
       type = lib.types.package;
