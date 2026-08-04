@@ -2,7 +2,7 @@
 pkgs.stdenv.mkDerivation {
   buildPhase = ''
     runHook preBuild
-    jekyll build --source docs --destination _site
+    jekyll build --destination _site
     runHook postBuild
   '';
   installPhase = ''
@@ -15,7 +15,8 @@ pkgs.stdenv.mkDerivation {
   ];
   pname = "Sort-Markdown-Tables-docs";
   src = pkgs.lib.cleanSourceWith {
-    filter = path: _type: (pkgs.lib.hasPrefix (toString ../../docs) path);
+    filter = path: _type:
+      (pkgs.lib.hasPrefix (toString ../../docs) path) || (path == toString ../../_config.yml);
     src = ../..;
   };
   version = (fromTOML (builtins.readFile ../../Cargo.toml)).package.version;

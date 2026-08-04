@@ -1,5 +1,5 @@
 ---
-baseurl: /Sort-Markdown-Tables/
+baseurl: /Sort-Markdown-Tables
 description: A zero-dependency Rust CLI tool to sort markdown tables.
 domain: mrdgh2821.github.io
 github_username: MRDGH2821
