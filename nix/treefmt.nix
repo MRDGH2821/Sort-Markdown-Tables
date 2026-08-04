@@ -96,7 +96,7 @@
       excludes = [
         "**/docs/**"
         "**/openspec/**"
-        "docs/**"
+        "docs/superpowers/**"
         "openspec/**"
         "tests/fixtures/**"
       ];
