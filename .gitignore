@@ -9,10 +9,10 @@
 .venv/
 __MACOSX
 __pycache__
+_site/
 dist/
 megalinter-reports/
 node_modules/
-_site/
 report/
 result
 result-*

@@ -1,8 +1,10 @@
 {
   inputs,
+  lib,
   pkgs,
   ...
 }: {
+  enableDefaultExcludes = false;
   programs = {
     actionlint.enable = true;
     alejandra = {
@@ -143,10 +145,9 @@
   };
   projectRootFile = "flake.nix";
   settings = {
-    "allow-missing-formatter" = true;
     formatter = {
       cspell-sort = {
-        command = "${pkgs.lib.getExe pkgs.yq-go}";
+        command = "${lib.getExe pkgs.yq-go}";
         includes = [
           # keep-sorted start
           "**/.CSpell*"
@@ -166,7 +167,7 @@
         priority = 9;
       };
       prettypst-default = {
-        command = "${pkgs.lib.getExe pkgs.prettypst}";
+        command = "${lib.getExe pkgs.prettypst}";
         includes = ["*.typ"];
         no-positional-arg-support = true;
         options = [
@@ -176,7 +177,7 @@
         priority = 2;
       };
       prettypst-otbs = {
-        command = "${pkgs.lib.getExe pkgs.prettypst}";
+        command = "${lib.getExe pkgs.prettypst}";
         includes = ["*.typ"];
         no-positional-arg-support = true;
         options = [
@@ -186,7 +187,7 @@
         priority = 3;
       };
       tombi-format = {
-        command = "${pkgs.lib.getExe pkgs.tombi}";
+        command = "${lib.getExe pkgs.tombi}";
         includes = ["*.toml"];
         options = [
           "format"
@@ -199,7 +200,7 @@
         "--sort-table-keys"
       ];
       yamlfix = {
-        command = "${pkgs.lib.getExe pkgs.yamlfix}";
+        command = "${lib.getExe pkgs.yamlfix}";
         includes = [
           # keep-sorted start
           "*.yaml"
@@ -209,7 +210,7 @@
         priority = 8;
       };
       yq-key-sort = {
-        command = "${pkgs.lib.getExe pkgs.yq-go}";
+        command = "${lib.getExe pkgs.yq-go}";
         includes = [
           # keep-sorted start
           "*.json"
@@ -226,15 +227,18 @@
         priority = 0;
       };
     };
-    global.excludes = [
-      # keep-sorted start
-      "**/openspec/**"
-      "**/skills/**"
-      "_site/**"
-      "openspec/**"
-      "site/**"
-      "tests/fixtures/**"
-      # keep-sorted end
-    ];
+    global = {
+      allow-missing-formatter = true;
+      excludes = [
+        # keep-sorted start
+        "**/openspec/**"
+        "**/skills/**"
+        "_site/**"
+        "openspec/**"
+        "site/**"
+        "tests/fixtures/**"
+        # keep-sorted end
+      ];
+    };
   };
 }

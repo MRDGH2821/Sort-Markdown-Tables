@@ -35,6 +35,8 @@ inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
         "--config"
         ".cspell.json"
         "--no-must-find-files"
+        "--no-progress"
+        "--no-summary"
       ];
       enable = true;
     };
