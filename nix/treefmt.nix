@@ -91,7 +91,9 @@
     sort-markdown-tables = {
       enable = true;
       excludes = [
+        "**/docs/**"
         "**/openspec/**"
+        "docs/**"
         "openspec/**"
         "tests/fixtures/**"
       ];

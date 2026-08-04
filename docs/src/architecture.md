@@ -1,40 +1,99 @@
-# Architecture
+# Architecture & Contributor Guide
 
-## Pipeline
+Welcome to the contributor guide for `Sort Markdown Tables` (`smt`). This document details the technical design, module structure, and execution pipeline.
 
-`smt` implements a two-phase pipeline for atomicity:
+---
 
-1. **Parse Phase** — Read all files, parse markdown, extract tables, detect `<!-- smt -->` comments
-2. **Sort Phase** — Validate all tables, sort by configured column/mode
-3. **Write Phase** — Only if both phases succeed, write results atomically using temporary files
+## 1. Two-Phase Atomic Pipeline
 
-If any error occurs in phases 1–2, no files are modified.
+`smt` guarantees **zero file corruption**. If parsing or sorting fails on any file, no files on disk are touched.
 
-## Algorithm
+```mermaid
+flowchart TD
+    A[Input Markdown Files / Directory] --> B[Phase 1: Parse]
+    B --> C{Detect <!-- smt --> comments & extract tables}
+    C -->|Error| D[Abort: No Files Written]
+    C -->|Success| E[Phase 2: Sort]
+    E --> F{Validate & Sort Rows}
+    F -->|Error| D
+    F -->|Success| G[Phase 3: Atomic Write]
+    G --> H[Write to Temporary File]
+    H --> I[Atomic Rename / Replace File]
+    I --> J[Done Success Exit 0]
+```
 
-- **Stable sort guarantee** — Uses Rust's `sort_by()` (never `sort_unstable_by()`)
-- **Numeric comparison** — Parses as `f64`, handles `NaN`/`Infinity` safely
-- **String comparison** — UTF-8 safe, respects locale via case sensitivity flag
-- **Comment parsing** — Hand-rolled (no regex), validates attributes
+### Pipeline Guarantees
 
-## Module Layout
+- **Phase 1 (Parse)**: Scans documents, extracts markdown table structures, parses HTML comment attributes (`type`, `column`, `order`, `case`).
+- **Phase 2 (Sort)**: Applies deterministic stable sorting algorithms (`sort_by`).
+- **Phase 3 (Write)**: Uses `tempfile` to write out results atomically before replacing original files on disk.
+
+---
+
+## 2. Module Layout
 
 ```
 src/
-├── main.rs      # Entry point, orchestrates pipeline
-├── cli.rs       # Clap args, validation, glob expansion
-├── parser.rs    # Markdown parsing, comment detection, table extraction
-├── sorter.rs    # Sort logic (numeric, lexicographic, case, direction)
-├── writer.rs    # Output: stdout, file, in-place (atomic writes)
-└── error.rs     # SmtError enum with thiserror
+├── main.rs      # CLI entry point; orchestrates parse -> sort -> write pipeline
+├── cli.rs       # Clap argument parsing, validation, and glob expansion
+├── parser.rs    # Hand-rolled markdown table & HTML comment parser
+├── sorter.rs    # Sorting algorithms (numeric f64, lexicographic, case, order)
+├── writer.rs    # Atomic tempfile writer and stdout formatting
+└── error.rs     # Centralized SmtError error types via thiserror
 ```
 
-## Dependencies
+---
 
-| Crate       | Version | Purpose                          |
-| ----------- | ------- | -------------------------------- |
-| `clap`      | 4.x     | CLI argument parsing with derive |
-| `thiserror` | 2.x     | Error type definitions           |
-| `anyhow`    | 1.x     | Error context propagation        |
-| `glob`      | 0.3.x   | File pattern globbing            |
-| `tempfile`  | 3.x     | Atomic file writes               |
+## 3. Algorithm & Design Decisions
+
+### Stable Sort Guarantee
+
+All sorting operations use Rust's `sort_by()` algorithm (never `sort_unstable_by()`). Equal key values preserve their original relative order in the document.
+
+### Numeric Comparison
+
+Numeric mode parses table cell content into 64-bit floating point numbers (`f64`).
+
+- Handles integer and decimal values.
+- Safely handles `NaN` and `Infinity` without panicking.
+- Non-numeric strings fall back safely to lexicographic sorting.
+
+### Zero-Regex Parsing
+
+Comment parsing is hand-rolled using Rust standard library string operations (`str::split`, `str::find`). This eliminates regular expression overhead and security vulnerabilities like ReDoS.
+
+---
+
+## 4. Dependencies
+
+| Crate       | Version | Purpose                                 |
+| :---------- | :-----: | :-------------------------------------- |
+| `clap`      |  `4.x`  | CLI argument parsing with derive macros |
+| `thiserror` |  `2.x`  | Strongly typed error definitions        |
+| `anyhow`    |  `1.x`  | Idiomatic error propagation             |
+| `glob`      | `0.3.x` | File pattern glob expansion (`**/*.md`) |
+| `tempfile`  |  `3.x`  | Safe atomic file replacements           |
+
+---
+
+## 5. Local Development & Testing
+
+### Building from Source
+
+```bash
+cargo build --release
+```
+
+### Running Test Suite
+
+```bash
+cargo test
+```
+
+### Formatting Code
+
+Format all files (Rust, Nix, Markdown, TOML) using treefmt / Nix:
+
+```bash
+nix fmt
+```

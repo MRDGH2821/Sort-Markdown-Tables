@@ -1,79 +1,116 @@
-# Integrations
+# Integrations Guide
 
-## Pre-commit hook
+Integrate `smt` into your development workflow, git hooks, formatters, and CI/CD pipelines.
 
-Add to your `.pre-commit-config.yaml`:
+---
+
+## 1. Pre-commit Framework
+
+Add `smt` to your `.pre-commit-config.yaml`:
+
+=== "Auto-Fix Mode (`smt -i`)"
+
+    Automatically formats and sorts tables before every commit:
+
+    ```yaml
+    repos:
+      - repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
+        rev: v0.4.0 # Use latest release tag
+        hooks:
+          - id: sort-markdown-tables
+    ```
+
+=== "Check-Only Mode (`smt --check`)"
+
+    Prevents committing unsorted tables without modifying files:
+
+    ```yaml
+    repos:
+      - repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
+        rev: v0.4.0 # Use latest release tag
+        hooks:
+          - id: sort-markdown-tables-check
+    ```
+
+---
+
+## 2. Nix Flakes Integration
+
+=== "git-hooks.nix"
+
+    For [cachix/git-hooks.nix](https://github.com/cachix/git-hooks.nix) users, import the exported module in your `flake.nix`:
+
+    ```nix
+    {
+      inputs.smt = {
+        url = "github:MRDGH2821/Sort-Markdown-Tables";
+        inputs.nixpkgs.follows = "nixpkgs";
+      };
+    }
+    ```
+
+    Then enable `sort-markdown-tables` in your git-hooks config:
+
+    ```nix
+    {
+      imports = [ inputs.smt.gitHooksModules.default ];
+      hooks.sort-markdown-tables.enable = true;
+    }
+    ```
+
+=== "treefmt-nix"
+
+    For [numtide/treefmt-nix](https://github.com/numtide/treefmt-nix) users, import the treefmt module:
+
+    ```nix
+    {
+      imports = [ inputs.smt.treefmtModules.default ];
+      programs.sort-markdown-tables = {
+        enable = true;
+        # includes = [ "*.md" ];  # Default
+        # excludes = [ "vendor/**" ];
+      };
+    }
+    ```
+
+---
+
+## 3. GitHub Actions CI/CD Pipeline
+
+Enforce sorted markdown tables on every pull request or push with GitHub Actions:
 
 ```yaml
-repos:
-  - repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
-    rev: v0.3.1 # use the latest release tag
-    hooks:
-      - id: sort-markdown-tables # auto-fixes with smt -i
+name: Verify Markdown Table Sorting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check-tables:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install smt
+        run: cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
+
+      - name: Check markdown tables
+        run: smt --check -r docs/ README.md
 ```
 
-A check-only variant is also available:
+---
 
-```yaml
-hooks:
-  - id: sort-markdown-tables-check # fails if tables are unsorted
-```
+## 4. Bulk Repository Formatting
 
-## Nix: git-hooks.nix module
-
-For [cachix/git-hooks.nix](https://github.com/cachix/git-hooks.nix) users, import the provided module:
-
-```nix
-# flake.nix
-{
-  inputs.smt = {
-    url = "github:MRDGH2821/Sort-Markdown-Tables";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-}
-```
-
-Then in your git-hooks configuration:
-
-```nix
-{
-  imports = [ inputs.smt.gitHooksModules.default ];
-  hooks.sort-markdown-tables.enable = true;
-  # Optionally override the package:
-  # hooks.sort-markdown-tables.package = pkgs.sort-markdown-tables;
-}
-```
-
-## Nix: treefmt module
-
-For [numtide/treefmt-nix](https://github.com/numtide/treefmt-nix) users:
-
-```nix
-{
-  imports = [ inputs.smt.treefmtModules.default ];
-  programs.sort-markdown-tables = {
-    enable = true;
-    # excludes = [ "vendor/**" ];
-    # includes = [ "*.md" ];  # default
-    # priority = 2;           # default
-  };
-}
-```
-
-## CI/CD validation
+Run `smt` across all markdown files in your project with a single command:
 
 ```bash
-#!/bin/bash
-smt --check "docs/**/*.md"
-if [ $? -eq 1 ]; then
-  echo "Markdown tables are unsorted. Run: smt -i 'docs/**/*.md'"
-  exit 1
-fi
-```
-
-## Bulk formatting
-
-```bash
-# Sort all markdown files in a directory
-smt -i "**/*.md"
+# Recursively format all markdown files in the repository
+smt -r -i ./
 ```
