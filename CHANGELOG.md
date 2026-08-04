@@ -4,6 +4,52 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## [0.5.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.4.0..v0.5.0) - 2026-08-04
+
+### Bug Fixes
+
+- **(docs)** resolve collapsed code blocks in content tabs - ([8689e7e](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/8689e7e670843ded00f3c9e14ef92b42b930f9dd)) - MRDGH2821
+- **(treefmt)** make inputs optional in package build for treefmt-module - ([deac2a0](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/deac2a0cfe3c89deb5f4063b9e60c912bcc5cc12)) - MRDGH2821
+
+### Documentation
+
+- **(smt)** create docs/src/index.md and pin workflow actions - ([6fbd634](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/6fbd63474a813a7b9a9b79dc5372eb34921f2572)) - MRDGH2821
+- **(smt)** add remaining docs pages into docs/src and update plan - ([70a27ca](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/70a27cad8f99ebeed60292602cc464edae816916)) - MRDGH2821
+- **(smt)** make documentation human-friendly with rich formatting and diagrams - ([1b39b44](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/1b39b44c3d4350240ec825ecfb74ad96b2096ee2)) - MRDGH2821
+- **(smt)** remove contributing/architecture documentation - ([0ce28fe](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/0ce28fe22aa2bda18df9f868da66cb7d46e17776)) - MRDGH2821
+- **(smt)** optimize zensical config with navigation tabs, repository links, and search options - ([e6ee5cb](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/e6ee5cbda983f5a73600292e10253342ab3a7492)) - MRDGH2821
+- **(smt)** use GitHub Flavored Markdown (GFM) Alert syntax for callout boxes - ([4e71736](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/4e71736b6e4127a191d661d5fb90100bc83da2c9)) - MRDGH2821
+- **(smt)** fix jekyll _config.yml plugins for local build compatibility - ([b34ad83](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/b34ad83dd1a237a988c27cd7011811ecf4e7388a)) - MRDGH2821
+
+### Features
+
+- **(nix)** add mkdocs to devshell packages - ([0564120](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/0564120c74231ffb076970fe271d107baee269ca)) - MRDGH2821
+- **(nix)** add docs builder package derivation - ([00e6d64](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/00e6d6449dda48d3a55e9204e666696a566d4b01)) - MRDGH2821
+
+### Miscellaneous Chores
+
+- **(cocogitto)** add docs scope - ([df38d7a](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/df38d7ac0911f60a31c00448971e85090ac23389)) - MRDGH2821
+- **(copier)** update template - ([29f54d6](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/29f54d6a18e32fccbd541ed43509eecf4d8c920a)) - MRDGH2821
+- **(cspell)** add words - ([0dcebdf](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/0dcebdf760e9d365057983e89b8901c264b6e856)) - MRDGH2821
+- **(treefmt)** update excludes - ([ab3a4b3](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/ab3a4b3d477f01cfbb2652ccc0b8cfe3cb10e9e8)) - MRDGH2821
+- remove kramdown config - ([64404da](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/64404da44f9d12585f100eb307dd8f937614d855)) - MRDGH2821
+
+### Refactoring
+
+- **(docs)** replace Zensical with GitHub Pages Jekyll integration - ([7d38aaf](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/7d38aaff59f96d5c26242bffc83802aad47d5e87)) - MRDGH2821
+- **(docs)** move _config.yml to repository root for simplified jekyll serve execution - ([61e886c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/61e886cbb3d9f168493ac1b4d62e14c052cf38c0)) - MRDGH2821
+- **(nix)** integrate craneLib as primary package dependency - ([4d8ed43](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/4d8ed432a32bc54b398236d45c82e7fb004bceb6)) - MRDGH2821
+- **(nix)** export overlays.default and remove inputs from module headers - ([72ede1d](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/72ede1da154a67bf24c923853a78df69dde8c6a0)) - MRDGH2821
+- **(nix)** bind inputs in exported treefmtModules and gitHooksModules - ([aa0fa7c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/aa0fa7c74e7ca1d04cc77cbb5b700b594cee69ea)) - MRDGH2821
+- **(nix)** simplify module exports with two-layer function pattern - ([5cc09b7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5cc09b78997036fd3cbd9bd1baa9339a877eebaf)) - MRDGH2821
+
+### Ci
+
+- **(docs)** format docs deployment workflow - ([70dc58e](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/70dc58e97a5d8aa90858127bb002253aff054663)) - MRDGH2821
+- **(docs)** format docs deployment workflow - ([5a4e128](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5a4e128d041d91917e7c9967f47e52501525d285)) - MRDGH2821
+
+---
+
 ## [0.4.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.3.1..v0.4.0) - 2026-08-03
 
 ### Bug Fixes
@@ -44,7 +90,7 @@ All notable changes to this project will be documented in this file. See [conven
 - **(copier)** update template - ([434793c](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/434793cb2c408ae973c866383099380635296341)) - MRDGH2821
 - **(copier)** update template - ([5b8d8de](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/5b8d8ded014b07c25d67738eb9d1a53c0114c93e)) - MRDGH2821
 - **(treefmt)** change priority of rustfmt - ([cbb27c6](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/cbb27c6c391dbd9421a9495003c6decdb5591b05)) - MRDGH2821
-- **(treefmt)** exclude \*.sh in prettier - ([caf0bd7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/caf0bd7a40dd9651bec2ebf975ea102537a375ec)) - MRDGH2821
+- **(treefmt)** exclude *.sh in prettier - ([caf0bd7](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/caf0bd7a40dd9651bec2ebf975ea102537a375ec)) - MRDGH2821
 - **(treefmt)** exclude agent logs from typos checker - ([a1d794e](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/a1d794ea129b56c064ccd818cd2aaddf81cbc0d8)) - MRDGH2821
 - add act package - ([860e0c0](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/860e0c0c600b3410c5446e641c0eb2c978ac0878)) - MRDGH2821
 - delete old stuff - ([cea3815](https://github.com/MRDGH2821/Sort-Markdown-Tables/commit/cea3815294a57f4556dc3ba286bb7122d9aa0152)) - MRDGH2821
