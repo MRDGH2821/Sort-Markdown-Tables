@@ -230,6 +230,7 @@
       # keep-sorted start
       "**/openspec/**"
       "**/skills/**"
+      "_site/**"
       "openspec/**"
       "site/**"
       "tests/fixtures/**"

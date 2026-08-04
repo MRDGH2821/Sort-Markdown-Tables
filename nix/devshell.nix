@@ -49,7 +49,7 @@ in
       (import ./formatter.nix {inherit inputs pkgs;})
       cross-build-all
       cross-build-seq
-      pkgs.zensical
+      pkgs.jekyll
       pkgs.nil
       pkgs.nixd
       pkgs.act

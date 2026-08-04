@@ -1,0 +1,9 @@
+---
+description: A zero-dependency Rust CLI tool to sort markdown tables.
+kramdown:
+  hard_wrap: false
+  input: GFM
+markdown: kramdown
+theme: jekyll-theme-primer
+title: Sort Markdown Tables
+source: docs

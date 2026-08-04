@@ -2,21 +2,20 @@
 pkgs.stdenv.mkDerivation {
   buildPhase = ''
     runHook preBuild
-    zensical build --clean
+    jekyll build --source docs --destination _site
     runHook postBuild
   '';
   installPhase = ''
     runHook preInstall
-    cp -r site $out
+    cp -r _site $out
     runHook postInstall
   '';
   nativeBuildInputs = [
-    pkgs.zensical
+    pkgs.jekyll
   ];
   pname = "Sort-Markdown-Tables-docs";
   src = pkgs.lib.cleanSourceWith {
-    filter = path: _type:
-      (pkgs.lib.hasPrefix (toString ../../docs) path) || (path == toString ../../zensical.toml);
+    filter = path: _type: (pkgs.lib.hasPrefix (toString ../../docs) path);
     src = ../..;
   };
   version = (fromTOML (builtins.readFile ../../Cargo.toml)).package.version;

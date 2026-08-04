@@ -1,3 +1,8 @@
+---
+layout: default
+title: Sort Markdown Tables
+---
+
 # Sort Markdown Tables
 
 A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automatically sorted and cleanly formatted.
@@ -49,17 +54,9 @@ A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automat
 
 ### 1. Install `smt`
 
-=== "Cargo"
-
-    ```bash
-    cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
-    ```
-
-=== "Nix Flakes"
-
-    ```bash
-    nix run github:MRDGH2821/Sort-Markdown-Tables -- --help
-    ```
+```bash
+cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
+```
 
 ### 2. Run Commands
 
@@ -78,6 +75,6 @@ smt -r -i docs/
 
 ## Explore the Documentation
 
-- 📦 [**Installation**](installation.md) — Learn how to install via Cargo, Nix Flakes, or pre-built binaries.
-- 📖 [**Usage Guide**](usage.md) — Detailed guide on comment syntax, sort attributes, CLI flags, and exit codes.
-- 🔌 [**Integrations**](integrations.md) — Set up `smt` with `pre-commit`, `git-hooks.nix`, `treefmt`, or GitHub Actions.
+- 📦 [**Installation**](installation.html) — Learn how to install via Cargo, Nix Flakes, or pre-built binaries.
+- 📖 [**Usage Guide**](usage.html) — Detailed guide on comment syntax, sort attributes, CLI flags, and exit codes.
+- 🔌 [**Integrations**](integrations.html) — Set up `smt` with `pre-commit`, `git-hooks.nix`, `treefmt`, or GitHub Actions.

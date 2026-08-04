@@ -12,6 +12,7 @@ __pycache__
 dist/
 megalinter-reports/
 node_modules/
+_site/
 report/
 result
 result-*
