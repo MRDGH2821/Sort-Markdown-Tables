@@ -32,35 +32,11 @@
     // {
       gitHooksModules = rec {
         default = sort-markdown-tables;
-        sort-markdown-tables = {
-          _file = toString ./nix/git-commit-module.nix;
-          imports = [
-            (_: {
-              _module.args.inputs = inputs;
-            })
-            ./nix/git-commit-module.nix
-          ];
-        };
-      };
-      overlays = rec {
-        default = sort-markdown-tables;
-        sort-markdown-tables = final: _prev: {
-          craneLib = inputs.crane.mkLib final;
-          smt = final.callPackage ./nix/packages/Sort-Markdown-Tables.nix {};
-          sort-markdown-tables = final.smt;
-        };
+        sort-markdown-tables = import ./nix/git-commit-module.nix {inherit inputs;};
       };
       treefmtModules = rec {
         default = sort-markdown-tables;
-        sort-markdown-tables = {
-          _file = toString ./nix/treefmt-module.nix;
-          imports = [
-            (_: {
-              _module.args.inputs = inputs;
-            })
-            ./nix/treefmt-module.nix
-          ];
-        };
+        sort-markdown-tables = import ./nix/treefmt-module.nix {inherit inputs;};
       };
     };
 }

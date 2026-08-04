@@ -1,10 +1,5 @@
 {
-  craneLib ?
-    pkgs.craneLib or (
-      if inputs ? crane
-      then inputs.crane.mkLib pkgs
-      else throw "craneLib required"
-    ),
+  craneLib ? inputs.crane.mkLib pkgs,
   inputs ? {},
   pkgs,
   ...
