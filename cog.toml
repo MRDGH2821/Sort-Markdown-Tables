@@ -26,6 +26,7 @@ scopes = [
   "copier",
   "cross",
   "cspell",
+  "docs",
   "github",
   "jscpd",
   "megalinter",
