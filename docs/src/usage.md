@@ -18,8 +18,8 @@ To opt-in a table for sorting, place an `<!-- smt -->` comment **immediately** a
 | Bob     | 78    |
 ```
 
-!!! warning "Placement Rule"
-The `<!-- smt -->` comment must immediately precede the table header row (no blank lines or text between the comment and table).
+> [!WARNING]
+> **Placement Rule**: The `<!-- smt -->` comment must immediately precede the table header row (no blank lines or text between the comment and table).
 
 ---
 

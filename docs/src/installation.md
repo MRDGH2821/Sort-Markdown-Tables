@@ -51,9 +51,9 @@
 
 ## Troubleshooting
 
-!!! note "PATH Configuration"
-If running `smt` in your terminal outputs `command not found`, ensure `~/.cargo/bin` (for Cargo) or `~/.local/bin` (for manually downloaded binaries) is in your shell's `PATH` environment variable:
-
-    ```bash
-    export PATH="$HOME/.cargo/bin:$PATH"
-    ```
+> [!NOTE]
+> **PATH Configuration**: If running `smt` in your terminal outputs `command not found`, ensure `~/.cargo/bin` (for Cargo) or `~/.local/bin` (for manually downloaded binaries) is in your shell's `PATH` environment variable:
+>
+> ```bash
+> export PATH="$HOME/.cargo/bin:$PATH"
+> ```

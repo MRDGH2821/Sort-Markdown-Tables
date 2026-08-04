@@ -2,8 +2,8 @@
 
 A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automatically sorted and cleanly formatted.
 
-!!! tip "Opt-In Safety"
-Tables are sorted **only** when marked with an `<!-- smt -->` HTML comment directly above them. All other tables in your documents are left completely untouched!
+> [!TIP]
+> **Opt-In Safety**: Tables are sorted **only** when marked with an `<!-- smt -->` HTML comment directly above them. All other tables in your documents are left completely untouched!
 
 ---
 
