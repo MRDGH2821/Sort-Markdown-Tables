@@ -29,21 +29,33 @@
 
 - [ ] **Step 1: Create and checkout new branch**
 
-```bash
+  ```bash
+
+  ```
+
 git checkout -b docs/index-page
-```
+
+````
 
 - [ ] **Step 2: Remove old root docs files from git index**
 
-```bash
+  ```bash
+
+````
+
 git rm --cached docs/architecture.md docs/installation.md docs/integrations.md docs/usage.md
-```
+
+````
 
 - [ ] **Step 3: Verify git status**
 
-```bash
+  ```bash
+
+````
+
 git status
-```
+
+````
 
 ---
 
@@ -61,7 +73,10 @@ git status
 
 - [ ] **Step 1: Write `docs/src/index.md`**
 
-````markdown
+  ```markdown
+
+````
+
 # Sort Markdown Tables
 
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/refs/heads/master/img/badge/black-badge.json)](https://github.com/copier-org/copier)
@@ -80,17 +95,21 @@ A zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-in via
 
 ## Quick Start
 
-```bash
+    ```bash
+
 # Install
+
 cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
 
 # Sort in-place
+
 smt -i README.md
 
 # Check (CI-friendly)
+
 smt --check README.md
-```
-````
+`
+    `
 
 ## Licence
 
@@ -112,17 +131,25 @@ Expected: Clean formatting without errors.
 ### Task 3: Commit changes on the new branch
 
 **Files:**
+
 - Commit: `docs/src/index.md`, `zensical.toml`, `.github/workflows/docs.yml`, `.gitignore`, `nix/treefmt.nix`, `nix/devshell.nix`
 
 - [ ] **Step 1: Stage all relevant documentation and configuration changes**
 
-```bash
+  ```bash
+
+````
+
 git add docs/src/ zensical.toml .github/workflows/docs.yml .gitignore nix/treefmt.nix
+
 ````
 
 - [ ] **Step 2: Commit changes**
 
-```bash
+  ```bash
+
+````
+
 git commit -m "docs(smt): add index page in docs/src and setup zensical workflow
 
 - Created docs/src/index.md landing page
@@ -131,10 +158,17 @@ git commit -m "docs(smt): add index page in docs/src and setup zensical workflow
 - Added site/ to .gitignore and treefmt global excludes
 
 Co-authored-by: Gemini 3.6 Flash via Antigravity <noreply@google.com>" --trailer="AI-Model: gemini-3.6-flash"
-```
+
+````
 
 - [ ] **Step 3: Verify git log and working tree clean status**
 
-```bash
+  ```bash
+
+````
+
 git status && git log -n 1
+
+```
+
 ```
