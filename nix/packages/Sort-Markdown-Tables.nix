@@ -1,8 +1,10 @@
 {
   craneLib ?
-    if inputs ? crane
-    then inputs.crane.mkLib pkgs
-    else pkgs.craneLib or (throw "Sort-Markdown-Tables.nix: craneLib or inputs.crane must be provided"),
+    pkgs.craneLib or (
+      if inputs ? crane
+      then inputs.crane.mkLib pkgs
+      else throw "craneLib required"
+    ),
   inputs ? {},
   pkgs,
   ...

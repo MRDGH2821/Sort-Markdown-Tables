@@ -3,8 +3,8 @@
   pkgs,
   ...
 }: let
-  treefmtEval = inputs.treefmt.lib.evalModule pkgs {
-    _module.args = {inherit inputs;};
+  pkgsWithOverlay = pkgs.extend inputs.self.overlays.default;
+  treefmtEval = inputs.treefmt.lib.evalModule pkgsWithOverlay {
     imports = [
       ./treefmt-module.nix
       ./treefmt.nix

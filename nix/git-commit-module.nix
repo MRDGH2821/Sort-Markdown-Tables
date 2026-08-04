@@ -1,15 +1,10 @@
 {
   config,
-  inputs ? {},
   lib,
   pkgs,
   ...
 }: let
   cfg = config.hooks.sort-markdown-tables;
-  craneLib =
-    if inputs ? crane
-    then inputs.crane.mkLib pkgs
-    else pkgs.craneLib or null;
 in {
   config = lib.mkIf cfg.enable {
     hooks.sort-markdown-tables = {
@@ -26,12 +21,7 @@ in {
     enable = lib.mkEnableOption "sort-markdown-tables pre-commit hook";
     package = lib.mkOption {
       default =
-        pkgs.sort-markdown-tables or pkgs.smt or (pkgs.callPackage ./packages/Sort-Markdown-Tables.nix (
-          {
-            inherit inputs;
-          }
-          // (lib.optionalAttrs (craneLib != null) {inherit craneLib;})
-        ));
+        pkgs.sort-markdown-tables or pkgs.smt or (pkgs.callPackage ./packages/Sort-Markdown-Tables.nix {});
       defaultText = lib.literalExpression "pkgs.sort-markdown-tables";
       description = "The sort-markdown-tables package to use.";
       type = lib.types.package;

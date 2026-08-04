@@ -34,6 +34,14 @@
         default = sort-markdown-tables;
         sort-markdown-tables = ./nix/git-commit-module.nix;
       };
+      overlays = rec {
+        default = sort-markdown-tables;
+        sort-markdown-tables = final: _prev: {
+          craneLib = inputs.crane.mkLib final;
+          smt = final.callPackage ./nix/packages/Sort-Markdown-Tables.nix {};
+          sort-markdown-tables = final.smt;
+        };
+      };
       treefmtModules = rec {
         default = sort-markdown-tables;
         sort-markdown-tables = ./nix/treefmt-module.nix;
