@@ -9,7 +9,6 @@
       (import ./treefmt-module.nix {inherit inputs;})
       flake.modules.tools.treefmt
       inputs.pedantix.treefmtModules.default
-      inputs.smt.treefmtModules.default
     ];
   };
 in

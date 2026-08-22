@@ -63,14 +63,14 @@
     shfmt.enable = true;
     sort-markdown-tables = {
       enable = true;
-      priority = 3;
       excludes = [
-         "**/docs/**"
-         "**/openspec/**"
-         "docs/superpowers/**"
-         "openspec/**"
-         "tests/fixtures/**"
-       ];
+        "**/docs/**"
+        "**/openspec/**"
+        "docs/**"
+        "openspec/**"
+        "tests/fixtures/**"
+      ];
+      priority = 3;
     };
     sqlfluff.enable = true;
     sqlfluff-lint.enable = true;

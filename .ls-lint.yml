@@ -18,6 +18,7 @@ ignore:
   - apm_modules
   - build
   - dist
+  - megalinter-reports
   - node_modules
   - result # Nix build result symlink
   - target # Rust/Java build output
@@ -33,3 +34,5 @@ ls:
   .py: snake_case
   .rs: snake_case
   .ts: snake_case
+  nix/packages:
+    .nix: kebab-case | snake_case | PascalCase | regex:^[a-zA-Z0-9_.-]+$
