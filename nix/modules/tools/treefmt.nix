@@ -84,8 +84,12 @@
       enable = true;
       excludes = [
         # keep-sorted start
+        "**/.agents/logs/**"
         "**/.cspell.json"
+        "**/.typos.toml"
+        ".agents/logs/**"
         ".cspell.json"
+        ".typos.toml"
         "CHANGELOG.md"
         # keep-sorted end
       ];

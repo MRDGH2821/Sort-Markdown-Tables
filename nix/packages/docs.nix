@@ -1,4 +1,8 @@
-{pkgs, ...}:
+{
+  lib ? pkgs.lib,
+  pkgs,
+  ...
+}:
 pkgs.stdenv.mkDerivation {
   buildPhase = ''
     runHook preBuild
@@ -14,9 +18,8 @@ pkgs.stdenv.mkDerivation {
     pkgs.jekyll
   ];
   pname = "Sort-Markdown-Tables-docs";
-  src = pkgs.lib.cleanSourceWith {
-    filter = path: _type:
-      (pkgs.lib.hasPrefix (toString ../../docs) path) || (path == toString ../../_config.yml);
+  src = lib.cleanSourceWith {
+    filter = path: _type: (lib.hasPrefix (toString ../../docs) path) || (path == toString ../../_config.yml);
     src = ../..;
   };
   version = (fromTOML (builtins.readFile ../../Cargo.toml)).package.version;

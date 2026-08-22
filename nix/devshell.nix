@@ -1,13 +1,14 @@
 {
   flake,
+  lib ? pkgs.lib,
   perSystem,
   pkgs,
   system,
   ...
 }: let
   pre-commit-check = flake.checks.${system}.pre-commit-check;
-  yqExe = pkgs.lib.getExe pkgs.yq;
-  crossExe = pkgs.lib.getExe pkgs.cargo-cross;
+  yqExe = lib.getExe pkgs.yq;
+  crossExe = lib.getExe pkgs.cargo-cross;
   cross-build-all = pkgs.writeShellScriptBin "cross-build-all" ''
     set -euo pipefail
     JOBS="''${1:-4}"

@@ -1,10 +1,12 @@
 {
+  flake,
   inputs,
   lib ? pkgs.lib,
   pkgs,
+  system,
   ...
 }:
-inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
+inputs.git-hooks.lib.${system}.run {
   hooks = {
     betterleaks = {
       args = [
@@ -27,7 +29,7 @@ inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
         "--file"
       ];
       enable = true;
-      entry = "${lib.getExe pkgs.cocogitto}";
+      entry = lib.getExe pkgs.cocogitto;
       name = "Cocogitto commits check";
       stages = ["commit-msg"];
     };
@@ -54,7 +56,7 @@ inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
     };
     ls-lint = {
       enable = true;
-      entry = "${lib.getExe pkgs.ls-lint}";
+      entry = lib.getExe pkgs.ls-lint;
       name = "ls-lint";
       stages = ["pre-commit"];
     };
@@ -69,5 +71,5 @@ inputs.git-hooks.lib.${pkgs.stdenv.hostPlatform.system}.run {
     };
   };
   package = pkgs.prek;
-  src = inputs.self;
+  src = flake;
 }

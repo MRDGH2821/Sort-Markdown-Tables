@@ -1,9 +1,6 @@
 {
-  inputs,
+  flake,
   pkgs,
   ...
 }:
-import ./Sort-Markdown-Tables.nix {
-  inherit inputs;
-  pkgs = pkgs.pkgsCross.mingwW64;
-}
+(flake.mkPackagesFor pkgs.pkgsCross.mingwW64).Sort-Markdown-Tables

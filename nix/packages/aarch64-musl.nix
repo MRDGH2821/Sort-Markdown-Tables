@@ -1,9 +1,6 @@
 {
-  inputs,
+  flake,
   pkgs,
   ...
 }:
-import ./Sort-Markdown-Tables.nix {
-  inherit inputs;
-  pkgs = pkgs.pkgsCross.aarch64-multiplatform-musl;
-}
+(flake.mkPackagesFor pkgs.pkgsCross.aarch64-multiplatform-musl).Sort-Markdown-Tables

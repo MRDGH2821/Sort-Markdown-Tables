@@ -1,9 +1,6 @@
 {
-  inputs,
+  flake,
   pkgs,
   ...
 }:
-import ./Sort-Markdown-Tables.nix {
-  inherit inputs;
-  pkgs = pkgs.pkgsCross.armv7l-hf-multiplatform;
-}
+(flake.mkPackagesFor pkgs.pkgsCross.armv7l-hf-multiplatform).Sort-Markdown-Tables

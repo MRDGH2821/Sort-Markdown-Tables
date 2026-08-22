@@ -1,11 +1,12 @@
 {
   inputs,
+  lib ? pkgs.lib,
   pkgs,
   ...
 }: let
   craneLib = inputs.crane.mkLib pkgs;
-  markdownFilter = path: type: (craneLib.filterCargoSources path type) || (pkgs.lib.hasSuffix ".md" path);
-  src = pkgs.lib.cleanSourceWith {
+  markdownFilter = path: type: (craneLib.filterCargoSources path type) || (lib.hasSuffix ".md" path);
+  src = lib.cleanSourceWith {
     filter = markdownFilter;
     src = craneLib.path ../..;
   };
