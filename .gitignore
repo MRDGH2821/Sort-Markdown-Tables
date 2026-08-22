@@ -1,4 +1,25 @@
+# AI
 # keep-sorted start
+.agents/mcp_config.json
+.agents/skills/
+.claude/skills/
+.cursor/mcp.json
+.cursor/skills
+.gemini/settings.json
+.github/skills
+.mcp.json
+.opencode/skills
+.vscode/mcp.json
+apm_modules/
+opencode.json
+# keep-sorted end
+
+# Env
+.env
+.env.*
+!.env.sample
+
+# Others
 *.local
 .DS_Store
 .devenv
@@ -7,6 +28,7 @@
 .pre-commit-config.yaml
 .svn
 .venv/
+.worktrees
 __MACOSX
 __pycache__
 _site/
@@ -18,21 +40,3 @@ result
 result-*
 site/
 target/
-# keep-sorted end
-
-# agents
-.agent/skills
-.agents/skills
-.cursor/skills
-.github/skills
-.mcp.json
-.opencode/skills
-.vscode/mcp.json
-/.agents/skills
-apm_modules/
-opencode.json
-
-# env files
-.env
-.env.*
-!.env.sample

@@ -1,9 +1,10 @@
 {
   inputs,
   pkgs,
+  flake,
   ...
 }: let
-  pre-commit-check = import ./checks/pre-commit-check.nix {inherit inputs pkgs;};
+  pre-commit-check = flake.checks.pre-commit-check;
   yqExe = pkgs.lib.getExe pkgs.yq;
   crossExe = pkgs.lib.getExe pkgs.cargo-cross;
   cross-build-all = pkgs.writeShellScriptBin "cross-build-all" ''
@@ -45,13 +46,31 @@
 in
   pkgs.mkShell {
     inherit (pre-commit-check) shellHook;
-    packages = [
+    packages = with pkgs; [
+      # keep-sorted start
+      jekyll
+      nil
+      nixd
+      act
+
+      bun
+      cocogitto
+      copier
+      git
+      git-credential-oauth
+      glab
+      lazygit
+      nil
+      nixd
+      repgrep
+      ripgrep
+      uv
+      # keep-sorted end
+    ]++[
+
       (import ./formatter.nix {inherit inputs pkgs;})
       cross-build-all
       cross-build-seq
-      pkgs.jekyll
-      pkgs.nil
-      pkgs.nixd
-      pkgs.act
+
     ];
   }

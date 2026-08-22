@@ -45,36 +45,6 @@
     };
     prettier = {
       enable = true;
-      excludes = [
-        # keep-sorted start
-        "*.*ignore"
-        "*.aac"
-        "*.docx"
-        "*.envrc"
-        "*.gitkeep"
-        "*.jinja"
-        "*.jpg"
-        "*.lock"
-        "*.md"
-        "*.mp4"
-        "*.nix"
-        "*.pdf"
-        "*.png"
-        "*.pptx"
-        "*.py"
-        "*.rs"
-        "*.sh"
-        "*.toml"
-        "*.txt"
-        "*.typ"
-        ".envrc"
-        "LICENCE"
-        "LICENSE"
-        "docs/**"
-        "justfile"
-        # keep-sorted end
-      ];
-      includes = ["*"];
       priority = 100;
     };
     ruff-check = {
@@ -93,13 +63,14 @@
     shfmt.enable = true;
     sort-markdown-tables = {
       enable = true;
+      priority = 3;
       excludes = [
-        "**/docs/**"
-        "**/openspec/**"
-        "docs/superpowers/**"
-        "openspec/**"
-        "tests/fixtures/**"
-      ];
+         "**/docs/**"
+         "**/openspec/**"
+         "docs/superpowers/**"
+         "openspec/**"
+         "tests/fixtures/**"
+       ];
     };
     sqlfluff.enable = true;
     sqlfluff-lint.enable = true;
@@ -114,10 +85,7 @@
       excludes = [
         # keep-sorted start
         "**/.cspell.json"
-        "**/.typos.toml"
-        ".agents/logs/**"
         ".cspell.json"
-        ".typos.toml"
         "CHANGELOG.md"
         # keep-sorted end
       ];

@@ -1,4 +1,5 @@
 {
+  flake,
   inputs,
   pkgs,
   ...
@@ -6,8 +7,9 @@
   treefmtEval = inputs.treefmt.lib.evalModule pkgs {
     imports = [
       (import ./treefmt-module.nix {inherit inputs;})
-      ./treefmt.nix
+      flake.modules.tools.treefmt
       inputs.pedantix.treefmtModules.default
+      inputs.smt.treefmtModules.default
     ];
   };
 in
@@ -15,6 +17,6 @@ in
     passthru =
       (old.passthru or {})
       // {
-        check = treefmtEval.config.build.check inputs.self;
+        check = treefmtEval.config.build.check flake;
       };
   })
