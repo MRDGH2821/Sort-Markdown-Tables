@@ -68,4 +68,8 @@ skills:
       repo: cli/cli@gh
     id: gh
     type: github
+  - def:
+      repo: nullswan/atomic-commits@atomic-commits
+    id: atomic-commits
+    type: github
 tools: []

@@ -1,7 +1,15 @@
 version: 1
 generator: capa@2.2.4
-generatedAt: '2026-10-11T20:42:48.761Z'
+generatedAt: '2026-10-11T21:21:59.323Z'
 skills:
+  - id: atomic-commits
+    source: github
+    repo: nullswan/atomic-commits
+    skillName: atomic-commits
+    requestedVersion: null
+    requestedRef: null
+    resolvedRef: b1428499726d0efd3b2c914e58a7279c707538e0
+    resolvedVersion: null
   - id: bootstrap
     source: github
     repo: infragate/capa
