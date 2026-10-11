@@ -12,9 +12,9 @@
     "**/node_modules/**",
     "**/openspec/**",
     "**/report/**",
+    "**/report/**",
     "**/tests/fixtures/**",
     "**/tests/perf/**",
-    "**/report/**",
     "template/**"
   ],
   "reporters": ["html", "markdown"],

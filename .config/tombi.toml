@@ -1,0 +1,10 @@
+[format.rules]
+line-width = 80
+
+[[schemas]]
+path = "https://docs.cocogitto.io/cog-schema.json"
+include = ["cog.toml"]
+
+[[schemas]]
+path = "https://schemastore.org/treefmt.json"
+include = ["treefmt.toml"]
