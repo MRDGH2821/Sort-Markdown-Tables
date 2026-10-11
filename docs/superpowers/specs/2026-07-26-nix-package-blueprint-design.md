@@ -1,7 +1,7 @@
 # Design Specification: Nix Package & App via Numtide Blueprint & Crane
 
-**Date**: 2026-07-26  
-**Status**: Approved  
+**Date**: 2026-07-26
+**Status**: Approved
 **Topic**: Adding Nix package derivation, app binary runnable, and cargo flake checks to `Sort-Markdown-Tables` via `numtide/blueprint` and `crane`.
 
 ---

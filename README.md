@@ -2,42 +2,20 @@
 
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/refs/heads/master/img/badge/black-badge.json)](https://github.com/copier-org/copier)
 
-A zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-in via `<!-- smt -->` HTML comments.
+## Contributing
 
-## Features
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, checks, and the contribution workflow.
 
-- **Opt-in sorting** — Only tables marked with `<!-- smt -->` are sorted
-- **Multiple sort modes** — Numeric, lexicographic (case-sensitive/insensitive), ascending/descending
-- **Atomic writes** — Two-phase pipeline ensures zero file modifications on any error
-- **Glob support** — Process multiple files with patterns like `docs/**/*.md`
-- **Recursive scan** — Scan directories automatically with `-r`
-- **Check mode** — Validate if files are sorted without modifying them
-- **In-place editing** — Modify files directly or output to stdout
+## Recommendations
 
-## Quick Start
+### Configuration directory
 
-```bash
-# Install
-cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
+If this project is a tool, CLI, or library that reads its own configuration,
+support resolving it from a project-level `.config/` directory
+(e.g. `.config/sort-markdown-tables.toml`) alongside
+any other locations you accept. It keeps consumers' repo roots tidy and follows
+an emerging cross-ecosystem convention:
 
-# Sort in-place
-smt -i README.md
-
-# Check (CI-friendly)
-smt --check README.md
-```
-
-## Documentation
-
-- [Installation](docs/installation.md) — cargo, pre-built binaries, Nix Flakes
-- [Usage](docs/usage.md) — CLI flags, table format, sort options, exit codes
-- [Integrations](docs/integrations.md) — pre-commit, git-hooks.nix, treefmt, CI/CD
-- [Architecture](docs/architecture.md) — pipeline, algorithm, module layout, dependencies
-
-## Licence
-
-See [LICENCE.txt](LICENCE.txt).
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md).
+- <https://github.com/numtide/prj-spec> — project directory specification
+- <https://dot-config.github.io/> — the `.config/` directory convention
+- <https://github.com/pi0/config-dir> — reference implementation for resolving it

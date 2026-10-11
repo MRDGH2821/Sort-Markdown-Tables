@@ -4,8 +4,8 @@
 
 This document lists all implementation tasks in hierarchical order, grouped by phase. Each task is an atomic unit completable in 1–3 hours with clear success criteria and explicit dependencies.
 
-**Total Tasks**: 21  
-**Estimated Effort**: 35–45 man-hours  
+**Total Tasks**: 21
+**Estimated Effort**: 35–45 man-hours
 **Critical Path**: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7
 
 ---
@@ -25,7 +25,7 @@ Initialize Cargo project, set up module structure, add all external dependencies
 - [x] Add dev-dependencies: `assert_cmd` (2.0+), `predicates` (3.0+)
 - [x] Verify `cargo check` compiles without errors (may have unused warnings, that's OK)
 
-**Dependencies**: None  
+**Dependencies**: None
 **Success Criteria**:
 
 - `Cargo.toml` exists with all required crates pinned to minimum versions
@@ -47,7 +47,7 @@ Initialize Cargo project, set up module structure, add all external dependencies
 - [x] Ensure `cargo build` compiles successfully (will have warnings about unused code, that's OK)
 - [x] Create `tests/` directory
 
-**Dependencies**: 1.1  
+**Dependencies**: 1.1
 **Success Criteria**:
 
 - All 5 source modules are declared in `main.rs`
@@ -71,7 +71,7 @@ Initialize Cargo project, set up module structure, add all external dependencies
 - [x] Create at least 2 template `.md` files: `simple.md` (basic table with smt comment), `unsorted.md` (table that needs sorting)
 - [x] Create corresponding `.expected.md` files with expected sorted output
 
-**Dependencies**: 1.2  
+**Dependencies**: 1.2
 **Success Criteria**:
 
 - Directory structure exists and `cargo test --test integration_test` runs (even if empty)
@@ -101,7 +101,7 @@ Implement error handling and command-line argument parsing with validation.
 - [x] Define `SourceLocation` type (wrapper around `Option<PathBuf>`)
 - [x] Write unit tests for each error variant message format and exit code
 
-**Dependencies**: 1.2  
+**Dependencies**: 1.2
 **Success Criteria**:
 
 - All 14+ error variants defined with clear messages
@@ -144,7 +144,7 @@ Implement error handling and command-line argument parsing with validation.
   - `-i` with stdin: error
 - [x] Write unit tests for all flag combinations, glob expansion, input detection
 
-**Dependencies**: 2.1  
+**Dependencies**: 2.1
 **Success Criteria**:
 
 - All flag parsing works correctly
@@ -173,7 +173,7 @@ Implement error handling and command-line argument parsing with validation.
 - [x] Test output target mapping: stdout, in-place, file, append
 - [x] Run `cargo test --lib error cli` and ensure 100% pass
 
-**Dependencies**: 2.2  
+**Dependencies**: 2.2
 **Success Criteria**:
 
 - [x] 20+ unit tests in `error.rs` and `cli.rs`
@@ -204,7 +204,7 @@ Implement markdown parsing with state machine, comment detection, table extracti
 - [x] Define `struct Table { start_line: usize, header: String, separator: String, rows: Vec<TableRow>, column_count: usize }`
 - [x] Define `struct TableRow { raw: String, cells: Vec<String> }`
 
-**Dependencies**: 1.2  
+**Dependencies**: 1.2
 **Success Criteria**:
 
 - All types defined and derive correct traits (Debug, Clone where needed)
@@ -243,7 +243,7 @@ Implement markdown parsing with state machine, comment detection, table extracti
   - Sort type options
   - Whitespace handling
 
-**Dependencies**: 3.1  
+**Dependencies**: 3.1
 **Success Criteria**:
 
 - `parse_comment()` correctly parses all valid option combinations
@@ -283,7 +283,7 @@ Implement markdown parsing with state machine, comment detection, table extracti
   - Malformed tables (missing separator, mismatched columns)
   - Lossless preservation of raw lines
 
-**Dependencies**: 3.2  
+**Dependencies**: 3.2
 **Success Criteria**:
 
 - `parse()` returns `Document` with correct block structure
@@ -311,7 +311,7 @@ Implement markdown parsing with state machine, comment detection, table extracti
 - [x] Test edge case: table at end of file (no trailing newline)
 - [x] Run `cargo test --lib parser` and ensure all pass
 
-**Dependencies**: 3.3  
+**Dependencies**: 3.3
 **Success Criteria**:
 
 - 25+ parser unit tests
@@ -345,7 +345,7 @@ Implement sorting logic with numeric/lexicographic comparators, stability guaran
   - Use `std::cmp::Ord` on `String`
 - [x] Write unit tests for all comparison scenarios
 
-**Dependencies**: 3.1  
+**Dependencies**: 3.1
 **Success Criteria**:
 
 - Comparators correctly handle numeric, lexicographic, case sensitivity
@@ -382,7 +382,7 @@ Implement sorting logic with numeric/lexicographic comparators, stability guaran
   - Direction handling (asc vs desc)
   - Numeric and lexicographic sorts
 
-**Dependencies**: 4.1  
+**Dependencies**: 4.1
 **Success Criteria**:
 
 - `sort_table()` and `sort_document()` work correctly
@@ -408,7 +408,7 @@ Implement sorting logic with numeric/lexicographic comparators, stability guaran
 - [x] Test `is_table_sorted()` for all scenarios
 - [x] Run `cargo test --lib sorter` and ensure all pass
 
-**Dependencies**: 4.2  
+**Dependencies**: 4.2
 **Success Criteria**:
 
 - 20+ sorter unit tests
@@ -443,7 +443,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
   - All I/O errors wrapped in `SmtError::Io`
 - [x] Write unit tests for rendering and output
 
-**Dependencies**: 3.1, 4.2  
+**Dependencies**: 3.1, 4.2
 **Success Criteria**:
 
 - `render()` produces valid markdown with sorted tables
@@ -472,7 +472,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
   - On Phase 2 error during write, original file is never corrupted
 - [x] Write unit tests for atomic write behavior
 
-**Dependencies**: 5.1  
+**Dependencies**: 5.1
 **Success Criteria**:
 
 - Atomic write successfully renames temp file
@@ -517,7 +517,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
   - Correct exit codes: 0 (success), 1 (check failed), 2 (user error)
 - [x] Write unit/integration tests for main pipeline
 
-**Dependencies**: 2.2, 3.3, 4.2, 5.1  
+**Dependencies**: 2.2, 3.3, 4.2, 5.1
 **Success Criteria**:
 
 - Two-phase pipeline works correctly
@@ -551,7 +551,7 @@ Implement output rendering and orchestration of the two-phase pipeline.
 - [x] Test atomicity: error in one file prevents all writes
 - [x] Run `cargo test --test integration_test` and ensure all pass
 
-**Dependencies**: 5.3  
+**Dependencies**: 5.3
 **Success Criteria**:
 
 - 15+ integration tests
@@ -595,7 +595,7 @@ Create comprehensive test fixtures and integration test suite.
 - [x] Comment syntax matches spec variants exercised in corpus and tests (e.g. `<!-- smt column=2 order=desc -->`)
 - [x] Fixtures use realistic sample data across the corpus
 
-**Dependencies**: 1.3  
+**Dependencies**: 1.3
 **Success Criteria**:
 
 - 14+ pairs of fixture files created
@@ -640,7 +640,7 @@ Create comprehensive test fixtures and integration test suite.
 - [x] Test: comment with column out of range → error message, exit 2
 - [x] Run `cargo test --test integration_test` and ensure all pass
 
-**Dependencies**: 6.1  
+**Dependencies**: 6.1
 **Success Criteria**:
 
 - 26+ integration tests
@@ -673,7 +673,7 @@ Create comprehensive test fixtures and integration test suite.
 - [x] Test: permission denied on file read → error, exit 2
 - [x] Test: permission denied on file write → error, exit 2
 
-**Dependencies**: 6.2  
+**Dependencies**: 6.2
 **Success Criteria**:
 
 - 14+ additional edge case tests
@@ -702,7 +702,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Ensure consistent error handling: all surfaced I/O goes through [`SmtError`] (`Io`, `FileNotFound`, `PermissionDenied`; writer uses `map_io_error`)
 - [x] Check string literals in user-facing surfaces — sampled `error` display strings and Clap meta; spelling checked by project tooling
 
-**Dependencies**: 6.3  
+**Dependencies**: 6.3
 **Success Criteria**:
 
 - `cargo fmt` produces no changes (already formatted)
@@ -728,7 +728,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Memory usage reasonable: tool loads each file wholly into RAM by design (`String`/`Vec`); no unbounded recursion; acceptable for document-sized inputs
 - [x] Test on both debug and release builds
 
-**Dependencies**: 7.1  
+**Dependencies**: 7.1
 **Success Criteria**:
 
 - Startup time <10ms
@@ -751,7 +751,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Check that all main code paths are tested _(parser/sorter/writer/main + broad integration suite; Windows omits Unix-only cases)_
 - [x] Run `cargo build --release` → compiles without warnings
 
-**Dependencies**: 7.2  
+**Dependencies**: 7.2
 **Success Criteria**:
 
 - All 50+ tests pass
@@ -774,7 +774,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Test: integration with actual pre-commit hook (if applicable) — repository carries `.pre-commit-config.yaml`; local hook wiring is contributor-specific rather than exercised in Rust tests
 - [x] Verify exit codes match spec: 0 (pass), 1 (check fail), 2 (error)
 
-**Dependencies**: 7.3  
+**Dependencies**: 7.3
 **Success Criteria**:
 
 - Pre-commit hook scenarios work correctly
@@ -798,7 +798,7 @@ Final checks, performance validation, and pre-commit hook testing.
 - [x] Create or update `CHANGELOG.md` (if required)
 - [x] Verify `cargo publish --dry-run` works (if publishing to crates.io)
 
-**Dependencies**: 7.4  
+**Dependencies**: 7.4
 **Success Criteria**:
 
 - Documentation complete and accurate
@@ -812,7 +812,7 @@ Final checks, performance validation, and pre-commit hook testing.
 ## Summary
 
 | Phase     | Tasks   | Description           | Est. Hours |
-|-----------|---------|-----------------------|------------|
+| --------- | ------- | --------------------- | ---------- |
 | 1         | 1.1–1.3 | Project Setup         | 1          |
 | 2         | 2.1–2.3 | Error & CLI           | 3          |
 | 3         | 3.1–3.4 | Parser                | 6.5        |
@@ -860,7 +860,7 @@ Final checks, performance validation, and pre-commit hook testing.
 
 ## Critical Dependencies
 
-```
+```text
 1.1 → 1.2 → 1.3
         ↓
       2.1 → 2.2 → 2.3

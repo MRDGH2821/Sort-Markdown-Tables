@@ -1,7 +1,7 @@
 # Design Specification: treefmt-nix Module Integration for Sort-Markdown-Tables
 
-**Date**: 2026-07-31  
-**Status**: Approved  
+**Date**: 2026-07-31
+**Status**: Approved
 **Topic**: Exporting a reusable `treefmt-nix` module (`treefmtModules.default` / `treefmtModules.sort-markdown-tables`) for `sort-markdown-tables` and updating local `treefmt` evaluation to consume it.
 
 ---
