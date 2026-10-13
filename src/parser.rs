@@ -154,31 +154,10 @@ pub fn parse_sort_options(
     // Step 1: Strip leading/trailing whitespace
     let trimmed = comment_text.trim();
 
-    // Step 2: Strip "`<!--" prefix and "-->`" suffix
-    let no_prefix = trimmed
+    let after_smt = trimmed
         .strip_prefix("<!--")
-        .ok_or_else(|| SmtError::InvalidOptionValue {
-            path: source_loc.clone(),
-            line: line_num,
-            key: "comment".to_string(),
-            value: comment_text.to_string(),
-            expected: "<!-- smt ... -->".to_string(),
-        })?
-        .trim();
-    let no_suffix = no_prefix
-        .strip_suffix("-->")
-        .ok_or_else(|| SmtError::InvalidOptionValue {
-            path: source_loc.clone(),
-            line: line_num,
-            key: "comment".to_string(),
-            value: comment_text.to_string(),
-            expected: "<!-- smt ... -->".to_string(),
-        })?
-        .trim();
-
-    // Step 3: Strip "smt" prefix
-    let after_smt = no_suffix
-        .strip_prefix("smt")
+        .and_then(|text| text.trim().strip_suffix("-->"))
+        .and_then(|text| text.trim().strip_prefix("smt"))
         .ok_or_else(|| SmtError::InvalidOptionValue {
             path: source_loc.clone(),
             line: line_num,
@@ -435,7 +414,32 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
     let mut table_rows = Vec::new();
     let mut table_start_line = 0;
     let mut previous_comment_line = 0;
-    for (line_num, &(line, line_ending)) in lines.iter().enumerate() {
+    // An empty EOF boundary closes the last table through the normal row-ending path.
+    for (line_num, (line, line_ending)) in lines
+        .iter()
+        .copied()
+        .chain(std::iter::once(("", None)))
+        .enumerate()
+    {
+        let at_eof = line_num == lines.len();
+        if at_eof {
+            match state {
+                ParserState::Normal => break,
+                ParserState::ExpectTable => {
+                    return Err(SmtError::CommentWithoutTable {
+                        path: source_loc,
+                        line: pending_comment_line_num,
+                    });
+                }
+                ParserState::ExpectSep => {
+                    return Err(SmtError::MalformedTable {
+                        path: source_loc,
+                        line: table_start_line,
+                    });
+                }
+                ParserState::ReadingRows => {}
+            }
+        }
         let line_num_1based = line_num + 1;
         match state {
             ParserState::Normal => {
@@ -515,7 +519,9 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                         &mut previous_comment_line,
                         &source_loc,
                     )?;
-                    current_plain_text.push(TextLine::from_parsed(line, line_ending));
+                    if !at_eof {
+                        current_plain_text.push(TextLine::from_parsed(line, line_ending));
+                    }
                     blank_lines_after_comment.clear();
                     state = ParserState::Normal;
                 }
@@ -523,46 +529,8 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
         }
     }
 
-    // Finalize any pending state
-    match state {
-        ParserState::Normal => {
-            if !current_plain_text.is_empty() {
-                blocks.push(Block::PlainText(current_plain_text));
-            }
-        }
-        ParserState::ExpectTable => {
-            // Error: comment without table at end of file
-            return Err(SmtError::CommentWithoutTable {
-                path: source_loc,
-                line: pending_comment_line_num,
-            });
-        }
-        ParserState::ExpectSep => {
-            // Error: malformed table at end of file
-            return Err(SmtError::MalformedTable {
-                path: source_loc,
-                line: table_start_line,
-            });
-        }
-        ParserState::ReadingRows => {
-            // End of table at EOF - finalize
-            finalize_table(
-                &mut blocks,
-                &mut current_plain_text,
-                TableContext {
-                    header: &table_header,
-                    separator: &table_separator,
-                    rows: &table_rows,
-                    comment_line: &pending_comment_line,
-                    comment_line_num: pending_comment_line_num,
-                    options: &pending_options,
-                    start_line: table_start_line,
-                    blank_lines_after_comment: &blank_lines_after_comment,
-                },
-                &mut previous_comment_line,
-                &source_loc,
-            )?;
-        }
+    if !current_plain_text.is_empty() {
+        blocks.push(Block::PlainText(current_plain_text));
     }
     Ok(Document {
         source,

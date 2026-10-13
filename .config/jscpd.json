@@ -16,6 +16,7 @@
     "**/openspec/**",
     "**/report/**",
     "**/superpowers/**",
+    "**/tests/**/*.rs",
     "**/tests/fixtures/**",
     "**/tests/perf/**",
     "*.lock",

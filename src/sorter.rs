@@ -168,6 +168,8 @@ pub fn is_table_sorted(table: &Table, options: &SortOptions) -> bool {
 }
 
 // # ============================================================================ UNIT TESTS
+// Independent test fixtures intentionally repeat setup.
+// jscpd:ignore-start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1044,3 +1046,4 @@ mod tests {
         assert_eq!(table.rows[1].cells[0], "5");
     }
 }
+// jscpd:ignore-end

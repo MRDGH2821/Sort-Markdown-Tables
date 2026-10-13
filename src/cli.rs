@@ -229,6 +229,8 @@ pub fn should_print_help_when_stdin_tty(input_source: &InputSource, stdin_is_tty
     matches!(input_source, InputSource::Stdin) && stdin_is_tty
 }
 
+// Independent test fixtures intentionally repeat setup.
+// jscpd:ignore-start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -590,3 +592,4 @@ mod tests {
         }
     }
 }
+// jscpd:ignore-end

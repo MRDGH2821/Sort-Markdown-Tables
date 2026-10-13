@@ -329,6 +329,8 @@ pub fn write_document(
 }
 
 // # ============================================================================ UNIT TESTS
+// Independent test fixtures intentionally repeat setup.
+// jscpd:ignore-start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -729,3 +731,4 @@ mod tests {
         assert!(result.is_err());
     }
 }
+// jscpd:ignore-end
