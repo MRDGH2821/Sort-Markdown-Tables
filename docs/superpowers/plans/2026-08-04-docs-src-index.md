@@ -26,7 +26,6 @@
 
 - Consumes: Current `main` branch state
 - Produces: Clean git working tree on new branch `docs/index-page`
-
 - [ ] **Step 1: Create and checkout new branch**
 
   ```bash
@@ -35,7 +34,7 @@
 
 git checkout -b docs/index-page
 
-````
+````text
 
 - [ ] **Step 2: Remove old root docs files from git index**
 
@@ -45,7 +44,7 @@ git checkout -b docs/index-page
 
 git rm --cached docs/architecture.md docs/installation.md docs/integrations.md docs/usage.md
 
-````
+````text
 
 - [ ] **Step 3: Verify git status**
 
@@ -55,7 +54,7 @@ git rm --cached docs/architecture.md docs/installation.md docs/integrations.md d
 
 git status
 
-````
+````text
 
 ---
 
@@ -77,13 +76,13 @@ git status
 
 ````
 
-# Sort Markdown Tables
+## Sort Markdown Tables
 
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/refs/heads/master/img/badge/black-badge.json)](https://github.com/copier-org/copier)
 
 A zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-in via `<!-- smt -->` HTML comments.
 
-## Features
+### Features
 
 - **Opt-in sorting** — Only tables marked with `<!-- smt -->` are sorted
 - **Multiple sort modes** — Numeric, lexicographic (case-sensitive/insensitive), ascending/descending
@@ -93,33 +92,28 @@ A zero-dependency Rust CLI tool to sort markdown tables. Tables are opted-in via
 - **Check mode** — Validate if files are sorted without modifying them
 - **In-place editing** — Modify files directly or output to stdout
 
-## Quick Start
+### Quick Start
 
-    ```bash
-
+```bash
 # Install
-
 cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
 
-# Sort in-place
-
+# Sort in place
 smt -i README.md
 
 # Check (CI-friendly)
-
 smt --check README.md
-`
-    `
+```
 
-## Licence
+### Licence
 
 See [LICENCE.txt](https://github.com/MRDGH2821/Sort-Markdown-Tables/blob/main/LICENCE.txt).
 
-## Changelog
+### Changelog
 
 See [CHANGELOG.md](https://github.com/MRDGH2821/Sort-Markdown-Tables/blob/main/CHANGELOG.md).
 
-````
+````text
 
 - [ ] **Step 2: Format files with `nix fmt`**
 
@@ -142,7 +136,7 @@ Expected: Clean formatting without errors.
 
 git add docs/src/ zensical.toml .github/workflows/docs.yml .gitignore nix/treefmt.nix
 
-````
+````text
 
 - [ ] **Step 2: Commit changes**
 
@@ -159,7 +153,7 @@ git commit -m "docs(smt): add index page in docs/src and setup zensical workflow
 
 Co-authored-by: Gemini 3.6 Flash via Antigravity <noreply@google.com>" --trailer="AI-Model: gemini-3.6-flash"
 
-````
+````text
 
 - [ ] **Step 3: Verify git log and working tree clean status**
 
@@ -169,6 +163,6 @@ Co-authored-by: Gemini 3.6 Flash via Antigravity <noreply@google.com>" --trailer
 
 git status && git log -n 1
 
-```
+```text
 
 ```

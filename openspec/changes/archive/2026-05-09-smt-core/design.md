@@ -215,6 +215,7 @@ pub struct CheckResult {
 **Implementation Details**:
 
 - **Rendering**:
+
   ```rust
   fn render(document: &Document) -> String {
       let mut output = String::new();
@@ -243,6 +244,7 @@ pub struct CheckResult {
       output
   }
   ```
+
 - **Write targets**:
   - `Stdout`: Print to stdout via `println!()`
   - `File { path, append }`: Write to file via `std::fs::write()` or `std::fs::OpenOptions::append()`
@@ -255,7 +257,7 @@ pub struct CheckResult {
 
 See `openspec/specs/smt/architecture.md` for the full diagram. Implementation follows strict two-phase design:
 
-```
+```text
 PHASE 1: Parse & Sort (All files)
   └─ Read all inputs (files or stdin)
   └─ For each input:
@@ -539,7 +541,7 @@ predicates = "3.0"
 
 **Directory structure**:
 
-```
+```text
 src/
 ├── main.rs      # Entry point, orchestrates pipeline
 ├── cli.rs       # CLI parsing & validation

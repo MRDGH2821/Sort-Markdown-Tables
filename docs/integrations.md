@@ -3,45 +3,45 @@ layout: default
 title: Integrations Guide
 ---
 
-# Integrations Guide
+## Integrations Guide
 
 Integrate `smt` into your development workflow, git hooks, formatters, and CI/CD pipelines.
 
 ---
 
-## 1. Pre-commit Framework
+### 1. Pre-commit Framework
 
 Add `smt` to your `.pre-commit-config.yaml`:
 
-### Auto-Fix Mode (`smt -i`)
+#### Auto-Fix Mode (`smt -i`)
 
 Automatically formats and sorts tables before every commit:
 
 ```yaml
 repos:
-  - repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
-    rev: v0.4.0 # Use latest release tag
-    hooks:
+  - hooks:
       - id: sort-markdown-tables
+    repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
+    rev: v0.4.0 # Use latest release tag
 ```
 
-### Check-Only Mode (`smt --check`)
+#### Check-Only Mode (`smt --check`)
 
 Prevents committing unsorted tables without modifying files:
 
 ```yaml
 repos:
-  - repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
-    rev: v0.4.0 # Use latest release tag
-    hooks:
+  - hooks:
       - id: sort-markdown-tables-check
+    repo: https://github.com/MRDGH2821/Sort-Markdown-Tables
+    rev: v0.4.0 # Use latest release tag
 ```
 
 ---
 
-## 2. Nix Flakes Integration
+### 2. Nix Flakes Integration
 
-### git-hooks.nix
+#### git-hooks.nix
 
 For [cachix/git-hooks.nix](https://github.com/cachix/git-hooks.nix) users, import the exported module in your `flake.nix`:
 
@@ -63,7 +63,7 @@ Then enable `sort-markdown-tables` in your git-hooks config:
 }
 ```
 
-### treefmt-nix
+#### treefmt-nix
 
 For [numtide/treefmt-nix](https://github.com/numtide/treefmt-nix) users, import the treefmt module:
 
@@ -80,19 +80,11 @@ For [numtide/treefmt-nix](https://github.com/numtide/treefmt-nix) users, import 
 
 ---
 
-## 3. GitHub Actions CI/CD Pipeline
+### 3. GitHub Actions CI/CD Pipeline
 
 Enforce sorted markdown tables on every pull request or push with GitHub Actions:
 
 ```yaml
-name: Verify Markdown Table Sorting
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
 jobs:
   check-tables:
     runs-on: ubuntu-latest
@@ -107,11 +99,19 @@ jobs:
 
       - name: Check markdown tables
         run: smt --check -r docs/ README.md
+
+name: Verify Markdown Table Sorting
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 ```
 
 ---
 
-## 4. Bulk Repository Formatting
+### 4. Bulk Repository Formatting
 
 Run `smt` across all markdown files in your project with a single command:
 

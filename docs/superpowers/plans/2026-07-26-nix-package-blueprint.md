@@ -28,7 +28,6 @@
 
 - Consumes: None
 - Produces: `inputs.crane` available to all `nix/` modules processed by `numtide/blueprint`
-
 - [ ] **Step 1: Update `flake.nix` to add `crane` input**
 
 Edit `flake.nix` to include:
@@ -72,7 +71,6 @@ git commit --trailer="Co-authored-by: Gemini 3.6 Flash via Antigravity CLI <nore
 
 - Consumes: `inputs.crane`, `pkgs`, `Cargo.toml`
 - Produces: `packages.${system}.Sort-Markdown-Tables` and `packages.${system}.default`
-
 - [ ] **Step 1: Create `nix/packages/Sort-Markdown-Tables.nix`**
 
 Create `nix/packages/Sort-Markdown-Tables.nix` with the following content:
@@ -139,7 +137,6 @@ git commit --trailer="Co-authored-by: Gemini 3.6 Flash via Antigravity CLI <nore
 
 - Consumes: `inputs.blueprint`, `perSystem.self.Sort-Markdown-Tables`
 - Produces: `apps.${system}.default`
-
 - [ ] **Step 1: Create `nix/apps/default.nix`**
 
 Create `nix/apps/default.nix` with the following content:
@@ -188,7 +185,6 @@ git commit --trailer="Co-authored-by: Gemini 3.6 Flash via Antigravity CLI <nore
 
 - Consumes: `inputs.crane`, `pkgs`, `Cargo.toml`
 - Produces: `checks.${system}.cargo-test` and `checks.${system}.cargo-clippy`
-
 - [ ] **Step 1: Create `nix/checks/cargo-test.nix`**
 
 Create `nix/checks/cargo-test.nix` with the following content:
