@@ -7,11 +7,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
         with:
           toolchain: stable
       - name: Set up mbx cache
-        uses: jdx/mr-boxington-action@9df1d4b18b2147788a7ee7a2c7b84ecf62fd89d3 # v1.5.0
+        uses: jdx/mr-boxington-action@47ce49b32025d93a7a2f4570815afaa2b7092240 # v1.7.2
         with:
           version: "1.20.0"
       - name: Build Debug
@@ -25,11 +25,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
         with:
           toolchain: stable
       - name: Set up mbx cache
-        uses: jdx/mr-boxington-action@9df1d4b18b2147788a7ee7a2c7b84ecf62fd89d3 # v1.5.0
+        uses: jdx/mr-boxington-action@47ce49b32025d93a7a2f4570815afaa2b7092240 # v1.7.2
         with:
           version: "1.20.0"
       - run: mbx clippy --all-targets --all-features -- -D warnings
@@ -40,11 +40,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
         with:
           toolchain: stable
       - name: Set up mbx cache
-        uses: jdx/mr-boxington-action@9df1d4b18b2147788a7ee7a2c7b84ecf62fd89d3 # v1.5.0
+        uses: jdx/mr-boxington-action@47ce49b32025d93a7a2f4570815afaa2b7092240 # v1.7.2
         with:
           version: "1.20.0"
       - name: Install tarpaulin
@@ -52,7 +52,7 @@ jobs:
       - name: Generate Coverage
         run: mbx tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
       - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           fail_ci_if_error: false
           files: ./cobertura.xml
@@ -63,11 +63,11 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9 # v1
+      - uses: dtolnay/rust-toolchain@e2a55d2ffb04f378e9626c28d38b36d230d1e12f # v1
         with:
           toolchain: stable
       - name: Set up mbx cache
-        uses: jdx/mr-boxington-action@9df1d4b18b2147788a7ee7a2c7b84ecf62fd89d3 # v1.5.0
+        uses: jdx/mr-boxington-action@47ce49b32025d93a7a2f4570815afaa2b7092240 # v1.7.2
         with:
           version: "1.20.0"
       - name: Run Tests
