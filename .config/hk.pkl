@@ -4,6 +4,9 @@ import "package://github.com/jdx/hk/releases/download/v2.5.0/hk@2.5.0#/Builtins.
 
 local linters = new Mapping<String, Step> {
   ["betterleaks"] = Builtins.betterleaks
+  ["cargo-check"] = Builtins.cargo_check
+  ["cargo-clippy"] = Builtins.cargo_clippy
+  ["cargo-fmt"] = Builtins.cargo_fmt
   ["check-merge-conflict"] = Builtins.check_merge_conflict
   ["check-placeholders"] {
     check =

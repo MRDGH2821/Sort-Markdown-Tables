@@ -13,10 +13,8 @@ use_git_credentials = true
 
 [tasks]
 ai-setup = "capa install --yes"
-check = ["hk check --all", "cog check"]
-clippy = "cargo clippy --all-targets --all-features -- -D warnings"
+check = ["hk check --all", "cog check", "cargo test --all-features"]
 prepare = ["bun install"]
-test = "cargo test --all-features"
 
 [tasks.format]
 alias = "fmt"
