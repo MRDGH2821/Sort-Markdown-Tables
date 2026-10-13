@@ -14,7 +14,9 @@ use_git_credentials = true
 [tasks]
 ai-setup = "capa install --yes"
 check = ["hk check --all", "cog check"]
+clippy = "cargo clippy --all-targets --all-features -- -D warnings"
 prepare = ["bun install"]
+test = "cargo test --all-features"
 
 [tasks.format]
 alias = "fmt"
@@ -46,6 +48,7 @@ oxfmt = "latest"
 pkl = "latest"
 ruff = "latest"
 rumdl = "latest"
+rust = { profile = "default", version = "stable" }
 tombi = "latest"
 typos = "latest"
 typstyle = "latest"

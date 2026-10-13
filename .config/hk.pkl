@@ -47,6 +47,8 @@ local linters = new Mapping<String, Step> {
   ["toml-sort"] {
     fix = "toml-sort --in-place --sort-table-keys --sort-inline-tables {{files}}"
     check = "toml-sort --check --sort-table-keys --sort-inline-tables {{files}}"
+    // Tombi applies Cargo schema order, which conflicts with toml-sort's generic sorting.
+    exclude = List("Cargo.toml")
     types = List("toml")
   }
   ["trailing-whitespace"] = Builtins.trailing_whitespace

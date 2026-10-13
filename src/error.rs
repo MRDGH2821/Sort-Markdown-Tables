@@ -74,10 +74,13 @@ pub enum SmtError {
     #[error("permission denied: {path}")]
     PermissionDenied { path: PathBuf },
     #[error("I/O error: {source}")]
-    Io {
-        #[from]
-        source: std::io::Error,
-    },
+    Io { source: std::io::Error },
+}
+
+impl From<std::io::Error> for SmtError {
+    fn from(source: std::io::Error) -> Self {
+        Self::Io { source }
+    }
 }
 
 impl SmtError {

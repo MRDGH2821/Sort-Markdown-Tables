@@ -3,15 +3,15 @@ layout: default
 title: Installation Guide
 ---
 
-# Installation Guide
+## Installation Guide
 
 `Sort Markdown Tables` (`smt`) is available via standard Rust tools, Nix Flakes, or pre-built release binaries.
 
 ---
 
-## Installation Methods
+### Installation Methods
 
-### Cargo (From Source)
+#### Cargo (From Source)
 
 Requirements: **Rust 1.70+**
 
@@ -25,7 +25,7 @@ Verify your installation:
 smt --version
 ```
 
-### Nix Flakes
+#### Nix Flakes
 
 Run directly without permanent installation:
 
@@ -44,7 +44,7 @@ inputs.smt = {
 
 Then include `inputs.smt.packages.${system}.default` in your `environment.systemPackages` or `devShells`.
 
-### Pre-built Binaries
+#### Pre-built Binaries
 
 Download pre-compiled binaries for Linux, macOS, or Windows directly from our Github Releases:
 
@@ -54,7 +54,17 @@ Download pre-compiled binaries for Linux, macOS, or Windows directly from our Gi
 
 ---
 
-## Troubleshooting
+### EditorConfig Line Endings
+
+When writing, `smt` uses the effective EditorConfig `end_of_line` setting for
+the path being written. `lf`, `crlf`, and `cr` override the input; when the
+setting is absent or `unset`, each input line's terminator is preserved.
+In-place writes and file input sent to stdout use the input path; `--write`
+uses its destination path. Stdin sent directly to stdout skips config lookup
+and preserves input terminators, with the existing final-newline behavior for
+unterminated input.
+
+### Troubleshooting
 
 > [!NOTE]
 > **PATH Configuration**: If running `smt` in your terminal outputs `command not found`, ensure `~/.cargo/bin` (for Cargo) or `~/.local/bin` (for manually downloaded binaries) is in your shell's `PATH` environment variable:

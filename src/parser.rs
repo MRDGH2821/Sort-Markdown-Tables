@@ -12,6 +12,7 @@ use std::path::PathBuf;
 pub struct Document {
     pub source: Option<PathBuf>,
     pub blocks: Vec<Block>,
+    /// Fallback when a line without a terminator must separate later output.
     pub line_ending: LineEnding,
     pub trailing_newline: bool,
 }
@@ -20,18 +21,51 @@ pub struct Document {
 pub enum LineEnding {
     Lf,
     CrLf,
+    Cr,
+}
+
+impl LineEnding {
+    pub(crate) fn as_str(self) -> &'static str {
+        match self {
+            Self::Lf => "\n",
+            Self::CrLf => "\r\n",
+            Self::Cr => "\r",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TextLine {
+    pub text: String,
+    pub line_ending: Option<LineEnding>,
+}
+
+impl TextLine {
+    pub fn new(text: impl Into<String>, line_ending: LineEnding) -> Self {
+        Self {
+            text: text.into(),
+            line_ending: Some(line_ending),
+        }
+    }
+
+    fn from_parsed(text: &str, line_ending: Option<LineEnding>) -> Self {
+        Self {
+            text: text.to_string(),
+            line_ending,
+        }
+    }
 }
 
 /// A block within the document
 #[derive(Debug, Clone)]
 pub enum Block {
-    PlainText(Vec<String>),
+    PlainText(Vec<TextLine>),
     SortedTable {
-        comment_line: String,
+        comment_line: TextLine,
         comment_line_number: usize,
         options: SortOptions,
         table: Table,
-        blank_lines_after_comment: Vec<String>,
+        blank_lines_after_comment: Vec<TextLine>,
     },
 }
 
@@ -77,8 +111,8 @@ pub enum SortType {
 #[derive(Debug, Clone)]
 pub struct Table {
     pub start_line: usize,
-    pub header: String,
-    pub separator: String,
+    pub header: TextLine,
+    pub separator: TextLine,
     pub rows: Vec<TableRow>,
     pub column_count: usize,
 }
@@ -86,7 +120,7 @@ pub struct Table {
 /// A single data row in a table
 #[derive(Debug, Clone)]
 pub struct TableRow {
-    pub raw: String,
+    pub raw: TextLine,
     pub cells: Vec<String>,
 }
 
@@ -346,69 +380,92 @@ enum ParserState {
     ReadingRows,
 }
 
+/// Split content into borrowed lines while retaining each original terminator.
+fn split_lines(content: &str) -> Vec<(&str, Option<LineEnding>)> {
+    let bytes = content.as_bytes();
+    let mut lines = Vec::new();
+    let mut line_start = 0;
+    let mut cursor = 0;
+
+    while cursor < bytes.len() {
+        let (next, line_ending) = match bytes[cursor] {
+            b'\n' => (Some(cursor + 1), Some(LineEnding::Lf)),
+            b'\r' if bytes.get(cursor + 1) == Some(&b'\n') => {
+                (Some(cursor + 2), Some(LineEnding::CrLf))
+            }
+            b'\r' => (Some(cursor + 1), Some(LineEnding::Cr)),
+            _ => (None, None),
+        };
+        if let (Some(next), Some(line_ending)) = (next, line_ending) {
+            lines.push((&content[line_start..cursor], Some(line_ending)));
+            line_start = next;
+            cursor = next;
+        } else {
+            cursor += 1;
+        }
+    }
+
+    if line_start < content.len() {
+        lines.push((&content[line_start..], None));
+    }
+    lines
+}
+
 /// Parse full markdown `content` into a [`Document`] with validated marked tables.
 ///
 /// `source` is used only for `{path}:{line}:` diagnostics.
 pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtError> {
     let source_loc = SourceLocation(source.clone());
-    let line_ending = if content.contains("\r\n") {
-        LineEnding::CrLf
-    } else {
-        LineEnding::Lf
-    };
-    let trailing_newline = content.ends_with('\n');
-    let lines: Vec<&str> = content.lines().collect();
+    let trailing_newline = content.ends_with('\n') || content.ends_with('\r');
+    let lines = split_lines(content);
+    let line_ending = lines
+        .iter()
+        .rev()
+        .find_map(|(_, line_ending)| *line_ending)
+        .unwrap_or(LineEnding::Lf);
     let mut blocks = Vec::new();
     let mut state = ParserState::Normal;
     let mut current_plain_text = Vec::new();
     let mut blank_lines_after_comment = Vec::new();
-    let mut pending_comment_line = String::new();
+    let mut pending_comment_line = TextLine::new("", LineEnding::Lf);
     let mut pending_comment_line_num = 0;
     let mut pending_options = SortOptions::default();
-    let mut table_header = String::new();
-    let mut table_separator = String::new();
+    let mut table_header = TextLine::new("", LineEnding::Lf);
+    let mut table_separator = TextLine::new("", LineEnding::Lf);
     let mut table_rows = Vec::new();
     let mut table_start_line = 0;
     let mut previous_comment_line = 0;
-    for (line_num, line) in lines.iter().enumerate() {
+    for (line_num, &(line, line_ending)) in lines.iter().enumerate() {
         let line_num_1based = line_num + 1;
         match state {
             ParserState::Normal => {
                 if is_smt_comment(line) {
-                    // Found an SMT comment - transition to ExpectTable
                     if !current_plain_text.is_empty() {
                         blocks.push(Block::PlainText(current_plain_text.clone()));
                         current_plain_text.clear();
                     }
-                    pending_comment_line = line.to_string();
+                    pending_comment_line = TextLine::from_parsed(line, line_ending);
                     pending_comment_line_num = line_num_1based;
-
-                    // Parse options from comment
                     pending_options = parse_sort_options(line, line_num_1based, source.clone())?;
                     state = ParserState::ExpectTable;
                 } else {
-                    // Regular line - add to plain text block
-                    current_plain_text.push(line.to_string());
+                    current_plain_text.push(TextLine::from_parsed(line, line_ending));
                 }
             }
             ParserState::ExpectTable => {
                 if is_empty_line(line) {
-                    // Blank line after comment - track it separately
-                    blank_lines_after_comment.push(line.to_string());
+                    blank_lines_after_comment.push(TextLine::from_parsed(line, line_ending));
                 } else if is_smt_comment(line) {
-                    // Two `<!-- smt -->` markers before any table rows (spec: duplicate comment).
                     return Err(SmtError::DuplicateComment {
                         path: source_loc.clone(),
                         line: line_num_1based,
                         previous_line: pending_comment_line_num,
                     });
                 } else if is_table_row(line) {
-                    // Found table header - transition to ExpectSep
-                    table_header = line.to_string();
+                    table_header = TextLine::from_parsed(line, line_ending);
                     table_start_line = line_num_1based;
                     state = ParserState::ExpectSep;
                 } else {
-                    // Error: comment followed by non-table, non-empty line
                     return Err(SmtError::CommentWithoutTable {
                         path: source_loc,
                         line: pending_comment_line_num,
@@ -417,12 +474,10 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
             }
             ParserState::ExpectSep => {
                 if is_separator_row(line) {
-                    // Found separator - transition to ReadingRows
-                    table_separator = line.to_string();
+                    table_separator = TextLine::from_parsed(line, line_ending);
                     table_rows.clear();
                     state = ParserState::ReadingRows;
                 } else {
-                    // Error: malformed table
                     return Err(SmtError::MalformedTable {
                         path: source_loc,
                         line: table_start_line,
@@ -431,9 +486,8 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
             }
             ParserState::ReadingRows => {
                 if is_table_row(line) {
-                    // Collect data row
                     let cells = extract_cells(line);
-                    let expected_col_count = extract_cells(&table_header).len();
+                    let expected_col_count = extract_cells(&table_header.text).len();
                     if cells.len() != expected_col_count {
                         return Err(SmtError::MalformedTable {
                             path: source_loc,
@@ -441,11 +495,10 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                         });
                     }
                     table_rows.push(TableRow {
-                        raw: line.to_string(),
+                        raw: TextLine::from_parsed(line, line_ending),
                         cells,
                     });
                 } else {
-                    // End of table - finalize and emit
                     finalize_table(
                         &mut blocks,
                         &mut current_plain_text,
@@ -462,7 +515,7 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
                         &mut previous_comment_line,
                         &source_loc,
                     )?;
-                    current_plain_text.push(line.to_string());
+                    current_plain_text.push(TextLine::from_parsed(line, line_ending));
                     blank_lines_after_comment.clear();
                     state = ParserState::Normal;
                 }
@@ -521,25 +574,25 @@ pub fn parse(content: &str, source: Option<PathBuf>) -> Result<Document, SmtErro
 
 /// Table finalization context
 struct TableContext<'a> {
-    header: &'a str,
-    separator: &'a str,
+    header: &'a TextLine,
+    separator: &'a TextLine,
     rows: &'a [TableRow],
-    comment_line: &'a str,
+    comment_line: &'a TextLine,
     comment_line_num: usize,
     options: &'a SortOptions,
     start_line: usize,
-    blank_lines_after_comment: &'a [String],
+    blank_lines_after_comment: &'a [TextLine],
 }
 
 /// Helper function to finalize a table block
 fn finalize_table(
     blocks: &mut Vec<Block>,
-    current_plain_text: &mut Vec<String>,
+    current_plain_text: &mut Vec<TextLine>,
     context: TableContext,
     previous_comment_line: &mut usize,
     source_loc: &SourceLocation,
 ) -> Result<(), SmtError> {
-    let header_cells = extract_cells(context.header);
+    let header_cells = extract_cells(&context.header.text);
     let column_count = header_cells.len();
 
     // Validate column is in range
@@ -553,13 +606,13 @@ fn finalize_table(
     }
     let table = Table {
         start_line: context.start_line,
-        header: context.header.to_string(),
-        separator: context.separator.to_string(),
+        header: context.header.clone(),
+        separator: context.separator.clone(),
         rows: context.rows.to_vec(),
         column_count,
     };
     blocks.push(Block::SortedTable {
-        comment_line: context.comment_line.to_string(),
+        comment_line: context.comment_line.clone(),
         comment_line_number: context.comment_line_num,
         options: context.options.clone(),
         table,
@@ -800,7 +853,7 @@ mod tests {
         let doc = parse(markdown, None).unwrap();
         match &doc.blocks[0] {
             Block::SortedTable { table, .. } => {
-                assert_eq!(table.rows[0].raw, "| Alice | 30 |");
+                assert_eq!(table.rows[0].raw.text, "| Alice | 30 |");
             }
             _ => panic!("Expected SortedTable"),
         }

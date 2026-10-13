@@ -15,6 +15,7 @@
 //! [`cli`], [`parser::parse`], [`sorter::sort_document`],
 //! [`writer::write_document`], [`error::SmtError`].
 pub mod cli;
+pub mod editorconfig;
 pub mod error;
 pub mod parser;
 pub mod sorter;
