@@ -213,14 +213,14 @@ pub fn is_table_sorted(table: &Table, options: &SortOptions) -> bool {
         .rows
         .iter()
         .zip(sorted_rows.iter())
-        .all(|(orig, sorted)| orig.raw == sorted.raw)
+        .all(|(orig, sorted)| orig.raw.text == sorted.raw.text)
 }
 
 // # ============================================================================ UNIT TESTS
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::LineEnding;
+    use crate::parser::{LineEnding, TextLine};
 
     // # ======================================================================== TASK 4.1: Comparator Tests
     //
@@ -336,19 +336,19 @@ mod tests {
     fn test_sort_table_numeric_ascending() {
         let mut table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
                 TableRow {
-                    raw: "| 20 |".to_string(),
+                    raw: TextLine::new("| 20 |", LineEnding::Lf),
                     cells: vec!["20".to_string()],
                 },
             ],
@@ -370,19 +370,19 @@ mod tests {
     fn test_sort_table_numeric_descending() {
         let mut table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
                 TableRow {
-                    raw: "| 20 |".to_string(),
+                    raw: TextLine::new("| 20 |", LineEnding::Lf),
                     cells: vec!["20".to_string()],
                 },
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
             ],
@@ -404,19 +404,19 @@ mod tests {
     fn test_sort_table_lexicographic_case_sensitive() {
         let mut table = Table {
             start_line: 1,
-            header: "| Name |".to_string(),
-            separator: "|------|".to_string(),
+            header: TextLine::new("| Name |", LineEnding::Lf),
+            separator: TextLine::new("|------|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| charlie |".to_string(),
+                    raw: TextLine::new("| charlie |", LineEnding::Lf),
                     cells: vec!["charlie".to_string()],
                 },
                 TableRow {
-                    raw: "| alice |".to_string(),
+                    raw: TextLine::new("| alice |", LineEnding::Lf),
                     cells: vec!["alice".to_string()],
                 },
                 TableRow {
-                    raw: "| bob |".to_string(),
+                    raw: TextLine::new("| bob |", LineEnding::Lf),
                     cells: vec!["bob".to_string()],
                 },
             ],
@@ -438,19 +438,19 @@ mod tests {
     fn test_sort_table_lexicographic_case_insensitive() {
         let mut table = Table {
             start_line: 1,
-            header: "| Name |".to_string(),
-            separator: "|------|".to_string(),
+            header: TextLine::new("| Name |", LineEnding::Lf),
+            separator: TextLine::new("|------|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| Charlie |".to_string(),
+                    raw: TextLine::new("| Charlie |", LineEnding::Lf),
                     cells: vec!["Charlie".to_string()],
                 },
                 TableRow {
-                    raw: "| alice |".to_string(),
+                    raw: TextLine::new("| alice |", LineEnding::Lf),
                     cells: vec!["alice".to_string()],
                 },
                 TableRow {
-                    raw: "| BOB |".to_string(),
+                    raw: TextLine::new("| BOB |", LineEnding::Lf),
                     cells: vec!["BOB".to_string()],
                 },
             ],
@@ -473,19 +473,19 @@ mod tests {
         // Sort by column 2 (second column)
         let mut table = Table {
             start_line: 1,
-            header: "| A | B |".to_string(),
-            separator: "|---|---|".to_string(),
+            header: TextLine::new("| A | B |", LineEnding::Lf),
+            separator: TextLine::new("|---|---|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| x | 20 |".to_string(),
+                    raw: TextLine::new("| x | 20 |", LineEnding::Lf),
                     cells: vec!["x".to_string(), "20".to_string()],
                 },
                 TableRow {
-                    raw: "| y | 10 |".to_string(),
+                    raw: TextLine::new("| y | 10 |", LineEnding::Lf),
                     cells: vec!["y".to_string(), "10".to_string()],
                 },
                 TableRow {
-                    raw: "| z | 5 |".to_string(),
+                    raw: TextLine::new("| z | 5 |", LineEnding::Lf),
                     cells: vec!["z".to_string(), "5".to_string()],
                 },
             ],
@@ -509,23 +509,23 @@ mod tests {
         // Create a table where multiple rows have the same sort key
         let mut table = Table {
             start_line: 1,
-            header: "| Val | Order |".to_string(),
-            separator: "|-----|-------|".to_string(),
+            header: TextLine::new("| Val | Order |", LineEnding::Lf),
+            separator: TextLine::new("|-----|-------|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 1 | first |".to_string(),
+                    raw: TextLine::new("| 1 | first |", LineEnding::Lf),
                     cells: vec!["1".to_string(), "first".to_string()],
                 },
                 TableRow {
-                    raw: "| 1 | second |".to_string(),
+                    raw: TextLine::new("| 1 | second |", LineEnding::Lf),
                     cells: vec!["1".to_string(), "second".to_string()],
                 },
                 TableRow {
-                    raw: "| 2 | third |".to_string(),
+                    raw: TextLine::new("| 2 | third |", LineEnding::Lf),
                     cells: vec!["2".to_string(), "third".to_string()],
                 },
                 TableRow {
-                    raw: "| 1 | fourth |".to_string(),
+                    raw: TextLine::new("| 1 | fourth |", LineEnding::Lf),
                     cells: vec!["1".to_string(), "fourth".to_string()],
                 },
             ],
@@ -551,7 +551,7 @@ mod tests {
         let mut doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
+                comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                 comment_line_number: 1,
                 options: SortOptions {
                     column: 1,
@@ -561,15 +561,15 @@ mod tests {
                 },
                 table: Table {
                     start_line: 2,
-                    header: "| Col |".to_string(),
-                    separator: "|-----|".to_string(),
+                    header: TextLine::new("| Col |", LineEnding::Lf),
+                    separator: TextLine::new("|-----|", LineEnding::Lf),
                     rows: vec![
                         TableRow {
-                            raw: "| 10 |".to_string(),
+                            raw: TextLine::new("| 10 |", LineEnding::Lf),
                             cells: vec!["10".to_string()],
                         },
                         TableRow {
-                            raw: "| 5 |".to_string(),
+                            raw: TextLine::new("| 5 |", LineEnding::Lf),
                             cells: vec!["5".to_string()],
                         },
                     ],
@@ -595,7 +595,7 @@ mod tests {
             source: None,
             blocks: vec![
                 Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                     comment_line_number: 1,
                     options: SortOptions {
                         column: 1,
@@ -605,15 +605,15 @@ mod tests {
                     },
                     table: Table {
                         start_line: 2,
-                        header: "| Col |".to_string(),
-                        separator: "|-----|".to_string(),
+                        header: TextLine::new("| Col |", LineEnding::Lf),
+                        separator: TextLine::new("|-----|", LineEnding::Lf),
                         rows: vec![
                             TableRow {
-                                raw: "| 10 |".to_string(),
+                                raw: TextLine::new("| 10 |", LineEnding::Lf),
                                 cells: vec!["10".to_string()],
                             },
                             TableRow {
-                                raw: "| 5 |".to_string(),
+                                raw: TextLine::new("| 5 |", LineEnding::Lf),
                                 cells: vec!["5".to_string()],
                             },
                         ],
@@ -622,7 +622,7 @@ mod tests {
                     blank_lines_after_comment: Vec::new(),
                 },
                 Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                     comment_line_number: 10,
                     options: SortOptions {
                         column: 1,
@@ -632,15 +632,15 @@ mod tests {
                     },
                     table: Table {
                         start_line: 11,
-                        header: "| Name |".to_string(),
-                        separator: "|------|".to_string(),
+                        header: TextLine::new("| Name |", LineEnding::Lf),
+                        separator: TextLine::new("|------|", LineEnding::Lf),
                         rows: vec![
                             TableRow {
-                                raw: "| charlie |".to_string(),
+                                raw: TextLine::new("| charlie |", LineEnding::Lf),
                                 cells: vec!["charlie".to_string()],
                             },
                             TableRow {
-                                raw: "| alice |".to_string(),
+                                raw: TextLine::new("| alice |", LineEnding::Lf),
                                 cells: vec!["alice".to_string()],
                             },
                         ],
@@ -672,19 +672,19 @@ mod tests {
     fn test_is_table_sorted_already_sorted() {
         let table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| 20 |".to_string(),
+                    raw: TextLine::new("| 20 |", LineEnding::Lf),
                     cells: vec!["20".to_string()],
                 },
             ],
@@ -703,19 +703,19 @@ mod tests {
     fn test_is_table_sorted_unsorted() {
         let table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
                 TableRow {
-                    raw: "| 20 |".to_string(),
+                    raw: TextLine::new("| 20 |", LineEnding::Lf),
                     cells: vec!["20".to_string()],
                 },
             ],
@@ -734,19 +734,19 @@ mod tests {
     fn test_is_table_sorted_descending() {
         let table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 20 |".to_string(),
+                    raw: TextLine::new("| 20 |", LineEnding::Lf),
                     cells: vec!["20".to_string()],
                 },
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
             ],
@@ -765,10 +765,10 @@ mod tests {
     fn test_is_table_sorted_single_row() {
         let table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![TableRow {
-                raw: "| 5 |".to_string(),
+                raw: TextLine::new("| 5 |", LineEnding::Lf),
                 cells: vec!["5".to_string()],
             }],
             column_count: 1,
@@ -786,8 +786,8 @@ mod tests {
     fn test_is_table_sorted_empty_table() {
         let table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![],
             column_count: 1,
         };
@@ -804,19 +804,19 @@ mod tests {
     fn test_is_table_sorted_case_insensitive() {
         let table = Table {
             start_line: 1,
-            header: "| Name |".to_string(),
-            separator: "|------|".to_string(),
+            header: TextLine::new("| Name |", LineEnding::Lf),
+            separator: TextLine::new("|------|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| alice |".to_string(),
+                    raw: TextLine::new("| alice |", LineEnding::Lf),
                     cells: vec!["alice".to_string()],
                 },
                 TableRow {
-                    raw: "| BOB |".to_string(),
+                    raw: TextLine::new("| BOB |", LineEnding::Lf),
                     cells: vec!["BOB".to_string()],
                 },
                 TableRow {
-                    raw: "| Charlie |".to_string(),
+                    raw: TextLine::new("| Charlie |", LineEnding::Lf),
                     cells: vec!["Charlie".to_string()],
                 },
             ],
@@ -835,19 +835,19 @@ mod tests {
     fn test_sort_table_floats() {
         let mut table = Table {
             start_line: 1,
-            header: "| Value |".to_string(),
-            separator: "|-------|".to_string(),
+            header: TextLine::new("| Value |", LineEnding::Lf),
+            separator: TextLine::new("|-------|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 3.14 |".to_string(),
+                    raw: TextLine::new("| 3.14 |", LineEnding::Lf),
                     cells: vec!["3.14".to_string()],
                 },
                 TableRow {
-                    raw: "| 1.41 |".to_string(),
+                    raw: TextLine::new("| 1.41 |", LineEnding::Lf),
                     cells: vec!["1.41".to_string()],
                 },
                 TableRow {
-                    raw: "| 2.71 |".to_string(),
+                    raw: TextLine::new("| 2.71 |", LineEnding::Lf),
                     cells: vec!["2.71".to_string()],
                 },
             ],
@@ -869,19 +869,19 @@ mod tests {
     fn test_sort_table_negative_numbers() {
         let mut table = Table {
             start_line: 1,
-            header: "| Num |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Num |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| -5 |".to_string(),
+                    raw: TextLine::new("| -5 |", LineEnding::Lf),
                     cells: vec!["-5".to_string()],
                 },
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| -20 |".to_string(),
+                    raw: TextLine::new("| -20 |", LineEnding::Lf),
                     cells: vec!["-20".to_string()],
                 },
             ],
@@ -903,23 +903,23 @@ mod tests {
     fn test_sort_table_mixed_numeric_non_numeric() {
         let mut table = Table {
             start_line: 1,
-            header: "| Val |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Val |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| apple |".to_string(),
+                    raw: TextLine::new("| apple |", LineEnding::Lf),
                     cells: vec!["apple".to_string()],
                 },
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
                 TableRow {
-                    raw: "| banana |".to_string(),
+                    raw: TextLine::new("| banana |", LineEnding::Lf),
                     cells: vec!["banana".to_string()],
                 },
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
             ],
@@ -946,19 +946,19 @@ mod tests {
     fn test_sort_table_with_whitespace_cells() {
         let mut table = Table {
             start_line: 1,
-            header: "| Name |".to_string(),
-            separator: "|------|".to_string(),
+            header: TextLine::new("| Name |", LineEnding::Lf),
+            separator: TextLine::new("|------|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "|charlie|".to_string(),
+                    raw: TextLine::new("|charlie|", LineEnding::Lf),
                     cells: vec!["charlie".to_string()],
                 },
                 TableRow {
-                    raw: "|alice|".to_string(),
+                    raw: TextLine::new("|alice|", LineEnding::Lf),
                     cells: vec!["alice".to_string()],
                 },
                 TableRow {
-                    raw: "|bob|".to_string(),
+                    raw: TextLine::new("|bob|", LineEnding::Lf),
                     cells: vec!["bob".to_string()],
                 },
             ],
@@ -982,19 +982,19 @@ mod tests {
     fn test_sort_three_column_table_by_second_column() {
         let mut table = Table {
             start_line: 1,
-            header: "| A | B | C |".to_string(),
-            separator: "|---|---|---|".to_string(),
+            header: TextLine::new("| A | B | C |", LineEnding::Lf),
+            separator: TextLine::new("|---|---|---|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 1 | 30 | x |".to_string(),
+                    raw: TextLine::new("| 1 | 30 | x |", LineEnding::Lf),
                     cells: vec!["1".to_string(), "30".to_string(), "x".to_string()],
                 },
                 TableRow {
-                    raw: "| 2 | 10 | y |".to_string(),
+                    raw: TextLine::new("| 2 | 10 | y |", LineEnding::Lf),
                     cells: vec!["2".to_string(), "10".to_string(), "y".to_string()],
                 },
                 TableRow {
-                    raw: "| 3 | 20 | z |".to_string(),
+                    raw: TextLine::new("| 3 | 20 | z |", LineEnding::Lf),
                     cells: vec!["3".to_string(), "20".to_string(), "z".to_string()],
                 },
             ],
@@ -1016,15 +1016,15 @@ mod tests {
     fn test_sort_preserves_raw_column() {
         let mut table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
             ],
@@ -1039,8 +1039,8 @@ mod tests {
         sort_table(&mut table, &options).unwrap();
 
         // Raw strings should be preserved (not modified)
-        assert_eq!(table.rows[0].raw, "| 5 |");
-        assert_eq!(table.rows[1].raw, "| 10 |");
+        assert_eq!(table.rows[0].raw.text, "| 5 |");
+        assert_eq!(table.rows[1].raw.text, "| 10 |");
     }
 
     #[test]
@@ -1057,15 +1057,15 @@ mod tests {
     fn test_is_table_sorted_does_not_modify_original() {
         let table = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "|-----|".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("|-----|", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 10 |".to_string(),
+                    raw: TextLine::new("| 10 |", LineEnding::Lf),
                     cells: vec!["10".to_string()],
                 },
                 TableRow {
-                    raw: "| 5 |".to_string(),
+                    raw: TextLine::new("| 5 |", LineEnding::Lf),
                     cells: vec!["5".to_string()],
                 },
             ],

@@ -94,6 +94,9 @@ Find application test and build commands in `README.md`, `mise.toml`, or the
 project's dependency manifests. Run the commands that cover your change.
 The scaffold's `check` task covers shared tooling. It does not define application tests.
 
+Run `mise run test` and `mise run clippy` for the Rust test suite and Clippy
+checks.
+
 For a behavior change, add or update tests when a test suite exists.
 If no relevant test command exists, describe how you tested the behavior directly.
 Keep this guide current as the project adds setup steps, tests, or build commands.

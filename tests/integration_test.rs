@@ -406,6 +406,223 @@ fn test_stdin_with_write_targets_file() {
     let got = fs::read_to_string(&out).expect("Failed to read output");
     assert_eq!(got, expected);
 }
+#[test]
+fn editorconfig_eol_applies_to_write_destination_from_stdin() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let output = tmp_dir.path().join("out.md");
+    fs::write(
+        tmp_dir.path().join(".editorconfig"),
+        "root = true\n\n[out.md]\nend_of_line = cr\n",
+    )
+    .expect("Failed to write EditorConfig");
+    let input = "<!-- smt -->\n| A |\n| - |\n| 2 |\n| 1 |\n";
+    let expected = "<!-- smt -->\r| A |\r| - |\r| 1 |\r| 2 |";
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.write_stdin(input)
+        .arg("-w")
+        .arg(&output)
+        .assert()
+        .success();
+
+    assert_eq!(
+        fs::read(output).expect("Failed to read output"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn inplace_sort_preserves_mixed_line_endings_per_line() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("mixed.md");
+    fs::write(tmp_dir.path().join(".editorconfig"), "root = true\n")
+        .expect("Failed to write EditorConfig");
+    fs::write(&file, "<!-- smt -->\r\n| A |\n| - |\r| 2 |\n| 1 |\r\nTail")
+        .expect("Failed to write mixed-ending input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&file).assert().success();
+
+    let expected = "<!-- smt -->\r\n| A |\n| - |\r| 1 |\r\n| 2 |\nTail";
+    assert_eq!(
+        fs::read(file).expect("Failed to read sorted file"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn editorconfig_eol_for_file_input_to_stdout_uses_input_path() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let input_file = tmp_dir.path().join("input.md");
+    fs::write(
+        tmp_dir.path().join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = crlf\n",
+    )
+    .expect("Failed to write EditorConfig");
+    fs::write(&input_file, "<!-- smt -->\n| A |\n| - |\n| 2 |\n| 1 |\n")
+        .expect("Failed to write input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd
+        .arg(&input_file)
+        .output()
+        .expect("Failed to run command");
+
+    assert!(output.status.success());
+    let expected = "<!-- smt -->\r\n| A |\r\n| - |\r\n| 1 |\r\n| 2 |\r\n";
+    assert_eq!(output.stdout, expected.as_bytes());
+}
+
+#[test]
+fn editorconfig_eol_for_file_write_uses_destination_not_input_path() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let input_dir = tmp_dir.path().join("input");
+    let output_dir = tmp_dir.path().join("output");
+    fs::create_dir_all(&input_dir).expect("Failed to create input directory");
+    fs::create_dir_all(&output_dir).expect("Failed to create output directory");
+    fs::write(
+        input_dir.join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = cr\n",
+    )
+    .expect("Failed to write input EditorConfig");
+    fs::write(
+        output_dir.join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = crlf\n",
+    )
+    .expect("Failed to write output EditorConfig");
+    let input_file = input_dir.join("input.md");
+    let output_file = output_dir.join("output.md");
+    fs::write(&input_file, "<!-- smt -->\n| A |\n| - |\n| 2 |\n| 1 |\n")
+        .expect("Failed to write input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg(&input_file)
+        .arg("-w")
+        .arg(&output_file)
+        .assert()
+        .success();
+
+    let expected = "<!-- smt -->\r\n| A |\r\n| - |\r\n| 1 |\r\n| 2 |";
+    assert_eq!(
+        fs::read(output_file).expect("Failed to read output"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn editorconfig_unset_preserves_mixed_line_endings() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let nested = tmp_dir.path().join("nested");
+    fs::create_dir(&nested).expect("Failed to create nested directory");
+    fs::write(
+        tmp_dir.path().join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = crlf\n",
+    )
+    .expect("Failed to write ancestor EditorConfig");
+    fs::write(
+        nested.join(".editorconfig"),
+        "[*.md]\nend_of_line = unset\n",
+    )
+    .expect("Failed to write nested EditorConfig");
+    let file = nested.join("mixed.md");
+    fs::write(&file, "<!-- smt -->\r\n| A |\n| - |\r| 2 |\n| 1 |\r\nTail")
+        .expect("Failed to write mixed-ending input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&file).assert().success();
+
+    let expected = "<!-- smt -->\r\n| A |\n| - |\r| 1 |\r\n| 2 |\nTail";
+    assert_eq!(
+        fs::read(file).expect("Failed to read sorted file"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn editorconfig_root_true_stops_parent_lookup() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let nested = tmp_dir.path().join("nested");
+    fs::create_dir(&nested).expect("Failed to create nested directory");
+    fs::write(
+        tmp_dir.path().join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = crlf\n",
+    )
+    .expect("Failed to write ancestor EditorConfig");
+    fs::write(nested.join(".editorconfig"), "root = true\n")
+        .expect("Failed to write nested EditorConfig");
+    let file = nested.join("input.md");
+    fs::write(
+        &file,
+        "<!-- smt -->\r\n| A |\n| - |\r\n| 2 |\n| 1 |\r\nTail",
+    )
+    .expect("Failed to write mixed-ending input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&file).assert().success();
+
+    let expected = "<!-- smt -->\r\n| A |\n| - |\r\n| 1 |\r\n| 2 |\nTail";
+    assert_eq!(
+        fs::read(file).expect("Failed to read sorted file"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn editorconfig_lookup_continues_above_git_worktree_root() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    fs::write(
+        tmp_dir.path().join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = cr\n",
+    )
+    .expect("Failed to write ancestor EditorConfig");
+    let worktree = tmp_dir.path().join("worktree");
+    fs::create_dir(&worktree).expect("Failed to create worktree directory");
+    let git_init = std::process::Command::new("git")
+        .args(["init", "--quiet"])
+        .current_dir(&worktree)
+        .status()
+        .expect("Failed to initialize test worktree");
+    assert!(git_init.success(), "git init should succeed");
+    let file = worktree.join("input.md");
+    fs::write(&file, "<!-- smt -->\n| A |\n| - |\n| 2 |\n| 1 |\n").expect("Failed to write input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&file).assert().success();
+
+    let expected = "<!-- smt -->\r| A |\r| - |\r| 1 |\r| 2 |";
+    assert_eq!(
+        fs::read(file).expect("Failed to read sorted file"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn editorconfig_lf_overrides_cr_only_input() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("cr.md");
+    fs::write(
+        tmp_dir.path().join(".editorconfig"),
+        "root = true\n\n[*.md]\nend_of_line = lf\n",
+    )
+    .expect("Failed to write EditorConfig");
+    fs::write(&file, "<!-- smt -->\r| A |\r| - |\r| 2 |\r| 1 |")
+        .expect("Failed to write CR-only input");
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&file).assert().success();
+
+    let expected = "<!-- smt -->\n| A |\n| - |\n| 1 |\n| 2 |";
+    assert_eq!(
+        fs::read(file).expect("Failed to read sorted file"),
+        expected.as_bytes()
+    );
+}
+
+#[test]
+fn stdin_to_stdout_preserves_mixed_endings_without_path_resolution() {
+    let input = "<!-- smt -->\r\n| A |\n| - |\r| 2 |\n| 1 |\r\nTail";
+    let expected = "<!-- smt -->\r\n| A |\n| - |\r| 1 |\r\n| 2 |\nTail\n";
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    let output = cmd
+        .write_stdin(input)
+        .output()
+        .expect("Failed to run command");
+
+    assert!(output.status.success());
+    assert_eq!(output.stdout, expected.as_bytes());
+}
 
 #[test]
 fn test_stable_sort_preserves_order_of_equal_keys() {

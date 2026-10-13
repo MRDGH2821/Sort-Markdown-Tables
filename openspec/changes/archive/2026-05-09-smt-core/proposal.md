@@ -2,7 +2,8 @@
 
 ## Intent
 
-Implement the complete `smt` CLI tool from scratch, a Rust-based markdown table sorting utility designed for CI pipelines and pre-commit hooks. The tool will parse markdown files, identify tables preceded by `<!-- smt -->` comments, sort them according to specified options (column, direction, case sensitivity, numeric/lexicographic), and output results to stdout, files, or in-place with guaranteed atomicity.
+Implement the complete `smt` CLI tool from scratch, a Rust-based Markdown table sorting utility for CI pipelines and pre-commit hooks.
+It parses files, finds tables preceded by `<!-- smt -->`, sorts by column, direction, case sensitivity, and numeric or lexicographic comparison, then writes to stdout, files, or in-place with guaranteed atomicity.
 
 This change’s proposal/spec/design are migrated from the canonical specs in `openspec/specs/smt/plan.md` and `openspec/specs/smt/architecture.md` (the OpenSpec artifacts should be treated as the source of truth going forward).
 
@@ -88,7 +89,7 @@ This change’s proposal/spec/design are migrated from the canonical specs in `o
 ## Affected Areas
 
 | Area              | Impact   | Description                                                           |
-|-------------------|----------|-----------------------------------------------------------------------|
+| ----------------- | -------- | --------------------------------------------------------------------- |
 | `src/error.rs`    | New      | Custom error enum with thiserror, all error variants for CLI/parse/IO |
 | `src/cli.rs`      | New      | Clap-based argument parser with flag validation and glob expansion    |
 | `src/parser.rs`   | New      | Markdown parser with state machine, comment detection, option parsing |
@@ -101,7 +102,7 @@ This change’s proposal/spec/design are migrated from the canonical specs in `o
 ## Risks
 
 | Risk                                                          | Likelihood | Mitigation                                                                                                            |
-|---------------------------------------------------------------|------------|-----------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------- |
 | Atomicity violation (partial file writes on error)            | Medium     | Two-phase implementation with in-memory result collection before any writes. Comprehensive error handling in Phase 1. |
 | Performance regression (slow parsing for large files)         | Low        | Single-pass line-by-line parser, no regex, no unnecessary allocations. Benchmarking in integration tests.             |
 | Glob expansion edge cases (empty matches, special characters) | Low        | Use standard `glob` crate; validate and error on zero matches. Test with fixtures.                                    |

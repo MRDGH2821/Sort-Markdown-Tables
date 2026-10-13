@@ -12,7 +12,8 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ### 2.1 Comment Syntax & Parsing
 
-**Requirement**: Tables MUST be opted-in for sorting by placing an `<!-- smt -->` HTML comment on the line **immediately** preceding the table header (with no blank lines between). The comment MUST match the pattern `<!-- smt [key=value ...] -->` with optional whitespace around the comment content. Unknown option keys or invalid values MUST produce an error with exit code 2. All options not specified in the comment MUST default to: `column=1, order=asc, case=sensitive, type=numeric`.
+**Requirement**: Tables MUST be opted in with an `<!-- smt -->` HTML comment immediately before the table header, with no blank lines. The comment MUST match `<!-- smt [key=value ...] -->` with optional whitespace around its content.
+Unknown option keys or invalid values MUST produce exit code 2. Unspecified options default to `column=1, order=asc, case=sensitive, type=numeric`.
 
 #### Scenarios
 
@@ -22,7 +23,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 <!-- smt -->
 
 | Name | Age |
-|------|-----|
+| ---- | --- |
 | Bob  | 30  |
 ```
 
@@ -72,32 +73,33 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ### 2.2 Sorting Behavior
 
-**Requirement**: Only data rows (rows after the header and separator) SHALL be sorted. Header and separator rows MUST remain pinned at the top of each table. The sort MUST be stable (equal rows preserve their original relative order). Numeric sort MUST parse cell content as `f64`; non-numeric cells MUST sort after numeric cells. Lexicographic sort MUST respect case sensitivity per the `case` option. The sort direction (`asc` or `desc`) MUST be honored.
+**Requirement**: Only data rows after the header and separator SHALL be sorted; header and separator MUST stay pinned. Sorting MUST be stable, so equal rows keep their order.
+Numeric sort MUST parse cells as `f64` and put non-numeric cells after numeric cells. Lexicographic sort MUST honor `case`; the sort direction (`asc` or `desc`) MUST be honored.
 
 #### Scenarios
 
 **Given** a table with a header, separator, and 5 data rows with `<!-- smt column=2 -->`:
 
 ```markdown
-| ID | Name  |
-|----|-------|
-| 3  | Bob   |
-| 1  | Alice |
-| 2  | Carol |
-| 1  | David |
-| 4  | Eve   |
+| ID  | Name  |
+| --- | ----- |
+| 3   | Bob   |
+| 1   | Alice |
+| 2   | Carol |
+| 1   | David |
+| 4   | Eve   |
 ```
 
 **When** sorted by column 2 (Name) in ascending order, **Then** only the data rows reorder (header and separator stay at top):
 
 ```markdown
-| ID | Name  |
-|----|-------|
-| 1  | Alice |
-| 3  | Bob   |
-| 2  | Carol |
-| 1  | David |
-| 4  | Eve   |
+| ID  | Name  |
+| --- | ----- |
+| 1   | Alice |
+| 3   | Bob   |
+| 2   | Carol |
+| 1   | David |
+| 4   | Eve   |
 ```
 
 ---
@@ -113,7 +115,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 <!-- smt type=numeric -->
 
 | Rank | Score |
-|------|-------|
+| ---- | ----- |
 | 2    | apple |
 | 1    | 95    |
 | 3    | 87    |
@@ -124,7 +126,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Rank | Score |
-|------|-------|
+| ---- | ----- |
 | 3    | 87    |
 | 1    | 95    |
 | 2    | apple |
@@ -137,7 +139,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Word   |
-|--------|
+| ------ |
 | Zebra  |
 | apple  |
 | Banana |
@@ -147,7 +149,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Word   |
-|--------|
+| ------ |
 | apple  |
 | Banana |
 | Zebra  |
@@ -159,7 +161,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Value |
-|-------|
+| ----- |
 | 10    |
 | 5     |
 | 20    |
@@ -169,7 +171,7 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ```markdown
 | Value |
-|-------|
+| ----- |
 | 20    |
 | 10    |
 | 5     |
@@ -194,7 +196,8 @@ This spec is migrated from (and should fully replace) the canonical specs in `op
 
 ### 2.3 CLI Interface & Flags
 
-**Requirement**: The CLI SHALL accept zero or more positional arguments (file paths or glob patterns), with flags for in-place sorting (`-i`), writing to a specific file (`-w`), appending (`--append`), checking if sorted (`--check`), and verbose output (`--verbose`). When no positional arguments are given and stdin is a TTY, the tool SHALL print help and exit 0. When no positional arguments and stdin is not a TTY, the tool SHALL read from stdin. Flag combinations MUST be validated: `-i` and `-w` are mutually exclusive, `--check` is mutually exclusive with both `-i` and `-w`, `--append` requires `-w`, and `-w` with a glob matching multiple files MUST error.
+**Requirement**: The CLI SHALL accept zero or more positional file paths or glob patterns. Flags MUST support in-place sorting (`-i`), writing to a file (`-w`), appending (`--append`), checking (`--check`), and verbose output (`--verbose`).
+With no inputs and TTY stdin, print help and exit 0; with non-TTY stdin, read stdin. Validate that `-i` and `-w` are mutually exclusive, `--check` conflicts with both, `--append` requires `-w`, and `-w` errors if a glob matches multiple files.
 
 #### Scenarios
 

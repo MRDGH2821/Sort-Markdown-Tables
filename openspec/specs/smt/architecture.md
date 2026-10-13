@@ -2,7 +2,7 @@
 
 ## Module Dependency Diagram
 
-```
+```text
                     ┌──────────┐
                     │  main.rs │
                     └────┬─────┘
@@ -41,7 +41,7 @@
 
 ### Full Pipeline
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────┐
 │                          PHASE 1: Parse & Sort                      │
 │                                                                     │
@@ -370,7 +370,7 @@ impl SmtError {
 
 ## Error Type Hierarchy
 
-```
+```text
 SmtError (enum)
 ├── CLI Validation Errors
 │   ├── WriteWithMultipleFiles
@@ -402,7 +402,7 @@ All variants map to exit code **2**. Exit code **1** is NOT an error — it's a 
 
 The parser operates line-by-line with the following states:
 
-```
+```text
                      ┌──────────┐
                      │  Normal  │◀──────────────────────────────┐
                      └────┬─────┘                               │
@@ -479,7 +479,7 @@ The parser operates line-by-line with the following states:
 A line is classified as:
 
 | Classification | Rule                                                                        |
-|----------------|-----------------------------------------------------------------------------|
+| -------------- | --------------------------------------------------------------------------- |
 | SMT comment    | Matches `^\s*<!--\s+smt(\s+.*)?\s*-->\s*$`                                  |
 | Table row      | Matches `^\s*\|.*\|\s*$` (starts and ends with pipe after trimming)         |
 | Separator row  | Is a table row AND all cells match `^:?-+:?$` (dashes with optional colons) |
@@ -489,7 +489,7 @@ A line is classified as:
 
 ## Atomic Write Strategy for `-i` Mode
 
-```
+```text
 For each file in input:
     1. Read original content
     2. Parse into Document
@@ -516,7 +516,7 @@ Using the same directory for temp files ensures the rename is atomic (same files
 
 ## `--check` Mode Flow
 
-```
+```text
 For each file in input:
     1. Parse into Document (same as normal)
     2. For each SortedTable block:
@@ -541,7 +541,7 @@ If all tables were sorted:
 
 Given the line `<!-- smt column=2 order=desc -->`:
 
-```
+```text
 1. Strip leading/trailing whitespace
 2. Strip "<!--" prefix → " smt column=2 order=desc -->"
 3. Strip "-->" suffix → " smt column=2 order=desc "

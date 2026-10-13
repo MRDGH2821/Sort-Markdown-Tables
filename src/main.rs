@@ -175,7 +175,14 @@ fn run_with_routing(routing: (InputSource, OutputTarget, bool, bool), stdin_is_t
                 eprintln!("{}", SmtError::InPlaceWithStdin);
                 return 2;
             };
-            entries.push((path, smt::writer::render_document(&r.document)));
+            let line_ending = match smt::editorconfig::resolve_end_of_line(&path) {
+                Ok(line_ending) => line_ending,
+                Err(e) => {
+                    eprintln!("{}", e);
+                    return 2;
+                }
+            };
+            entries.push((path, smt::writer::render_document(&r.document, line_ending)));
         }
         if let Err(e) = write_documents_in_place_atomic(entries) {
             eprintln!("{}", e);
@@ -268,8 +275,8 @@ mod tests {
     use super::*;
     use clap::Parser;
     use smt::cli::{Args, finalize_cli};
-    use smt::parser::LineEnding;
     use smt::parser::{Block, SortOptions, Table, TableRow};
+    use smt::parser::{LineEnding, TextLine};
 
     // # ======================================================================== TASK 5.4: Main Pipeline Tests
     #[test]
@@ -339,15 +346,15 @@ mod tests {
     fn test_check_document_all_sorted() {
         let table = Table {
             start_line: 0,
-            header: "| A |".to_string(),
-            separator: "| - |".to_string(),
+            header: TextLine::new("| A |", LineEnding::Lf),
+            separator: TextLine::new("| - |", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 1 |".to_string(),
+                    raw: TextLine::new("| 1 |", LineEnding::Lf),
                     cells: vec!["1".to_string()],
                 },
                 TableRow {
-                    raw: "| 2 |".to_string(),
+                    raw: TextLine::new("| 2 |", LineEnding::Lf),
                     cells: vec!["2".to_string()],
                 },
             ],
@@ -356,7 +363,7 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
+                comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
@@ -374,15 +381,15 @@ mod tests {
     fn test_check_document_one_unsorted() {
         let table = Table {
             start_line: 0,
-            header: "| A |".to_string(),
-            separator: "| - |".to_string(),
+            header: TextLine::new("| A |", LineEnding::Lf),
+            separator: TextLine::new("| - |", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| 2 |".to_string(),
+                    raw: TextLine::new("| 2 |", LineEnding::Lf),
                     cells: vec!["2".to_string()],
                 },
                 TableRow {
-                    raw: "| 1 |".to_string(),
+                    raw: TextLine::new("| 1 |", LineEnding::Lf),
                     cells: vec!["1".to_string()],
                 },
             ],
@@ -391,7 +398,7 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
+                comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
@@ -409,7 +416,10 @@ mod tests {
     fn test_check_document_no_tables() {
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["# Heading".to_string()])],
+            blocks: vec![Block::PlainText(vec![TextLine::new(
+                "# Heading",
+                LineEnding::Lf,
+            )])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -421,10 +431,10 @@ mod tests {
     fn test_check_document_mixed_blocks() {
         let table = Table {
             start_line: 2,
-            header: "| A |".to_string(),
-            separator: "| - |".to_string(),
+            header: TextLine::new("| A |", LineEnding::Lf),
+            separator: TextLine::new("| - |", LineEnding::Lf),
             rows: vec![TableRow {
-                raw: "| 1 |".to_string(),
+                raw: TextLine::new("| 1 |", LineEnding::Lf),
                 cells: vec!["1".to_string()],
             }],
             column_count: 1,
@@ -432,15 +442,15 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![
-                Block::PlainText(vec!["# Heading".to_string()]),
+                Block::PlainText(vec![TextLine::new("# Heading", LineEnding::Lf)]),
                 Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                     comment_line_number: 1,
                     options: SortOptions::default(),
                     table,
                     blank_lines_after_comment: Vec::new(),
                 },
-                Block::PlainText(vec!["Done.".to_string()]),
+                Block::PlainText(vec![TextLine::new("Done.", LineEnding::Lf)]),
             ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,

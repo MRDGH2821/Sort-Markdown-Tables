@@ -3,13 +3,13 @@ layout: default
 title: Usage & Configuration
 ---
 
-# Usage & Configuration
+## Usage & Configuration
 
 This guide covers how to mark your markdown tables for sorting, customize sort options, and run `smt` via CLI.
 
 ---
 
-## 1. Marking Tables for Sorting
+### 1. Marking Tables for Sorting
 
 To opt-in a table for sorting, place an `<!-- smt -->` comment **immediately** above the table:
 
@@ -28,7 +28,7 @@ To opt-in a table for sorting, place an `<!-- smt -->` comment **immediately** a
 
 ---
 
-## 2. Sort Attributes Reference
+### 2. Sort Attributes Reference
 
 You can customize sorting behavior by adding attributes inside the comment:
 
@@ -45,9 +45,9 @@ You can customize sorting behavior by adding attributes inside the comment:
 
 ---
 
-## 3. Sort Configuration Examples
+### 3. Sort Configuration Examples
 
-### Numeric Sorting (`type=numeric`)
+#### Numeric Sorting (`type=numeric`)
 
 Useful for scores, ages, prices, or version numbers. Handles floats, negative numbers, and `NaN` values safely.
 
@@ -77,7 +77,7 @@ Useful for scores, ages, prices, or version numbers. Handles floats, negative nu
 
 ---
 
-### Sorting by Specific Column (`column=N`)
+#### Sorting by Specific Column (`column=N`)
 
 Columns are 1-indexed (`column=1` is the first data column).
 
@@ -107,7 +107,7 @@ Columns are 1-indexed (`column=1` is the first data column).
 
 ---
 
-### Case-Insensitive Alphabetical Sorting (`case=insensitive`)
+#### Case-Insensitive Alphabetical Sorting (`case=insensitive`)
 
 **Before:**
 
@@ -137,9 +137,9 @@ Columns are 1-indexed (`column=1` is the first data column).
 
 ---
 
-## 4. CLI Command Examples
+### 4. CLI Command Examples
 
-### Sort in-place (`-i`)
+#### Sort in-place (`-i`)
 
 Overwrites files directly with sorted tables:
 
@@ -147,7 +147,7 @@ Overwrites files directly with sorted tables:
 smt -i README.md
 ```
 
-### Check mode (`--check`)
+#### Check mode (`--check`)
 
 Validates whether files are sorted without modifying them. Ideal for CI scripts:
 
@@ -155,7 +155,7 @@ Validates whether files are sorted without modifying them. Ideal for CI scripts:
 smt --check docs/**/*.md
 ```
 
-### Output to another file (`-o`)
+#### Output to another file (`-o`)
 
 Prints sorted result to a separate file:
 
@@ -163,7 +163,7 @@ Prints sorted result to a separate file:
 smt input.md -o output.md
 ```
 
-### Directory Recursion (`-r`)
+#### Directory Recursion (`-r`)
 
 Recursively scans directories for all `.md` files:
 
@@ -171,7 +171,7 @@ Recursively scans directories for all `.md` files:
 smt -r -i docs/
 ```
 
-### Pipe via Stdin / Stdout
+#### Pipe via Stdin / Stdout
 
 ```bash
 cat input.md | smt | tee output.md
@@ -179,7 +179,7 @@ cat input.md | smt | tee output.md
 
 ---
 
-## 5. Exit Codes
+### 5. Exit Codes
 
 | Code | Status           | Meaning                                              |
 | :--: | :--------------- | :--------------------------------------------------- |

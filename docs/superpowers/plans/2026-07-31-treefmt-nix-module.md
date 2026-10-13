@@ -26,7 +26,6 @@
 
 - Consumes: `pkgs`, `config`, `lib` from `treefmt-nix` module evaluation.
 - Produces: `options.programs.sort-markdown-tables` and `config.settings.formatter.sort-markdown-tables`.
-
 - [ ] **Step 1: Create `nix/treefmt-module.nix`**
 
 Write the treefmt-nix program module definition:
@@ -108,7 +107,6 @@ Co-authored-by: Gemini 3.6 Flash via Antigravity <noreply@google.com>"
 
 - Consumes: `nix/treefmt-module.nix`
 - Produces: `flake.outputs.treefmtModules.sort-markdown-tables` and `flake.outputs.treefmtModules.default`
-
 - [ ] **Step 1: Update `flake.nix` to export `treefmtModules`**
 
 Modify `flake.nix` outputs function:

@@ -19,11 +19,10 @@
 // 4. # Preserve all non-sorted content exactly as-is
 use crate::cli::OutputTarget;
 use crate::error::SmtError;
-use crate::parser::Block;
-#[cfg(not(test))]
 use crate::parser::Document;
+use crate::parser::{Block, LineEnding, TextLine};
 #[cfg(test)]
-use crate::parser::{Document, Table, TableRow};
+use crate::parser::{Table, TableRow};
 use std::fs;
 use std::fs::OpenOptions;
 use std::io::{self, Write};
@@ -44,16 +43,38 @@ use tempfile::NamedTempFile;
 /// 4. Join all rendered blocks with newlines
 ///
 /// The rendered output preserves all content, with sorted tables updated.
-pub fn render_document(doc: &Document) -> String {
-    let newline = match doc.line_ending {
-        crate::parser::LineEnding::Lf => "\n",
-        crate::parser::LineEnding::CrLf => "\r\n",
+pub fn render_document(doc: &Document, line_ending: Option<LineEnding>) -> String {
+    let mut remaining = doc
+        .blocks
+        .iter()
+        .map(|block| match block {
+            Block::PlainText(lines) => lines.len(),
+            Block::SortedTable {
+                table,
+                blank_lines_after_comment,
+                ..
+            } => 3 + blank_lines_after_comment.len() + table.rows.len(),
+        })
+        .sum::<usize>();
+    let mut output = String::new();
+    let mut append_line = |line: &TextLine, output: &mut String| {
+        output.push_str(&line.text);
+        remaining -= 1;
+        if remaining > 0 {
+            output.push_str(
+                line_ending
+                    .unwrap_or(line.line_ending.unwrap_or(doc.line_ending))
+                    .as_str(),
+            );
+        }
     };
-    let mut output = Vec::new();
+
     for block in &doc.blocks {
         match block {
             Block::PlainText(lines) => {
-                output.push(lines.join(newline));
+                for line in lines {
+                    append_line(line, &mut output);
+                }
             }
             Block::SortedTable {
                 comment_line,
@@ -61,24 +82,36 @@ pub fn render_document(doc: &Document) -> String {
                 blank_lines_after_comment,
                 ..
             } => {
-                // Render the comment line
-                output.push(comment_line.clone());
-
-                // Render blank lines that follow the comment
+                append_line(comment_line, &mut output);
                 for blank_line in blank_lines_after_comment {
-                    output.push(blank_line.clone());
+                    append_line(blank_line, &mut output);
                 }
-
-                // Render the table: header, separator, and sorted rows
-                output.push(table.header.clone());
-                output.push(table.separator.clone());
+                append_line(&table.header, &mut output);
+                append_line(&table.separator, &mut output);
                 for row in &table.rows {
-                    output.push(row.raw.clone());
+                    append_line(&row.raw, &mut output);
                 }
             }
         }
     }
-    output.join(newline)
+    output
+}
+
+fn last_line_ending(doc: &Document) -> Option<LineEnding> {
+    for block in doc.blocks.iter().rev() {
+        let line = match block {
+            Block::PlainText(lines) => lines.last(),
+            Block::SortedTable { table, .. } => table
+                .rows
+                .last()
+                .map(|row| &row.raw)
+                .or(Some(&table.separator)),
+        };
+        if let Some(line) = line {
+            return line.line_ending;
+        }
+    }
+    None
 }
 
 // # ============================================================================ TASK 5.2: Atomic Write Logic for In-Place Mode
@@ -237,16 +270,33 @@ pub fn write_document(
     target: &OutputTarget,
     source: Option<&Path>,
 ) -> Result<(), SmtError> {
-    // Render the document to string
-    let content = render_document(doc);
+    let output_path = match target {
+        OutputTarget::File { path, .. } => Some(path.as_path()),
+        OutputTarget::Stdout | OutputTarget::InPlace => source,
+    };
+    let line_ending = output_path
+        .map(crate::editorconfig::resolve_end_of_line)
+        .transpose()?
+        .flatten();
+    let content = render_document(doc, line_ending);
+
     match target {
         OutputTarget::Stdout => {
-            // Write to stdout
-            println!("{}", content);
+            let stdout_ending = line_ending
+                .or_else(|| {
+                    doc.trailing_newline
+                        .then(|| last_line_ending(doc))
+                        .flatten()
+                })
+                .unwrap_or(LineEnding::Lf);
+            let mut stdout = io::stdout().lock();
+            stdout
+                .write_all(content.as_bytes())
+                .and_then(|()| stdout.write_all(stdout_ending.as_str().as_bytes()))
+                .map_err(|source| SmtError::Io { source })?;
             Ok(())
         }
         OutputTarget::File { path, append } => {
-            // Write to a file (create new or append)
             let mut file = OpenOptions::new()
                 .write(true)
                 .create(true)
@@ -266,8 +316,6 @@ pub fn write_document(
                     "InPlace target requires a source path",
                 ),
             })?;
-
-            // Atomic write: temp file in same directory + persist/rename.
             write_atomic(path, &content)
         }
     }
@@ -277,8 +325,7 @@ pub fn write_document(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::LineEnding;
-    use crate::parser::SortOptions;
+    use crate::parser::{LineEnding, SortOptions, TextLine};
 
     // # ======================================================================== TASK 5.1: Render Document Tests
     #[test]
@@ -286,13 +333,13 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::PlainText(vec![
-                "# Heading".to_string(),
-                "Some text".to_string(),
+                TextLine::new("# Heading", LineEnding::Lf),
+                TextLine::new("Some text", LineEnding::Lf),
             ])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         assert_eq!(rendered, "# Heading\nSome text");
     }
 
@@ -304,7 +351,7 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         assert_eq!(rendered, "");
     }
 
@@ -312,15 +359,15 @@ mod tests {
     fn test_render_table_only() {
         let table = Table {
             start_line: 1,
-            header: "| Name | Age |".to_string(),
-            separator: "| --- | --- |".to_string(),
+            header: TextLine::new("| Name | Age |", LineEnding::Lf),
+            separator: TextLine::new("| --- | --- |", LineEnding::Lf),
             rows: vec![
                 TableRow {
-                    raw: "| Alice | 30 |".to_string(),
+                    raw: TextLine::new("| Alice | 30 |", LineEnding::Lf),
                     cells: vec!["Alice".to_string(), "30".to_string()],
                 },
                 TableRow {
-                    raw: "| Bob | 25 |".to_string(),
+                    raw: TextLine::new("| Bob | 25 |", LineEnding::Lf),
                     cells: vec!["Bob".to_string(), "25".to_string()],
                 },
             ],
@@ -329,7 +376,7 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
+                comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
@@ -338,7 +385,7 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         assert!(rendered.contains("<!-- smt -->"));
         assert!(rendered.contains("| Name | Age |"));
         assert!(rendered.contains("| --- | --- |"));
@@ -350,10 +397,10 @@ mod tests {
     fn test_render_mixed_blocks() {
         let table = Table {
             start_line: 3,
-            header: "| A | B |".to_string(),
-            separator: "| - | - |".to_string(),
+            header: TextLine::new("| A | B |", LineEnding::Lf),
+            separator: TextLine::new("| - | - |", LineEnding::Lf),
             rows: vec![TableRow {
-                raw: "| 1 | 2 |".to_string(),
+                raw: TextLine::new("| 1 | 2 |", LineEnding::Lf),
                 cells: vec!["1".to_string(), "2".to_string()],
             }],
             column_count: 2,
@@ -361,20 +408,20 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![
-                Block::PlainText(vec!["# Title".to_string()]),
+                Block::PlainText(vec![TextLine::new("# Title", LineEnding::Lf)]),
                 Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                     comment_line_number: 2,
                     options: SortOptions::default(),
                     table,
                     blank_lines_after_comment: Vec::new(),
                 },
-                Block::PlainText(vec!["Done.".to_string()]),
+                Block::PlainText(vec![TextLine::new("Done.", LineEnding::Lf)]),
             ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         assert!(rendered.contains("# Title"));
         assert!(rendered.contains("<!-- smt -->"));
         assert!(rendered.contains("Done."));
@@ -384,20 +431,20 @@ mod tests {
     fn test_render_multiple_tables() {
         let table1 = Table {
             start_line: 1,
-            header: "| Col |".to_string(),
-            separator: "| --- |".to_string(),
+            header: TextLine::new("| Col |", LineEnding::Lf),
+            separator: TextLine::new("| --- |", LineEnding::Lf),
             rows: vec![TableRow {
-                raw: "| A |".to_string(),
+                raw: TextLine::new("| A |", LineEnding::Lf),
                 cells: vec!["A".to_string()],
             }],
             column_count: 1,
         };
         let table2 = Table {
             start_line: 5,
-            header: "| X |".to_string(),
-            separator: "| - |".to_string(),
+            header: TextLine::new("| X |", LineEnding::Lf),
+            separator: TextLine::new("| - |", LineEnding::Lf),
             rows: vec![TableRow {
-                raw: "| Y |".to_string(),
+                raw: TextLine::new("| Y |", LineEnding::Lf),
                 cells: vec!["Y".to_string()],
             }],
             column_count: 1,
@@ -406,15 +453,15 @@ mod tests {
             source: None,
             blocks: vec![
                 Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                     comment_line_number: 0,
                     options: SortOptions::default(),
                     table: table1,
                     blank_lines_after_comment: Vec::new(),
                 },
-                Block::PlainText(vec!["---".to_string()]),
+                Block::PlainText(vec![TextLine::new("---", LineEnding::Lf)]),
                 Block::SortedTable {
-                    comment_line: "<!-- smt -->".to_string(),
+                    comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                     comment_line_number: 4,
                     options: SortOptions::default(),
                     table: table2,
@@ -424,7 +471,7 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         let lines: Vec<&str> = rendered.lines().collect();
 
         // Should have: comment, header, separator, row, "---", comment, header,
@@ -439,13 +486,16 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![
-                Block::PlainText(vec!["Line 1".to_string(), "Line 2".to_string()]),
-                Block::PlainText(vec!["Line 3".to_string()]),
+                Block::PlainText(vec![
+                    TextLine::new("Line 1", LineEnding::Lf),
+                    TextLine::new("Line 2", LineEnding::Lf),
+                ]),
+                Block::PlainText(vec![TextLine::new("Line 3", LineEnding::Lf)]),
             ],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         assert_eq!(rendered, "Line 1\nLine 2\nLine 3");
     }
 
@@ -457,7 +507,7 @@ mod tests {
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
-        let rendered = render_document(&doc);
+        let rendered = render_document(&doc, None);
         assert_eq!(rendered, "");
     }
 
@@ -513,7 +563,10 @@ mod tests {
     fn test_write_document_stdout() {
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["# Test".to_string()])],
+            blocks: vec![Block::PlainText(vec![TextLine::new(
+                "# Test",
+                LineEnding::Lf,
+            )])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -530,7 +583,10 @@ mod tests {
         let output_file = temp_dir.path().join("output.md");
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["# Test".to_string()])],
+            blocks: vec![Block::PlainText(vec![TextLine::new(
+                "# Test",
+                LineEnding::Lf,
+            )])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -554,7 +610,10 @@ mod tests {
         std::fs::write(&output_file, "Initial\n").unwrap();
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["Appended".to_string()])],
+            blocks: vec![Block::PlainText(vec![TextLine::new(
+                "Appended",
+                LineEnding::Lf,
+            )])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -576,7 +635,10 @@ mod tests {
         assert!(!output_file.exists());
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["New file".to_string()])],
+            blocks: vec![Block::PlainText(vec![TextLine::new(
+                "New file",
+                LineEnding::Lf,
+            )])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };
@@ -595,10 +657,10 @@ mod tests {
         let output_file = temp_dir.path().join("table.md");
         let table = Table {
             start_line: 1,
-            header: "| Name |".to_string(),
-            separator: "| --- |".to_string(),
+            header: TextLine::new("| Name |", LineEnding::Lf),
+            separator: TextLine::new("| --- |", LineEnding::Lf),
             rows: vec![TableRow {
-                raw: "| Alice |".to_string(),
+                raw: TextLine::new("| Alice |", LineEnding::Lf),
                 cells: vec!["Alice".to_string()],
             }],
             column_count: 1,
@@ -606,7 +668,7 @@ mod tests {
         let doc = Document {
             source: None,
             blocks: vec![Block::SortedTable {
-                comment_line: "<!-- smt -->".to_string(),
+                comment_line: TextLine::new("<!-- smt -->", LineEnding::Lf),
                 comment_line_number: 0,
                 options: SortOptions::default(),
                 table,
@@ -645,7 +707,10 @@ mod tests {
     fn test_write_document_invalid_path() {
         let doc = Document {
             source: None,
-            blocks: vec![Block::PlainText(vec!["test".to_string()])],
+            blocks: vec![Block::PlainText(vec![TextLine::new(
+                "test",
+                LineEnding::Lf,
+            )])],
             line_ending: LineEnding::Lf,
             trailing_newline: false,
         };

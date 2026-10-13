@@ -3,7 +3,7 @@ layout: default
 title: Sort Markdown Tables
 ---
 
-# Sort Markdown Tables
+## Sort Markdown Tables
 
 A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automatically sorted and cleanly formatted.
 
@@ -12,9 +12,9 @@ A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automat
 
 ---
 
-## Quick Example
+### Quick Example
 
-### Before Running `smt`
+#### Before Running `smt`
 
 ```markdown
 <!-- smt type=numeric column=2 order=desc -->
@@ -26,7 +26,7 @@ A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automat
 | Charlie | 88    | B     |
 ```
 
-### After Running `smt -i document.md`
+#### After Running `smt -i document.md`
 
 ```markdown
 <!-- smt type=numeric column=2 order=desc -->
@@ -40,7 +40,7 @@ A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automat
 
 ---
 
-## Key Features
+### Key Features
 
 - 🎯 **Opt-in Control** — Only sort tables you explicitly choose to mark with `<!-- smt -->`.
 - ⚡ **Flexible Sort Modes** — Sort numerically or lexicographically, by any column, ascending or descending, case-sensitive or insensitive.
@@ -50,15 +50,15 @@ A zero-dependency, ultra-fast Rust CLI tool to keep your markdown tables automat
 
 ---
 
-## Quick Start
+### Quick Start
 
-### 1. Install `smt`
+#### 1. Install `smt`
 
 ```bash
 cargo install --git https://github.com/MRDGH2821/Sort-Markdown-Tables
 ```
 
-### 2. Run Commands
+#### 2. Run Commands
 
 ```bash
 # Sort a markdown file in-place
@@ -73,7 +73,7 @@ smt -r -i docs/
 
 ---
 
-## Explore the Documentation
+### Explore the Documentation
 
 - 📦 [**Installation**](installation.html) — Learn how to install via Cargo, Nix Flakes, or pre-built binaries.
 - 📖 [**Usage Guide**](usage.html) — Detailed guide on comment syntax, sort attributes, CLI flags, and exit codes.

@@ -4,6 +4,9 @@ import "package://github.com/jdx/hk/releases/download/v2.5.0/hk@2.5.0#/Builtins.
 
 local linters = new Mapping<String, Step> {
   ["betterleaks"] = Builtins.betterleaks
+  ["cargo-check"] = Builtins.cargo_check
+  ["cargo-clippy"] = Builtins.cargo_clippy
+  ["cargo-fmt"] = Builtins.cargo_fmt
   ["check-merge-conflict"] = Builtins.check_merge_conflict
   ["check-placeholders"] {
     check =
@@ -30,23 +33,20 @@ local linters = new Mapping<String, Step> {
   ["newlines"] = Builtins.newlines
   ["pkl"] = Builtins.pkl
   ["pkl-format"] = Builtins.pkl_format
-  ["oxfmt"] = (Builtins.oxfmt) { depends = List("sort-markdown-tables") }
+  ["oxfmt"] = Builtins.oxfmt
   ["ruff"] = (Builtins.ruff) { depends = List("ruff-format") }
   ["ruff-format"] = Builtins.ruff_format
   ["rumdl"] = (Builtins.rumdl) { depends = List("rumdl-format") }
   ["rumdl-format"] = Builtins.rumdl_format
   ["ryl"] = (Builtins.ryl) { depends = List("yamlfix") }
   ["ryl_markdown"] = Builtins.ryl_markdown
-  ["sort-markdown-tables"] {
-    check = "smt --check {{files}}"
-    fix = "smt --in-place {{files}}"
-    types = List("markdown")
-  }
   ["tombi"] = Builtins.tombi
   ["tombi-format"] = (Builtins.tombi_format) { depends = List("toml-sort") }
   ["toml-sort"] {
     fix = "toml-sort --in-place --sort-table-keys --sort-inline-tables {{files}}"
     check = "toml-sort --check --sort-table-keys --sort-inline-tables {{files}}"
+    // Tombi applies Cargo schema order, which conflicts with toml-sort's generic sorting.
+    exclude = List("Cargo.toml")
     types = List("toml")
   }
   ["trailing-whitespace"] = Builtins.trailing_whitespace
@@ -72,7 +72,8 @@ exclude =
     "**/locks/**",
     "**/npm-shrinkwrap.json",
     "**/package-lock.json",
-    "**/pnpm-lock.yaml"
+    "**/pnpm-lock.yaml",
+    "LICENCE.txt"
     // keep-sorted end
   )
 steps = linters
