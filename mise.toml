@@ -14,44 +14,48 @@ use_git_credentials = true
 [tasks]
 ai-setup = "capa install --yes"
 check = ["hk check --all", "cog check", "cargo test --all-features"]
-prepare = ["bun install"]
+prepare-ci = ["bun ci"]
 
 [tasks.format]
 alias = "fmt"
 run = [{ task = "treefmt" }, "hk fix --all"]
+
+[tasks.prepare]
+interactive = true
+run = ["bun install", { task = "ai-setup" }]
 
 [tasks.treefmt]
 run = "treefmt"
 run_windows = "echo 'Treefmt not supported on Windows'"
 
 [tools]
-"aqua:google/keep-sorted" = "latest"
+"aqua:google/keep-sorted" = "0.10.0"
 "aqua:numtide/treefmt" = { os = ["linux", "macos"], version = "2.6.0" }
-"aqua:owenlamont/ryl" = "latest"
-betterleaks = "latest"
-bun = { postinstall = "bun install", version = "latest" }
-cocogitto = "latest"
-cspell = "latest"
-editorconfig-checker = "latest"
-gh = "latest"
-git-cliff = "latest"
-"github:infragate/capa" = { postinstall = "capa install --yes", version = "2.2.4" }
-hk = "2.5.0"
-ls-lint = "latest"
+"aqua:owenlamont/ryl" = "0.24.0"
+betterleaks = "1.9.0"
+bun = "1.4.3"
+cocogitto = "7.0.0"
+cspell = "10.3.6"
+editorconfig-checker = "4.0.2"
+gh = "2.102.0"
+git-cliff = "2.14.2"
+"github:infragate/capa" = "2.3.0"
+hk = { version = "2.6.0", workflow = "release.yml" }
+ls-lint = "2.3.1"
 mr-boxington = "1.20.0"
-oxfmt = "latest"
+oxfmt = "0.72.0"
 "pipx:lorenzwalthert/gitignore-tidy" = "latest"
-"pipx:toml-sort" = "latest"
-"pipx:yamlfix" = "latest"
-pkl = "latest"
-ruff = "latest"
-rumdl = "latest"
+"pipx:toml-sort" = "0.25.0"
+"pipx:yamlfix" = "1.19.1"
+pkl = "0.32.1"
+ruff = "0.17.0"
+rumdl = "0.2.79"
 rust = { mr_boxington = true, profile = "default", version = "stable" }
-tombi = "latest"
-typos = "latest"
-typstyle = "latest"
-uv = "latest"
-yq = "latest"
+tombi = "1.8.4"
+typos = "1.51.1"
+typstyle = "0.15.2"
+uv = "0.13.0"
+yq = "4.54.1"
 
 [[watch_files]]
 patterns = ["capabilities.yaml"]

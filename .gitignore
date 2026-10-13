@@ -1,6 +1,7 @@
 # agents
 .agent-talk/
 .agent/skills
+.agents/hooks.json
 .agents/mcp_config.json
 .agents/skills
 .claude/agents
