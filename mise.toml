@@ -38,6 +38,7 @@ git-cliff = "latest"
 "github:infragate/capa" = { postinstall = "capa install --yes", version = "2.2.4" }
 hk = "2.5.0"
 ls-lint = "latest"
+mr-boxington = "1.20.0"
 oxfmt = "latest"
 "pipx:lorenzwalthert/gitignore-tidy" = "latest"
 "pipx:toml-sort" = "latest"
@@ -45,7 +46,7 @@ oxfmt = "latest"
 pkl = "latest"
 ruff = "latest"
 rumdl = "latest"
-rust = { profile = "default", version = "stable" }
+rust = { mr_boxington = true, profile = "default", version = "stable" }
 tombi = "latest"
 typos = "latest"
 typstyle = "latest"
