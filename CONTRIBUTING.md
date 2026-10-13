@@ -135,3 +135,17 @@ Include the following information:
 Review the final diff and keep unrelated changes out of the request.
 Respond to review feedback and fix failed CI checks.
 The configured GitHub or GitLab pipeline runs mise checks and MegaLinter.
+
+## Copier template updates
+
+The GitHub Actions workflow previews the latest Copier update in an isolated
+worktree. If files would change, it opens or refreshes an issue with the
+changed-file summary and patch; it never applies the update.
+
+The GitLab scheduled job compares the `_commit` ref in `.copier-answers.yml`
+with the latest ref selected by Copier. If they differ, the job fails and asks
+you to run `copier update`; it does not apply changes.
+
+GitHub Actions runs weekly on Mondays at 09:00 UTC and can be run manually from
+the Actions tab. For GitLab, create a pipeline schedule targeting the default
+branch with cron `0 9 * * 1`.

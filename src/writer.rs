@@ -195,9 +195,16 @@ pub fn write_documents_in_place_atomic(entries: Vec<(PathBuf, String)>) -> Resul
     let mut temps: Vec<(PathBuf, NamedTempFile)> = Vec::with_capacity(entries.len());
     for (path, content) in &entries {
         let dir = path.parent().unwrap_or_else(|| Path::new("."));
+        let permissions = fs::metadata(path)
+            .map_err(|e| map_io_error(&e, path))?
+            .permissions();
         let mut temp_file = NamedTempFile::new_in(dir).map_err(|e| map_io_error(&e, path))?;
         temp_file
             .write_all(content.as_bytes())
+            .map_err(|e| map_io_error(&e, path))?;
+        temp_file
+            .as_file()
+            .set_permissions(permissions)
             .map_err(|e| map_io_error(&e, path))?;
         temp_file.flush().map_err(|e| map_io_error(&e, path))?;
         temp_file
@@ -322,6 +329,8 @@ pub fn write_document(
 }
 
 // # ============================================================================ UNIT TESTS
+// Independent test fixtures intentionally repeat setup.
+// jscpd:ignore-start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -722,3 +731,4 @@ mod tests {
         assert!(result.is_err());
     }
 }
+// jscpd:ignore-end

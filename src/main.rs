@@ -270,6 +270,8 @@ fn process_stdin(output_target: &OutputTarget) -> Result<ProcessResult, SmtError
 }
 
 // # ============================================================================ UNIT TESTS
+// Independent test fixtures intentionally repeat setup.
+// jscpd:ignore-start
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -477,3 +479,4 @@ mod tests {
         assert!(result.check_results.is_empty());
     }
 }
+// jscpd:ignore-end

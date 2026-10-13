@@ -129,6 +129,29 @@ fn test_inplace_sort() {
     assert_eq!(result, expected, "File should be sorted in-place");
 }
 
+#[cfg(unix)]
+#[test]
+fn inplace_sort_preserves_existing_file_permissions() {
+    let tmp_dir = TempDir::new().expect("Failed to create temp dir");
+    let file = tmp_dir.path().join("work.md");
+    fs::write(&file, "<!-- smt -->\n| A |\n| - |\n| 2 |\n| 1 |\n")
+        .expect("Failed to write fixture");
+    fs::set_permissions(&file, Permissions::from_mode(0o644))
+        .expect("Failed to set file permissions");
+
+    let mut cmd = Command::cargo_bin("smt").expect("Failed to build binary");
+    cmd.arg("-i").arg(&file).assert().success();
+
+    assert_eq!(
+        fs::metadata(file)
+            .expect("Failed to read metadata")
+            .permissions()
+            .mode()
+            & 0o777,
+        0o644
+    );
+}
+
 #[test]
 fn test_inplace_sort_multiple_files() {
     let tmp_dir = TempDir::new().expect("Failed to create temp dir");
