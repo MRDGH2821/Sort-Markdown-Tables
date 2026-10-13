@@ -16,9 +16,8 @@
 //
 // 3. Lexicographic: support case-sensitive/insensitive comparison
 //
-// 4. # Check mode: clone, sort, compare with original
+// 4. # Check mode: compare adjacent rows without cloning
 use crate::error::SmtError;
-#[cfg(test)]
 use crate::parser::TableRow;
 use crate::parser::{Block, CaseSensitivity, Document, SortOptions, SortOrder, SortType, Table};
 use std::cmp::Ordering;
@@ -66,7 +65,7 @@ pub fn check_document(doc: &Document) -> Vec<CheckResult> {
 ///
 /// * Try to parse both as f64
 ///
-/// * If both numeric: compare as floats (handle NaN via partial_cmp)
+/// * If both numeric: compare using a total float ordering, including NaN
 ///
 /// * If a numeric, b non-numeric: a < b (numbers come first)
 ///
@@ -74,25 +73,28 @@ pub fn check_document(doc: &Document) -> Vec<CheckResult> {
 ///
 /// * If both non-numeric: fallback to lexicographic comparison
 ///
-/// This ensures numeric values sort before non-numeric, and among non-numeric
-/// values, stability is preserved via lexicographic comparison.
+/// This ensures numeric values sort before non-numeric values.
 fn compare_numeric(a: &str, b: &str, case: CaseSensitivity) -> Ordering {
-    let a_trimmed = a.trim();
-    let b_trimmed = b.trim();
-    let a_num = a_trimmed.parse::<f64>().ok();
-    let b_num = b_trimmed.parse::<f64>().ok();
-    match (a_num, b_num) {
-        // Both numeric: compare as floats
-        (Some(an), Some(bn)) => {
-            // Use partial_cmp for f64, which handles NaN correctly
-            an.partial_cmp(&bn).unwrap_or(Ordering::Equal)
-        }
-        // a numeric, b non-numeric: a comes first
+    match (a.trim().parse::<f64>().ok(), b.trim().parse::<f64>().ok()) {
+        (Some(an), Some(bn)) => an.total_cmp(&bn),
         (Some(_), None) => Ordering::Less,
-        // a non-numeric, b numeric: b comes first
         (None, Some(_)) => Ordering::Greater,
-        // Both non-numeric: use lexicographic comparison
         (None, None) => compare_lexicographic(a, b, case),
+    }
+}
+
+/// Compare rows by the configured key and direction.
+fn compare_rows(a: &TableRow, b: &TableRow, col_idx: usize, options: &SortOptions) -> Ordering {
+    let cmp = match options.sort_type {
+        SortType::Numeric => compare_numeric(&a.cells[col_idx], &b.cells[col_idx], options.case),
+        SortType::Lexicographic => {
+            compare_lexicographic(&a.cells[col_idx], &b.cells[col_idx], options.case)
+        }
+    };
+    if options.order == SortOrder::Desc {
+        cmp.reverse()
+    } else {
+        cmp
     }
 }
 
@@ -137,26 +139,9 @@ pub fn sort_table(table: &mut Table, options: &SortOptions) -> Result<(), SmtErr
         });
     }
 
-    // Stable sort using sort_by This is CRITICAL: we MUST use sort_by, never
-    // sort_unstable_by
-    table.rows.sort_by(|a, b| {
-        // Extract the sort key from both rows
-        let a_key = &a.cells[col_idx];
-        let b_key = &b.cells[col_idx];
-
-        // Apply the appropriate comparator based on sort type
-        let cmp = match options.sort_type {
-            SortType::Numeric => compare_numeric(a_key, b_key, options.case),
-            SortType::Lexicographic => compare_lexicographic(a_key, b_key, options.case),
-        };
-
-        // Reverse the comparison if descending
-        if options.order == SortOrder::Desc {
-            cmp.reverse()
-        } else {
-            cmp
-        }
-    });
+    table
+        .rows
+        .sort_by(|a, b| compare_rows(a, b, col_idx, options));
     Ok(())
 }
 
@@ -174,46 +159,12 @@ pub fn sort_document(doc: &mut Document) -> Result<(), SmtError> {
 }
 
 /// Check if a table is already sorted according to the given options.
-///
-/// Algorithm:
-///
-/// 1. Clone the rows
-///
-/// 2. Sort the cloned rows
-///
-/// 3. Compare cloned (sorted) with original
-///
-/// 4. Return true if no changes (already sorted)
-///
-/// This avoids modifying the original table while checking.
 pub fn is_table_sorted(table: &Table, options: &SortOptions) -> bool {
-    // Clone rows for sorting
-    let mut sorted_rows = table.rows.clone();
-
-    // Sort the cloned rows (using same logic as sort_table)
     let col_idx = options.column - 1;
-    sorted_rows.sort_by(|a, b| {
-        let a_key = &a.cells[col_idx];
-        let b_key = &b.cells[col_idx];
-        let cmp = match options.sort_type {
-            SortType::Numeric => compare_numeric(a_key, b_key, options.case),
-            SortType::Lexicographic => compare_lexicographic(a_key, b_key, options.case),
-        };
-        if options.order == SortOrder::Desc {
-            cmp.reverse()
-        } else {
-            cmp
-        }
-    });
-
-    // Compare original rows with sorted rows Since we're comparing TableRow structs,
-    // we compare the raw strings (which should be identical if sorting made no
-    // changes)
     table
         .rows
-        .iter()
-        .zip(sorted_rows.iter())
-        .all(|(orig, sorted)| orig.raw.text == sorted.raw.text)
+        .windows(2)
+        .all(|pair| compare_rows(&pair[0], &pair[1], col_idx, options) != Ordering::Greater)
 }
 
 // # ============================================================================ UNIT TESTS
@@ -295,6 +246,12 @@ mod tests {
         let mut sorted = values.clone();
         sorted.sort_by(|a, b| compare_numeric(a, b, CaseSensitivity::Sensitive));
         assert_eq!(sorted, vec!["5", "10", "apple", "banana"]);
+    }
+    #[test]
+    fn test_compare_numeric_orders_nan_consistently() {
+        let mut values = vec!["2", "NaN", "1"];
+        values.sort_by(|a, b| compare_numeric(a, b, CaseSensitivity::Sensitive));
+        assert_eq!(values, vec!["1", "2", "NaN"]);
     }
 
     // Lexicographic comparisons

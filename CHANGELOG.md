@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## Unreleased
+
+### Bug Fixes
+
+- Preserve existing file permissions during atomic in-place writes.
+- Sort numeric `NaN` values consistently.
+
+### Refactoring
+
+- Check table order without cloning rows or duplicating the sort comparator.
+
 ## [0.5.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.4.0..v0.5.0) - 2026-08-04
 
 ### Bug Fixes
