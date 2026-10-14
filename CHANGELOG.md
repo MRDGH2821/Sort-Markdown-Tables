@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 
+## Unreleased
+
+### Features
+
+- Publish signed Packslip manifests and build attestations alongside release binaries.
+
 ## [0.6.0](https://github.com/MRDGH2821/Sort-Markdown-Tables/compare/v0.5.0..v0.6.0) - 2026-10-13
 
 ### Bug Fixes
