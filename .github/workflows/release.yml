@@ -147,7 +147,9 @@ jobs:
     name: Create GitHub Release
     needs: build
     permissions:
+      attestations: write
       contents: write
+      id-token: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -208,6 +210,25 @@ jobs:
           draft: false
           files: flat-artifacts/*
           prerelease: false
+      - name: Publish signed release manifest
+        uses: jdx/packslip@7b32cd29a9240927882ee18b3db1dcfd8e0328b4 # v1.7.0
+        with:
+          artifacts: |
+            flat-artifacts/smt-*-linux-gnu
+            flat-artifacts/smt-*-linux-musl
+            flat-artifacts/smt-*-linux-*eabi
+            flat-artifacts/smt-*-linux-*eabihf
+            flat-artifacts/smt-*-apple-darwin
+            flat-artifacts/smt-*-windows-*.exe
+            flat-artifacts/smt-*-freebsd
+            flat-artifacts/smt-*-netbsd
+            flat-artifacts/smt-*-illumos
+          bin: smt
+          variants: |
+            smt-armv7-unknown-linux-gnueabi=soft-float
+            smt-armv7-unknown-linux-musleabi=soft-float
+            smt-x86_64-pc-windows-gnu.exe=gnu
+            smt-x86_64-pc-windows-gnullvm.exe=gnullvm
 name: Release Binary Builds
 on:
   push:
